@@ -1,0 +1,28 @@
+{
+  "name": "yen",
+  "version": "0.0.1",
+  "description": "Final work diploma. Docker container manager",
+  "main": "app.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "mocha test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/Spring3/yen.git"
+  },
+  "keywords": [
+    "react",
+    "material",
+    "docker",
+    "redux"
+  ],
+  "author": "Daniyil Vasylenko",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Spring3/yen/issues"
+  },
+  "homepage": "https://github.com/Spring3/yen#readme"
+}
