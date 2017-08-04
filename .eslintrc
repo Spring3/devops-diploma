@@ -1,0 +1,11 @@
+{
+    "extends": "airbnb",
+    "env": {
+      "node": true,
+      "es6": true
+    },
+    "rules": {
+      "comma-dangle": 0,
+      "import/no-extraneous-dependencies": 1
+    }
+}
