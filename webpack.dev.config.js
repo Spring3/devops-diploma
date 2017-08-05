@@ -8,6 +8,9 @@ module.exports = {
   devtool: 'eval-source-map',
   target: 'electron-renderer',
   externals: [nodeExternals()],
+  resolve: {
+    extensions: ['.js', '.jsx', '.scss', '.css', '.json']
+  },
   entry: [
     'react-hot-loader/patch',
     `./node_modules/webpack-dev-server/client?http://localhost:${PORT}`,
@@ -24,6 +27,18 @@ module.exports = {
       test: /\.jsx?$/,
       include: [path.resolve(__dirname, 'app')],
       loader: 'babel-loader'
+    }, {
+      test: /\.scss$/,
+      use: [{
+        loader: 'style-loader',
+      }, {
+        loader: 'css-loader'
+      }, {
+        loader: 'sass-loader',
+        options: {
+          includePaths: ['./node_modules']
+        }
+      }]
     }]
   },
   plugins: [
