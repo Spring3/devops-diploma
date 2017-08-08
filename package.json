@@ -1,5 +1,5 @@
 {
-  "name": "yen",
+  "name": "riptide",
   "version": "0.0.1",
   "description": "Final work diploma. Docker container manager",
   "main": "app.js",
@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/Spring3/yen.git"
+    "url": "git+ssh://git@github.com/Spring3/riptide.git"
   },
   "keywords": [
     "react",
@@ -24,9 +24,9 @@
   "author": "Daniyil Vasylenko",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Spring3/yen/issues"
+    "url": "https://github.com/Spring3/riptide/issues"
   },
-  "homepage": "https://github.com/Spring3/yen#readme",
+  "homepage": "https://github.com/Spring3/riptide#readme",
   "dependencies": {
     "grommet": "^1.6.0",
     "react": "^15.6.1",

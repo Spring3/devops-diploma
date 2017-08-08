@@ -28,16 +28,16 @@ class App {
   }
 }
 
-const Yennefer = new App({ width: 800, height: 600 });
+const Riptide = new App({ width: 800, height: 600 });
 
-app.on('ready', Yennefer.init);
+app.on('ready', Riptide.init);
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
 });
 app.on('activate', () => {
-  if (Yennefer.mainScreen === null) {
-    Yennefer.init();
+  if (Riptide.mainScreen === null) {
+    Riptide.init();
   }
 });
