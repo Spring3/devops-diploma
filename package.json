@@ -28,6 +28,7 @@
   },
   "homepage": "https://github.com/Spring3/riptide#readme",
   "dependencies": {
+    "dockerode": "^2.5.0",
     "grommet": "^1.6.0",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",

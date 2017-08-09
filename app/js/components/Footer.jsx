@@ -29,7 +29,7 @@ class FooterComponent extends React.Component {
           align='center'
           pad={{"between": "medium"}}>
           <Paragraph margin='none'>
-            © 2017-present Daniyil Vasylenko
+            © 2017 Daniyil Vasylenko
           </Paragraph>
           <Menu direction='row'
             size='small'

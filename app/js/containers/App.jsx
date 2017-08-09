@@ -10,13 +10,13 @@ import Pulse from 'grommet/components/icons/Pulse';
 import Title from 'grommet/components/Title';
 import Animate from 'grommet/components/Animate';
 
-import ListOfApps from '../components/ListOfApps.jsx';
+import UtilityPane from '../components/UtilityPane.jsx';
+import Sidebar from '../components/Sidebar.jsx';
 import MainTabs from '../components/MainTabs.jsx';
 import Footer from '../components/Footer.jsx';
 
 // icons
 import DockerIcon from 'grommet/components/icons/base/PlatformDocker';
-import SidebarIcon from 'grommet/components/icons/base/Sidebar';
 import AddIcon from 'grommet/components/icons/base/Add';
 
 class App extends React.Component {
@@ -42,49 +42,19 @@ class App extends React.Component {
         <Header/>
         <Split flex={'right'} priority={'right'}>
           <Animate  
-          enter={{ animation: 'slide-right', duration: 1000, delay: 0 }}
-          leave={{ animation: 'slide-right', duration: 1000, delay: 0 }}
+          enter={{ animation: 'slide-right', duration: 350, delay: 0 }}
+          leave={{ animation: 'slide-right', duration: 350, delay: 0 }}
           keep={false}
           visible={this.state.sidebarOpen}>
-            <Box colorIndex={'grey-3'} full={'vertical'}>
-              <Box justify={'start'} align={'center'} direction={'column'}>
-                <Box justify={'end'} direction={'row'} pad={{ vertical: 'medium', horizontal: 'medium' }} colorIndex={'grey-2'}>
-                  <Box justify={'center'}>
-                    <Title>
-                      Riptide
-                    </Title>
-                  </Box>
-                  <Button icon={<DockerIcon />}
-                    label='Sign in'
-                    href='#'
-                    plain={true} />
-                </Box>
-              </Box>
-              
-              <Box pad={{ horizontal: 'none', vertical: 'small' }}>
-                <Box pad={{ horizontal: 'medium', vertical: 'none' }} direction={'row'}>
-                  <Title>
-                    Apps
-                  </Title>
-                  <Button
-                    href='#'
-                    icon={<AddIcon />} />
-                </Box>
-                <ListOfApps />
-              </Box>
-            </Box>
+            <Sidebar/>
           </Animate>
           <Box justify={'between'} align={'end'} full={'vertical'} direction={'column'}>
             <Box justify={'end'} direction={'row'} full={'horizontal'} alignContent={'end'}>
               <Box flex={true} pad={{ vertical: 'none', horizontal: 'medium' }}>
                 <MainTabs />
               </Box>
-              <Button icon={<SidebarIcon />}
-                href='#'
-                onClick={this.toggleSidebar}
-                plain={true} />
+              <UtilityPane />
             </Box>
-            Right
             <Footer />
           </Box>
         </Split>

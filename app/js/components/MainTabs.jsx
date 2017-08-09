@@ -14,6 +14,13 @@ class MainTabs extends React.Component {
           <input type={'text'}
             value={''}/>
         </Tab>
+        <Tab title={'JSON'}>
+          <Paragraph>
+            Second contents
+          </Paragraph>
+          <input type={'text'}
+            value={''}/>
+        </Tab>
         <Tab title={'CLI'}>
           <Paragraph>
             Second contents

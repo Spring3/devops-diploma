@@ -6,19 +6,28 @@ class ListOfApps extends React.Component {
   render() {
     return (
       <List selectable={true}>
-        <ListItem justify={'start'} separator={'none'} pad={{ horizontal: 'medium', vertical: 'small' }}>
+        <ListItem justify={'between'} separator={'none'} pad={{ horizontal: 'medium', vertical: 'small' }}>
           <span>
-            Alan
+            Containers
+          </span>
+          <span className='secondary'>
+            0
           </span>
         </ListItem>
-        <ListItem justify={'start'} separator={'none'} pad={{ horizontal: 'medium', vertical: 'small' }}>
+        <ListItem justify={'between'} separator={'none'} pad={{ horizontal: 'medium', vertical: 'small' }}>
           <span>
-            Chris
+            Services
+          </span>
+          <span className='secondary'>
+            0
           </span>
         </ListItem>
-        <ListItem justify={'start'} separator={'none'} pad={{ horizontal: 'medium', vertical: 'small' }}>
+        <ListItem justify={'between'} separator={'none'} pad={{ horizontal: 'medium', vertical: 'small' }}>
           <span>
-            Eric
+            Images
+          </span>
+          <span className='secondary'>
+            0
           </span>
         </ListItem>
       </List>

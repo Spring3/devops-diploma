@@ -5,7 +5,7 @@ import { createStore, applyMiddleware } from 'redux';
 import combinedReducer from '../reducers/reducers.js';
 import App from './App.jsx';
 
-const store = createStore(combinedReducer, applyMiddleware(loadingBarMiddleware())); 
+const store = createStore(combinedReducer); 
 
 class Root extends React.Component {
   render() {
