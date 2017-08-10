@@ -22,18 +22,15 @@ import AddIcon from 'grommet/components/icons/base/Add';
 class App extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {
-      sidebarOpen: true,
-      sidebarVisible: true
-    };
-
-    this.toggleSidebar = this.toggleSidebar.bind(this);
+    this.state = {};
   }
 
-  toggleSidebar() {
-    this.setState({
-      sidebarOpen: !this.state.sidebarOpen,
-    });
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.sidebarOpen !== this.state.sidebarOpen) {
+      this.setState({
+        sidebarOpen: nextProps.sidebarOpen
+      });
+    }
   }
 
   render() {
@@ -63,7 +60,9 @@ class App extends React.Component {
   }
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  sidebarOpen: state.main.sidebarOpen
+});
 
 const mapDispatchToProps = dispatch => ({
   dispatch

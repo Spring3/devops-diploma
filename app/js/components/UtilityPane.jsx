@@ -1,73 +1,72 @@
 import React from 'react';
 import { remote } from 'electron';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+
 import Box from 'grommet/components/Box';
 import Button from 'grommet/components/Button';
 import SidebarIcon from 'grommet/components/icons/base/Sidebar';
 import DockerIcon from '../components/DockerIcon.jsx';
 import Tip from 'grommet/components/Tip';
 
-import docker from '../modules/docker';
-
 class UtilityPane extends React.Component {
   constructor() {
     super();
     this.state = {
       tip: false,
-      iconStatus: 'docker'
+      iconStatus: 'docker',
+      timout: false
     };
-    this.hideTip = this.hideTip.bind(this);
-    this.checkDockerDaemon = this.checkDockerDaemon.bind(this);
   }
 
-  componentWillMount() {
-    this.checkDockerDaemon();
-  }
-
-  checkDockerDaemon() {
-    if (!this.state.tip) {
-      docker.isRunning()
-      .then((running) => {
-        if (!running) {
-          this.setState({
-            tip: true,
-            dockerStatus: 'Docker daemon not running',
-            iconStatus: 'docker-down'
-          });
-        } else {
-          this.setState({
-            tip: true,
-            dockerStatus: 'Docker daemon is OK',
-            iconStatus: 'docker-up'
-          });
-        }
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.isRunning !== this.state.isRunning) {
+      this.setState({
+        tip: true,
+        iconStatus: nextProps.isRunning ? 'docker-up' : 'docker-down',
+        dockerStatus: nextProps.isRunning ? 'Docker daemon is UP' : 'Docker daemon not running',
+        isRunning: nextProps.isRunning,
+        timeout: true
+      }, () => {
         setTimeout(() => {
-          this.hideTip();
+          this.setState({
+            tip: false,
+            timeout: false
+          });
         }, 3000);  
       });
     }
   }
 
-  hideTip() {
-    this.setState({
-      tip: false
-    });
-  }
+  stub() {}
 
   render() {
-    const TipComponent = <Tip target={this.state.iconStatus} onClose={this.hideTip} colorIndex='light-2'>{this.state.dockerStatus}</Tip>;
+    const TipComponent = <Tip target={this.state.iconStatus} onClose={this.stub} colorIndex='light-2'>{this.state.dockerStatus}</Tip>;
     return (
       <Box direction={'column'} pad={'none'}>
-        { this.state.tip ? TipComponent :''}
+        { this.state.tip && this.state.dockerStatus ? TipComponent :''}
         <Button icon={<SidebarIcon />}
           href='#'
-          onClick={this.toggleSidebar}
+          onClick={this.props.toggleSidebar}
           plain={true} />
         <Button icon={<DockerIcon status={this.state.iconStatus}/>}
-          onClick={this.checkDockerDaemon}
+          href='#'
           plain={true} />
       </Box>
     );
   }
 };
 
-module.exports = UtilityPane;
+const mapStateToProps = state => ({
+  isRunning: state.docker.isRunning
+});
+const mapDispatchToProps = dispatch => ({
+  dispatch,
+  toggleSidebar: () => dispatch({ type: 'TOGGLE_SIDEBAR' })
+});
+
+UtilityPane.contextProps = {
+  store: PropTypes.object
+}
+
+module.exports = connect(mapStateToProps, mapDispatchToProps)(UtilityPane);

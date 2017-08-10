@@ -1,6 +1,5 @@
 const { app, BrowserWindow } = require('electron');
 const path = require('path');
-const dockerode = require('dockerode');
 const url = require('url');
 
 class App {

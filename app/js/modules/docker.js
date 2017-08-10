@@ -1,6 +1,7 @@
-import { remote } from 'electron';
-const fs = remote.require('fs');
-const DockerAPI = remote.require('dockerode');
+const { remote } = require('electron');
+
+const fs = remote ? remote.require('fs') : require('fs');
+const DockerAPI = remote ? remote.require('dockerode') : require('dockerode');
 
 class Docker {
   constructor() {
