@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import CountTo from 'react-count-to';
 import List from 'grommet/components/List';
 import ListItem from 'grommet/components/ListItem';
 import _ from 'underscore';
@@ -36,7 +37,7 @@ class ListOfItems extends React.Component {
             Containers
           </span>
           <span className='secondary'>
-            {this.state.containers}
+            <CountTo to={this.state.containers} speed={1000} />
           </span>
         </ListItem>
         <ListItem justify={'between'} separator={'none'} pad={{ horizontal: 'medium', vertical: 'small' }}>
@@ -44,7 +45,7 @@ class ListOfItems extends React.Component {
             Services
           </span>
           <span className='secondary'>
-            {this.state.services}
+            <CountTo to={this.state.services} speed={1000} />
           </span>
         </ListItem>
         <ListItem justify={'between'} separator={'none'} pad={{ horizontal: 'medium', vertical: 'small' }}>
@@ -52,7 +53,7 @@ class ListOfItems extends React.Component {
             Images
           </span>
           <span className='secondary'>
-            {this.state.images}
+            <CountTo to={this.state.images} speed={1000} />
           </span>
         </ListItem>
         <ListItem justify={'between'} separator={'none'} pad={{ horizontal: 'medium', vertical: 'small' }}>
@@ -60,7 +61,7 @@ class ListOfItems extends React.Component {
             Nodes
           </span>
           <span className='secondary'>
-            {this.state.nodes}
+            <CountTo to={this.state.nodes} speed={1000} />
           </span>
         </ListItem>
         <ListItem justify={'between'} separator={'none'} pad={{ horizontal: 'medium', vertical: 'small' }}>
@@ -68,7 +69,7 @@ class ListOfItems extends React.Component {
             Tasks
           </span>
           <span className='secondary'>
-            {this.state.tasks}
+            <CountTo to={this.state.tasks} speed={1000} />
           </span>
         </ListItem>
       </List>
