@@ -31,11 +31,14 @@
     "dockerode": "^2.5.0",
     "grommet": "^1.6.0",
     "react": "^15.6.1",
+    "react-count-animation": "^1.1.1",
+    "react-count-to": "^0.8.1",
     "react-dom": "^15.6.1",
     "react-redux": "^5.0.5",
     "react-redux-loading-bar": "^2.9.2",
     "redux": "^3.7.2",
     "typeface-roboto": "0.0.31",
+    "underscore": "^1.8.3",
     "webpack": "^3.4.1"
   },
   "devDependencies": {

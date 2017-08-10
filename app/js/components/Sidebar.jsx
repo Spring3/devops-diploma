@@ -2,7 +2,7 @@ import React from 'react';
 import Box from 'grommet/components/Box';
 import Title from 'grommet/components/Title';
 import Button from 'grommet/components/Button';
-import ListOfApps from './ListOfApps';
+import ListOfItems from './ListOfItems.jsx';
 
 import DockerIcon from 'grommet/components/icons/base/PlatformDocker';
 import SettingsIcon from 'grommet/components/icons/base/Configure';
@@ -34,7 +34,7 @@ class Sidebar extends React.Component {
               href='#'
               icon={<SettingsIcon />} />
           </Box>
-          <ListOfApps />
+          <ListOfItems />
         </Box>
       </Box>
     );

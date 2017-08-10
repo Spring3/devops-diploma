@@ -8,25 +8,41 @@ class Docker {
     this.config = {
       socket: '/var/run/docker.sock'
     };
+    const stats = fs.statSync(this.config.socket);
+    if (!stats.isSocket()) {
+      throw new Error('Unable to locate docker daemon');
+    }
+
     this.instance = new DockerAPI({
       socketPath: this.config.socket
     });
   }
 
-  getContainers() {
-    return this.instance.listContainers({ all: true });
+  getContainers(all = false) {
+    return this.instance.listContainers({ all });
+  }
+
+  getImages(all = false) {
+    return this.instance.listImages({ all });
+  }
+
+  getServices() {
+    return this.instance.listServices();
+  }
+
+  getNodes() {
+    return this.instance.listNodes();
+  }
+
+  getTasks() {
+    return this.instance.listTasks();
   }
 
   isRunning() {
-    return new Promise((resolve) => {
-      const stats = fs.statSync(this.config.socket);
-      if (!stats.isSocket()) {
-        return resolve(false);
-      }
-      return this.getContainers()
-        .then(() => resolve(true))
-        .catch(() => resolve(false));
-    });
+    return new Promise(resolve => this.getContainers()
+      .then(() => resolve(true))
+      .catch(() => resolve(false))
+    );
   }
 }
 
