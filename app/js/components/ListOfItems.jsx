@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import List from 'grommet/components/List';
 import ListItem from 'grommet/components/ListItem';
@@ -14,6 +15,11 @@ class ListOfItems extends React.Component {
       nodes: 0,
       tasks: 0
     };
+  }
+  componentDidMount() {
+    const { store } = this.context;
+    const state = _.pick(store.getState().docker, 'containers', 'images', 'services', 'nodes', 'tasks');
+    this.setState(state);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -81,5 +87,9 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   dispatch
 });
+
+ListOfItems.contextTypes = {
+  store: PropTypes.object
+};
 
 module.exports = connect(mapStateToProps, mapDispatchToProps)(ListOfItems);
