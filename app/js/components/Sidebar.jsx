@@ -1,11 +1,11 @@
 import React from 'react';
 import Box from 'grommet/components/Box';
 import Title from 'grommet/components/Title';
+import Label from 'grommet/components/Label';
 import Button from 'grommet/components/Button';
 import ListOfItems from './ListOfItems.jsx';
 
 import DockerIcon from 'grommet/components/icons/base/PlatformDocker';
-import SettingsIcon from 'grommet/components/icons/base/Configure';
 
 class Sidebar extends React.Component {
   render() {
@@ -20,19 +20,16 @@ class Sidebar extends React.Component {
             </Box>
             <Button icon={<DockerIcon />}
               label='Sign in'
-              href='#'
-              plain={true} />
+              href='#'/>
           </Box>
         </Box>
               
         <Box pad={{ horizontal: 'none', vertical: 'small' }}>
-          <Box pad={{ horizontal: 'medium', vertical: 'small' }} direction={'row'}>
-            <Title>
-              Docker
-            </Title>
+          <Box pad={{ horizontal: 'small', vertical: 'small' }} direction={'row'} justify={'start'}>
             <Button
+              label={<Label className={'bold'} align={'start'}>Docker</Label>}
               href='#'
-              icon={<SettingsIcon />} />
+              plain={true} />
           </Box>
           <ListOfItems />
         </Box>
