@@ -1,4 +1,6 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { push } from 'react-router-redux';
 import Footer from 'grommet/components/Footer';
 import Title from 'grommet/components/Title';
 import Logo from 'grommet/components/SVGIcon';
@@ -40,7 +42,7 @@ class FooterComponent extends React.Component {
             <Anchor href='#'>
               Contact
             </Anchor>
-            <Anchor href='#'>
+            <Anchor onClick={this.props.openAboutPage}>
               About
             </Anchor>
           </Menu>
@@ -50,4 +52,11 @@ class FooterComponent extends React.Component {
   }
 }
 
-module.exports = FooterComponent;
+const mapStateToProps = state => ({});
+
+const mapDispatchToProps = dispatch => ({
+  dispatch,
+  openAboutPage: () => dispatch(push('/about'))
+});
+
+module.exports = connect(mapStateToProps, mapDispatchToProps)(FooterComponent);

@@ -6,7 +6,7 @@ import List from 'grommet/components/List';
 import ListItem from 'grommet/components/ListItem';
 import _ from 'underscore';
 
-class ListOfItems extends React.Component {
+class SidebarMenu extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -89,8 +89,8 @@ const mapDispatchToProps = dispatch => ({
   dispatch
 });
 
-ListOfItems.contextTypes = {
+SidebarMenu.contextTypes = {
   store: PropTypes.object
 };
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(ListOfItems);
+module.exports = connect(mapStateToProps, mapDispatchToProps)(SidebarMenu);

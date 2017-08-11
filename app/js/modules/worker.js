@@ -31,7 +31,6 @@ class WebWorker {
         nodes: result[3].length,
         tasks: result[4].length
       });
-
       this.store.dispatch(status);
     }).catch(() => {
       this.store.dispatch(status);

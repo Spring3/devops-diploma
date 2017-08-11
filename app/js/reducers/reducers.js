@@ -5,8 +5,8 @@ import main from './main';
 import docker from './docker';
 
 const reducers = combineReducers({
-  loadingBar: loadingBarReducer,
   router: routerReducer,
+  loadingBar: loadingBarReducer,
   main,
   docker
 });

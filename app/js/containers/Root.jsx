@@ -1,12 +1,12 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { Route } from 'react-router';
-import { ConnectedRouter, routerMiddleware, push } from 'react-router-redux';
+import { Router, Route } from 'react-router';
+import { ConnectedRouter, routerMiddleware } from 'react-router-redux';
 import { createStore, applyMiddleware } from 'redux';
 import createHistory from 'history/createMemoryHistory';
-
 import { loadingBarMiddleware } from 'react-redux-loading-bar';
 import App from './App.jsx';
+
 import combinedReducer from '../reducers/reducers.js';
 import Worker from '../modules/worker.js';
 
@@ -28,7 +28,7 @@ class Root extends React.Component {
     return (
       <Provider store={store}>
         <ConnectedRouter history={history}>
-          <Route path='/' component={App} />
+          <App />
         </ConnectedRouter>
       </Provider>
     );

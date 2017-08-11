@@ -1,9 +1,11 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import Box from 'grommet/components/Box';
 import Title from 'grommet/components/Title';
 import Label from 'grommet/components/Label';
 import Button from 'grommet/components/Button';
-import ListOfItems from './ListOfItems.jsx';
+import SidebarMenu from './SidebarMenu.jsx';
+import { push } from 'react-router-redux';
 
 import DockerIcon from 'grommet/components/icons/base/PlatformDocker';
 
@@ -28,14 +30,21 @@ class Sidebar extends React.Component {
           <Box pad={{ horizontal: 'small', vertical: 'small' }} direction={'row'} justify={'start'}>
             <Button
               label={<Label className={'bold'} align={'start'}>Docker</Label>}
-              href='#'
+              onClick={this.props.openDockerPage}
               plain={true} />
           </Box>
-          <ListOfItems />
+          <SidebarMenu />
         </Box>
       </Box>
     );
   }
 }
 
-module.exports = Sidebar;
+const mapStateToProps = state => ({});
+
+const mapDispatchToProps = dispatch => ({
+  dispatch,
+  openDockerPage: () => dispatch(push('/docker'))
+});
+
+module.exports = connect(mapStateToProps, mapDispatchToProps)(Sidebar);

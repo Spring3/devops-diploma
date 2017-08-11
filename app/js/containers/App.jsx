@@ -1,6 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { withRouter } from 'react-router-dom';
+import { Route } from 'react-router';
 import Wrapper from 'grommet/components/App';
 import Header from '../components/Header.jsx';
 import Split from 'grommet/components/Split';
@@ -10,10 +12,13 @@ import Pulse from 'grommet/components/icons/Pulse';
 import Title from 'grommet/components/Title';
 import Animate from 'grommet/components/Animate';
 
-import UtilityPane from '../components/UtilityPane.jsx';
 import Sidebar from '../components/Sidebar.jsx';
-import MainTabs from '../components/MainTabs.jsx';
 import Footer from '../components/Footer.jsx';
+
+// pages
+import MainPage from '../containers/Main.jsx';
+import About from '../containers/About.jsx';
+import DockerPage from '../containers/Docker.jsx';
 
 // icons
 import DockerIcon from 'grommet/components/icons/base/PlatformDocker';
@@ -46,12 +51,9 @@ class App extends React.Component {
             <Sidebar/>
           </Animate>
           <Box justify={'between'} align={'end'} full={'vertical'} direction={'column'}>
-            <Box justify={'end'} direction={'row'} full={'horizontal'} alignContent={'end'}>
-              <Box flex={true} pad={{ vertical: 'none', horizontal: 'medium' }}>
-                <MainTabs />
-              </Box>
-              <UtilityPane />
-            </Box>
+            <Route exact path='/' component={MainPage} />
+            <Route path='/docker' component={DockerPage} />
+            <Route path='/about' component={About} />
             <Footer />
           </Box>
         </Split>
@@ -72,4 +74,4 @@ App.contextTypes = {
   store: PropTypes.object
 }
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(App);
+module.exports = withRouter(connect(mapStateToProps, mapDispatchToProps)(App));
