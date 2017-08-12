@@ -38,8 +38,12 @@ class Docker {
     return this.instance.listTasks();
   }
 
+  getVersion() {
+    return this.instance.version();
+  }
+
   isRunning() {
-    return new Promise(resolve => this.getContainers()
+    return new Promise(resolve => this.instance.ping()
       .then(() => resolve(true))
       .catch(() => resolve(false))
     );

@@ -9,6 +9,26 @@ $warn: #F4D35E;
   visibility: hidden;
 }
 
+.notPadded > span {
+  padding-left: 0 !important;
+}
+
+.grommetux-image--xsmall {
+  width: 100px;
+  clear: both;
+}
+
+.borderless {
+  border: none;
+}
+
+input.grommetux-text-input.grommetux-input.borderless {
+  border-radius: 0px !important;
+  border: none !important;
+  border-bottom: 1px solid $dark !important;
+  margin: auto 10px;
+}
+
 .grommetux-button--focus,
 .grommetux-list--focus {
   outline: none !important;

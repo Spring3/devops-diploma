@@ -24,7 +24,7 @@ class UtilityPane extends React.Component {
       this.setState({
         tip: true,
         iconStatus: nextProps.isRunning ? 'docker-up' : 'docker-down',
-        dockerStatus: nextProps.isRunning ? 'Docker daemon is UP' : 'Docker daemon not running',
+        dockerStatus: nextProps.isRunning ? 'Docker is UP' : 'Docker is DOWN',
         isRunning: nextProps.isRunning,
         timeout: true
       }, () => {

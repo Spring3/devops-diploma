@@ -11,12 +11,13 @@ import Button from 'grommet/components/Button';
 import Pulse from 'grommet/components/icons/Pulse';
 import Title from 'grommet/components/Title';
 import Animate from 'grommet/components/Animate';
+import MainTabs from '../components/MainTabs.jsx';
+import UtilityPane from '../components/UtilityPane.jsx';
 
 import Sidebar from '../components/Sidebar.jsx';
 import Footer from '../components/Footer.jsx';
 
 // pages
-import MainPage from '../containers/Main.jsx';
 import About from '../containers/About.jsx';
 import DockerPage from '../containers/Docker.jsx';
 
@@ -51,9 +52,14 @@ class App extends React.Component {
             <Sidebar/>
           </Animate>
           <Box justify={'between'} align={'end'} full={'vertical'} direction={'column'}>
-            <Route exact path='/' component={MainPage} />
-            <Route path='/docker' component={DockerPage} />
-            <Route path='/about' component={About} />
+            <Box justify={'end'} direction={'row'} full={'horizontal'} alignContent={'end'}>
+              <Box flex={true} pad={{ vertical: 'none', horizontal: 'medium' }}>
+                <Route exact path='/' component={DockerPage} />
+                <Route path='/docker' component={DockerPage} />
+                <Route path='/about' component={About} />
+              </Box>
+              <UtilityPane />
+            </Box>
             <Footer />
           </Box>
         </Split>
