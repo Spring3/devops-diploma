@@ -27,7 +27,12 @@ class DockerPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isRunning: false
+      isRunning: false,
+      connection: '',
+      host: '',
+      port: '',
+      socket: '',
+      timeout: null
     };
   }
 
@@ -46,6 +51,55 @@ class DockerPage extends React.Component {
       console.log('Docker.jsx');
       console.log(nextProps);
       this.setState(nextProps.info);
+    }
+  }
+
+  commonChangeHandler(e, param) {
+    if (this.state.timeout) {
+      clearTimeout(this.state.timeout)
+    }
+    this.setState({
+      [param]: e.target.value,
+      timeout: null
+    });
+    this.sync();
+  }
+
+  connectionChange(data) {
+    if (this.state.connection !== data.option) {
+      this.setState({
+        connection: data.option,
+        host: '',
+        port: '',
+        socket: ''
+      });
+      this.sync();
+    }
+  }
+
+  hostChange(e) {
+    this.commonChangeHandler(e, 'host');
+  }
+
+  portChange(e) {
+    this.commonChangeHandler(e, 'port');
+  }
+
+  socketChange(e) {
+    this.commonChangeHandler(e, 'socket');
+  }
+
+  sync() {
+    if (!this.state.timeout) {
+      const self = this;
+      this.setState({
+        timeout: setTimeout(() => {
+          docker.connect(self.state);
+          self.setState({
+            timeout: null
+          });
+        }, 2000)
+      });
     }
   }
 
@@ -75,22 +129,33 @@ class DockerPage extends React.Component {
             </Box>
           </Box>
         </Box>
-        <Box justify='center' full='horizontal' align='center' pad='none' margin={{vertical: 'small', horizontal: 'none'}} direction='row'>
+        <Box justify='center' full='horizontal' align='center' pad='none' margin={{vertical: 'small', horizontal: 'none'}} direction='column'>
+          <Box direction='row'>
+            <Label margin='small'>Connected to docker via</Label>
+            <div style={{width: 100}}>
+              <Select placeHolder='socket'
+                options={['socket', 'url']}
+                value={this.state.connection}
+                className='borderless'
+                onChange={this.connectionChange.bind(this)}/>
+            </div>
+          </Box>
+          <hr/>
           <Form>
-            <CheckBox label='URL' toggle={true} />
-            <Box direction='row'>
-              <FormField label='Protocol' className='borderless'>
-                <Select placeHolder='http'
-                  options={['http', 'https']}
-                  value={'http'} />
+            {this.state.connection === 'url' ? 
+              <Box direction='row'>
+                <FormField label='Host' className='borderless'>
+                  <TextInput name='host' value={this.state.host} onDOMChange={this.hostChange.bind(this)} placeHolder='127.0.0.1' className='borderless'/>
+                </FormField>
+                <FormField label='Port' className='borderless'>
+                  <TextInput name='port' value={this.state.port} onDOMChange={this.portChange.bind(this)} placeHolder='2375' className='borderless'/>
+                </FormField>
+              </Box>
+              :
+              <FormField label='Path to socket' className='borderless'>
+                <TextInput name='host' value={this.state.socket} onDOMChange={this.socketChange.bind(this)} placeHolder={docker.config.socket} className='borderless'/>
               </FormField>
-              <FormField label='Host' className='borderless'>
-                <TextInput name='host' className='borderless'/>
-              </FormField>
-              <FormField label='Port' className='borderless'>
-                <TextInput name='port' className='borderless'/>
-              </FormField>
-            </Box>
+            }
           </Form>
         </Box>
       </Box>

@@ -8,13 +8,18 @@ class WebWorker {
 
     // firing first time immediately
     this.checkDocker();
-    this.interval = setInterval(this.checkDocker, 5000);
+    this.interval = setInterval(this.checkDocker, 3000);
   }
 
   checkDocker() {
     const status = {
       type: 'UPDATE_DOCKER_STATS',
-      isRunning: false
+      isRunning: false,
+      containers: 0,
+      images: 0,
+      services: 0,
+      nodes: 0,
+      tasks: 0
     };
     return Promise.all([
       docker.getContainers(true),

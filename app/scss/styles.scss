@@ -19,7 +19,7 @@ $warn: #F4D35E;
 }
 
 .borderless {
-  border: none;
+  border: none !important;
 }
 
 input.grommetux-text-input.grommetux-input.borderless {
@@ -29,6 +29,16 @@ input.grommetux-text-input.grommetux-input.borderless {
   margin: auto 10px;
 }
 
+.grommetux-select.borderless > input {
+  padding: 11px;
+  border: none;
+}
+
+.grommetux-select.borderless > button {
+  right: -10px;
+}
+
+.grommetux-form-field--focus,
 .grommetux-button--focus,
 .grommetux-list--focus {
   outline: none !important;
