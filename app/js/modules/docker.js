@@ -29,14 +29,14 @@ class Docker {
       case 'url': {
         this.instance = new DockerAPI({
           protocol: 'http',
-          host: data.host ? data.host : '127.0.0.1',
-          port: parseInt(data.port, 10) || 2375
+          host: data.host.trim() ? data.host : '127.0.0.1',
+          port: parseInt(data.port.trim(), 10) || 2375
         });
         break;
       }
       default: {
         this.instance = new DockerAPI({
-          socketPath: data.socket || this.config.socket
+          socketPath: data.socket.trim() || this.config.socket
         });
         break;
       }

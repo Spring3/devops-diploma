@@ -22,7 +22,7 @@ class Sidebar extends React.Component {
             </Box>
             <Button icon={<DockerIcon />}
               label='Sign in'
-              href='#'/>
+              onClick={this.props.toggleModal}/>
           </Box>
         </Box>
               

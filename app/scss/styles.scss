@@ -1,6 +1,7 @@
 @import 'grommet/scss/vanilla/index.scss';
 
 $dark: #312c32;
+$grey: #999999;
 $success: #57A773;
 $error: #F24236;
 $warn: #F4D35E;
@@ -22,10 +23,11 @@ $warn: #F4D35E;
   border: none !important;
 }
 
+.borderless > fieldset > .grommetux-form-field,
 input.grommetux-text-input.grommetux-input.borderless {
   border-radius: 0px !important;
   border: none !important;
-  border-bottom: 1px solid $dark !important;
+  border-bottom: 1px solid $grey !important;
   margin: auto 10px;
 }
 
