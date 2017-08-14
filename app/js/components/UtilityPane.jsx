@@ -1,5 +1,4 @@
 import React from 'react';
-import { remote } from 'electron';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
@@ -8,6 +7,8 @@ import Button from 'grommet/components/Button';
 import SidebarIcon from 'grommet/components/icons/base/Sidebar';
 import DockerIcon from '../components/DockerIcon.jsx';
 import Tip from 'grommet/components/Tip';
+
+const actions = require('../actions.js');
 
 class UtilityPane extends React.Component {
   constructor() {
@@ -60,9 +61,8 @@ class UtilityPane extends React.Component {
 const mapStateToProps = state => ({
   isRunning: state.docker.isRunning
 });
-const mapDispatchToProps = dispatch => ({
-  dispatch,
-  toggleSidebar: () => dispatch({ type: 'TOGGLE_SIDEBAR' })
+const mapDispatchToProps = () => ({
+  toggleSidebar: () => actions.toggleSidebar()
 });
 
 UtilityPane.contextProps = {

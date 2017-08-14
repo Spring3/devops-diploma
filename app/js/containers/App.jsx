@@ -4,20 +4,20 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Route } from 'react-router';
 import Wrapper from 'grommet/components/App';
-import Header from '../components/Header.jsx';
 import Split from 'grommet/components/Split';
 import Box from 'grommet/components/Box';
 import Button from 'grommet/components/Button';
-import Image from 'grommet/components/Image';
-import LoginForm from 'grommet/components/LoginForm';
 import Title from 'grommet/components/Title';
 import Animate from 'grommet/components/Animate';
+
+import Header from '../components/Header.jsx';
 import MainTabs from '../components/MainTabs.jsx';
 import UtilityPane from '../components/UtilityPane.jsx';
 import Modal from '../components/Modal';
 
 import Sidebar from '../components/Sidebar.jsx';
 import Footer from '../components/Footer.jsx';
+import LoginForm from '../components/LoginForm.jsx';
 
 // pages
 import About from '../containers/About.jsx';
@@ -28,10 +28,7 @@ import DockerIcon from 'grommet/components/icons/base/PlatformDocker';
 import DockerLogo from '../components/DockerIcon.jsx';
 import AddIcon from 'grommet/components/icons/base/Add';
 
-
-import { remote } from 'electron';
-const path = remote.require('path');
-const dockerLogoPath = path.resolve('./app/img/docker-logo.jpg');
+const actions = require('../actions.js');
 
 class App extends React.Component {
   constructor(props) {
@@ -76,12 +73,7 @@ class App extends React.Component {
                 {
                   this.state.modal ? 
                     <Modal closeBtn={true} toggleModal={this.toggleModal.bind(this)}>
-                      <LoginForm onSubmit={() => {}}
-                        logo={<Image src={dockerLogoPath} size='small' className='grommetux-image--xsmall'/>}
-                        secondaryText='Docker Auth'
-                        usernameType='text'
-                        rememberMe={true}
-                        className='borderless'/>
+                      <LoginForm toggleModal={this.toggleModal.bind(this)}/>
                     </Modal>
                   :
                   ''
@@ -102,8 +94,8 @@ const mapStateToProps = state => ({
   sidebarOpen: state.main.sidebarOpen
 });
 
-const mapDispatchToProps = dispatch => ({
-  dispatch
+const mapDispatchToProps = () => ({
+  auth: (data) => actions.authenticate(data)
 });
 
 App.contextTypes = {

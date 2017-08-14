@@ -1,45 +1,10 @@
-import docker from './docker';
+const actions = require('../actions.js');
 
 class WebWorker {
-  constructor(store) {
-    this.store = store;
-
-    this.checkDocker = this.checkDocker.bind(this);
-
+  constructor() {
     // firing first time immediately
-    this.checkDocker();
-    this.interval = setInterval(this.checkDocker, 3000);
-  }
-
-  checkDocker() {
-    const status = {
-      type: 'UPDATE_DOCKER_STATS',
-      isRunning: false,
-      containers: 0,
-      images: 0,
-      services: 0,
-      nodes: 0,
-      tasks: 0
-    };
-    return Promise.all([
-      docker.getContainers(true),
-      docker.getImages(true),
-      docker.getServices(),
-      docker.getNodes(),
-      docker.getTasks()
-    ]).then((result) => {
-      Object.assign(status, {
-        isRunning: true,
-        containers: result[0].length,
-        images: result[1].length,
-        services: result[2].length,
-        nodes: result[3].length,
-        tasks: result[4].length
-      });
-      this.store.dispatch(status);
-    }).catch(() => {
-      this.store.dispatch(status);
-    });
+    actions.checkDocker();
+    this.interval = setInterval(actions.checkDocker, 3000);
   }
 
   stop() {
@@ -47,4 +12,4 @@ class WebWorker {
   }
 }
 
-module.exports.start = store => new WebWorker(store);
+module.exports.start = () => new WebWorker();

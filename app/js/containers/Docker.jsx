@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { remote } from 'electron';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import Box from 'grommet/components/Box';
@@ -20,7 +19,9 @@ import docker from '../modules/docker.js';
 
 import CaretLeft from 'grommet/components/icons/base/CaretBack';
 
-const path = remote.require('path');
+const actions = require('../actions.js');
+
+const path = require('path');
 const dockerLogoPath = path.resolve('./app/img/docker-logo.jpg');
 
 class DockerPage extends React.Component {
@@ -37,13 +38,7 @@ class DockerPage extends React.Component {
   }
 
   componentWillMount() {
-    docker.getVersion()
-    .then((info) => {
-      this.props.dispatch({
-        type: 'UPDATE_DOCKER_INFO',
-        info
-      });
-    });
+    actions.updateDockerInfo();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -167,9 +162,7 @@ const mapStateToProps = state => ({
   info: Object.assign({ isRunning: state.docker.isRunning }, state.docker.info)
 });
 
-const mapDispatchToProps = dispatch => ({
-  dispatch,
-});
+const mapDispatchToProps = () => ({});
 
 DockerPage.contextTypes = {
   store: PropTypes.object

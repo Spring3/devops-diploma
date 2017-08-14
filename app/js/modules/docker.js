@@ -1,13 +1,12 @@
-const { remote } = require('electron');
-
-const os = remote ? remote.require('os') : require('os');
-const fs = remote ? remote.require('fs') : require('fs');
-const DockerAPI = remote ? remote.require('dockerode') : require('dockerode');
+const os = require('os');
+const fs = require('fs');
+const DockerAPI = require('dockerode');
 
 class Docker {
   constructor() {
     this.config = {
-      socket: os.platform() === 'win32' ? '//./pipe/docker_engine' : '/var/run/docker.sock'
+      socket: os.platform() === 'win32' ? '//./pipe/docker_engine' : '/var/run/docker.sock',
+      registry: 'https://index.docker.io/v1'
     };
     const stats = fs.statSync(this.config.socket);
     if (!stats.isSocket()) {

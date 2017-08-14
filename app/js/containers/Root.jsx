@@ -1,23 +1,13 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 import { Router, Route } from 'react-router';
-import { ConnectedRouter, routerMiddleware } from 'react-router-redux';
-import { createStore, applyMiddleware } from 'redux';
-import createHistory from 'history/createMemoryHistory';
-import { loadingBarMiddleware } from 'react-redux-loading-bar';
+import { ConnectedRouter } from 'react-router-redux';
 import App from './App.jsx';
 
-import combinedReducer from '../reducers/reducers.js';
+import actions from '../actions.js';
 import Worker from '../modules/worker.js';
-
-// react-router-redux setup
-const history = createHistory();
-const middleware = routerMiddleware(history);
-
-const store = createStore(combinedReducer, applyMiddleware(middleware));
-
 // docker status worker
-const worker = Worker.start(store);
+const worker = Worker.start();
 
 class Root extends React.Component {
   componentWillUnmount() {
@@ -26,8 +16,8 @@ class Root extends React.Component {
 
   render() {
     return (
-      <Provider store={store}>
-        <ConnectedRouter history={history}>
+      <Provider store={actions.store}>
+        <ConnectedRouter history={actions.history}>
           <App />
         </ConnectedRouter>
       </Provider>

@@ -17,18 +17,30 @@ $warn: #F4D35E;
 .grommetux-image--xsmall {
   width: 100px;
   clear: both;
+  margin: 0 !important;
 }
 
 .borderless {
   border: none !important;
 }
 
-.borderless > fieldset > .grommetux-form-field,
-input.grommetux-text-input.grommetux-input.borderless {
+.sidebar {
+  min-width: 291px;
+  max-width: 291px;
+  height: 96px;
+}
+
+.shrinkSelect > input {
+  padding: 6px 10px;
+}
+
+.borderless > input[type='password'],
+.borderless > input[type='text'],
+input.borderless {
   border-radius: 0px !important;
   border: none !important;
   border-bottom: 1px solid $grey !important;
-  margin: auto 10px;
+  margin: auto 10px !important;
 }
 
 .grommetux-select.borderless > input {
