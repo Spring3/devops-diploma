@@ -22,7 +22,7 @@ import CaretLeft from 'grommet/components/icons/base/CaretBack';
 const actions = require('../actions.js');
 
 const path = require('path');
-const dockerLogoPath = path.resolve('./app/img/docker-logo.jpg');
+const dockerLogoPath = path.posix.resolve('./app/img/docker-logo.jpg');
 
 class DockerPage extends React.Component {
   constructor(props) {
