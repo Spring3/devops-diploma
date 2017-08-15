@@ -81,7 +81,11 @@ class Actions {
         const response = { type: 'DOCKER_AUTH', username: request.username };
         this.store.dispatch(Object.assign(response, result));
         if (data.remember) {
-          storage.set('auth', { username: request.username, token: result.IdentityToken });
+          storage.set('auth', {
+            serverAddress: request.serverAddress,
+            username: request.username,
+            token: result.IdentityToken
+          });
         }
         this.store.dispatch({ type: 'DOCKER_AUTH_END' });
       })

@@ -41,6 +41,10 @@ class DockerPage extends React.Component {
     actions.updateDockerInfo();
   }
 
+  componentWillUnmount() {
+    clearTimeout(this.state.timeout);
+  }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.isRunning !== this.state.isRunning) {
       this.setState({
