@@ -28,6 +28,10 @@ module.exports = (state = initialState, action) => {
     case 'DOCKER_AUTH_END': {
       return Object.assign({}, state, { authInProgress: false });
     }
+    case 'DOCKER_LOG_OUT': {
+      const stateCopy = Object.assign({}, state);
+      return _.omit(stateCopy, 'authResult');
+    }
     default: {
       return state;
     }

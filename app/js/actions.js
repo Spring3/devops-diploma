@@ -3,6 +3,7 @@ import { createStore, applyMiddleware } from 'redux';
 import combinedReducer from './reducers/reducers.js';
 import { routerMiddleware } from 'react-router-redux';
 import createHistory from 'history/createMemoryHistory';
+import storage from 'electron-json-storage';
 
 // react-router-redux setup
 const history = createHistory();
@@ -59,7 +60,16 @@ class Actions {
     });
   }
 
-  authenticate(data) {
+  logOut() {
+    storage.remove('auth');
+    this.store.dispatch({ type: 'DOCKER_LOG_OUT' });
+  }
+
+  authenticate(data, cached = false) {
+    // if from storage
+    if (cached) {
+      this.store.dispatch(Object.assign({ type: 'DOCKER_AUTH' }, data));
+    }
     this.store.dispatch({ type: 'DOCKER_AUTH_START' });
     const request = {
       username: data.username,
@@ -70,6 +80,9 @@ class Actions {
       .then((result) => {
         const response = { type: 'DOCKER_AUTH', username: request.username };
         this.store.dispatch(Object.assign(response, result));
+        if (data.remember) {
+          storage.set('auth', { username: request.username, token: result.IdentityToken });
+        }
         this.store.dispatch({ type: 'DOCKER_AUTH_END' });
       })
       .catch((e) => {

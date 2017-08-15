@@ -24,18 +24,26 @@ class LoginForm extends React.Component {
       customRegistry: false,
       username: '',
       password: '',
-      registry: ''
+      registry: '',
+      remember: false
     };
     this.toggleCustomRegistry = this.toggleCustomRegistry.bind(this);
     this.usernameChanged = this.usernameChanged.bind(this);
     this.passwordChanged = this.passwordChanged.bind(this);
     this.registryChanged = this.registryChanged.bind(this);
+    this.rememberChange = this.rememberChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
   }
 
   usernameChanged(e) {
     this.setState({
       username: e.target.value
+    });
+  }
+
+  rememberChange(e) {
+    this.setState({
+      remember: !this.state.remember
     });
   }
 
@@ -92,7 +100,8 @@ class LoginForm extends React.Component {
             <FormField className='borderless'>
               <CheckBox id='agree'
               name='remember'
-              label='Remember' />
+              label='Remember'
+              onChange={this.rememberChange}/>
             </FormField>
             <FormField className='borderless'>
               <CheckBox label='Custom registry' toggle={true} onChange={this.toggleCustomRegistry} />

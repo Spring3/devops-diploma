@@ -29,6 +29,7 @@
   "homepage": "https://github.com/Spring3/riptide#readme",
   "dependencies": {
     "dockerode": "^2.5.0",
+    "electron-json-storage": "^3.0.7",
     "grommet": "^1.6.0",
     "history": "^4.6.3",
     "react": "^15.6.1",

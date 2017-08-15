@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import Box from 'grommet/components/Box';
 import Select from 'grommet/components/Select';
 import Title from 'grommet/components/Title';
@@ -11,8 +12,11 @@ import SidebarMenu from './SidebarMenu.jsx';
 import { push } from 'react-router-redux';
 
 import _ from 'underscore';
+import storage from 'electron-json-storage';
 
 import DockerIcon from 'grommet/components/icons/base/PlatformDocker';
+
+import actions from '../actions.js';
 
 class Sidebar extends React.Component {
   constructor(props){
@@ -23,9 +27,27 @@ class Sidebar extends React.Component {
     }
   }
 
+  componentWillMount() {
+    const { store } = this.context;
+    const state = store.getState();
+    if (!state.docker.authResult) {
+      storage.get('auth', (e, data) => {
+        if (data.username) {
+          actions.authenticate(data, true);
+        }
+      });
+    } else {
+      this.setState({
+        authResult: state.docker.authResult
+      });
+    }
+  }
+
   componentWillReceiveProps(nextProps) {
+    console.log('Sidebar.jsx');
     if (nextProps.authInProgress !== this.state.authInProgress ||
       !_.isEqual(nextProps.authResult, this.state.authResult)) {
+      console.log(nextProps);
       this.setState({
         authInProgress: nextProps.authInProgress,
         authResult: nextProps.authResult
@@ -33,8 +55,16 @@ class Sidebar extends React.Component {
     }
   }
 
-  profileOptionSelected(e, option) {
-    console.log(option);
+  profileOptionSelected(e) {
+    switch(e.option) {
+      case 'Log out': {
+        actions.logOut();
+        break;
+      }
+      default: {
+        break;
+      }
+    }
   }
 
   render() {
@@ -93,5 +123,9 @@ const mapDispatchToProps = dispatch => ({
   dispatch,
   openDockerPage: () => dispatch(push('/docker'))
 });
+
+Sidebar.contextTypes = {
+  store: PropTypes.object
+};
 
 module.exports = connect(mapStateToProps, mapDispatchToProps)(Sidebar);
