@@ -42,11 +42,16 @@ class DockerPage extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    if (nextProps.isRunning !== this.state.isRunning) {
+      this.setState({
+        isRunning: nextProps.isRunning
+      });
+    }
     if (!_.isEqual(nextProps.info, this.state)) {
       console.log('Docker.jsx');
-      console.log(nextProps);
       this.setState(nextProps.info);
     }
+    console.log(this.state);
   }
 
   commonChangeHandler(e, param) {
@@ -159,7 +164,8 @@ class DockerPage extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  info: Object.assign({ isRunning: state.docker.isRunning }, state.docker.info)
+  info: state.docker.info,
+  isRunning: state.docker.isRunning
 });
 
 const mapDispatchToProps = () => ({});

@@ -67,7 +67,7 @@ class App extends React.Component {
           <Box justify={'between'} align={'end'} full={'vertical'} direction={'column'}>
             <Box justify={'end'} direction={'row'} full={'horizontal'} alignContent={'end'}>
               <Box flex={true} pad={{ vertical: 'none', horizontal: 'medium' }}>
-                <Route exact path='/' component={DockerPage} />
+                <Route exact path='/' component={MainTabs} />
                 <Route path='/docker' component={DockerPage} />
                 <Route path='/about' component={About} />
                 {

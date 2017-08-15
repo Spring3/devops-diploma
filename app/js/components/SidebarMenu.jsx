@@ -25,7 +25,7 @@ class SidebarMenu extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (!_.isEqual(this.state, nextProps)) {
-      console.log('Sidebar');
+      console.log('SidebarMenu.jsx');
       console.log(nextProps);
       this.setState(nextProps);
     }
