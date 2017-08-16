@@ -55,7 +55,6 @@ class DockerPage extends React.Component {
       console.log('Docker.jsx');
       this.setState(nextProps.info);
     }
-    console.log(this.state);
   }
 
   commonChangeHandler(e, param) {
@@ -98,11 +97,11 @@ class DockerPage extends React.Component {
       const self = this;
       this.setState({
         timeout: setTimeout(() => {
-          docker.connect(self.state);
+          docker.connect(self.state, true);
           self.setState({
             timeout: null
           });
-        }, 2000)
+        }, 1500)
       });
     }
   }

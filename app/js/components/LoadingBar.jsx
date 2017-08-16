@@ -1,7 +1,7 @@
 import React from 'react';
 import { LoadingBar } from 'react-redux-loading-bar';
 
-class Header extends React.Component {
+class LoadingBarComponent extends React.Component {
   render() {
     return (
       <header>
@@ -11,4 +11,4 @@ class Header extends React.Component {
   }
 }
 
-module.exports = Header;
+module.exports = LoadingBarComponent;

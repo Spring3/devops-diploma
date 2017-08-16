@@ -10,7 +10,6 @@ import Button from 'grommet/components/Button';
 import Title from 'grommet/components/Title';
 import Animate from 'grommet/components/Animate';
 
-import Header from '../components/Header.jsx';
 import MainTabs from '../components/MainTabs.jsx';
 import UtilityPane from '../components/UtilityPane.jsx';
 import Modal from '../components/Modal';
@@ -55,7 +54,6 @@ class App extends React.Component {
   render() {
     return (
       <Wrapper centered={false}>
-        <Header/>
         <Split flex={'right'} priority={'right'}>
           <Animate  
           enter={{ animation: 'slide-right', duration: 350, delay: 0 }}

@@ -4,6 +4,7 @@ import combinedReducer from './reducers/reducers.js';
 import { routerMiddleware } from 'react-router-redux';
 import createHistory from 'history/createMemoryHistory';
 import storage from 'electron-json-storage';
+import { showLoading, hideLoading } from 'react-redux-loading-bar';
 
 // react-router-redux setup
 const history = createHistory();
@@ -30,6 +31,7 @@ class Actions {
   }
 
   checkDocker() {
+    this.store.dispatch(showLoading());
     const status = {
       type: 'UPDATE_DOCKER_STATS',
       isRunning: false,
@@ -39,24 +41,31 @@ class Actions {
       nodes: 0,
       tasks: 0
     };
-    return Promise.all([
-      docker.getContainers(true),
-      docker.getImages(true),
-      docker.getServices(),
-      docker.getNodes(),
-      docker.getTasks()
-    ]).then((result) => {
-      Object.assign(status, {
-        isRunning: true,
-        containers: result[0].length,
-        images: result[1].length,
-        services: result[2].length,
-        nodes: result[3].length,
-        tasks: result[4].length
-      });
-      this.store.dispatch(status);
-    }).catch(() => {
-      this.store.dispatch(status);
+    docker.isRunning().then((running) => {
+      if (running) {
+        Promise.all([
+          docker.getContainers(true),
+          docker.getImages(true),
+          docker.getServices(),
+          docker.getNodes(),
+          docker.getTasks()
+        ]).then((result) => {
+          Object.assign(status, {
+            isRunning: running,
+            containers: result[0].length,
+            images: result[1].length,
+            services: result[2].length,
+            nodes: result[3].length,
+            tasks: result[4].length
+          });
+          this.store.dispatch(status);
+        }).catch(() => {
+          this.store.dispatch(status);
+        });
+      } else {
+        this.store.dispatch(status);
+        this.store.dispatch(hideLoading());
+      }
     });
   }
 
@@ -66,6 +75,7 @@ class Actions {
   }
 
   authenticate(data, cached = false) {
+    this.store.dispatch(showLoading());
     // if from storage
     if (cached) {
       this.store.dispatch(Object.assign({ type: 'DOCKER_AUTH' }, data));
@@ -88,10 +98,12 @@ class Actions {
           });
         }
         this.store.dispatch({ type: 'DOCKER_AUTH_END' });
+        this.store.dispatch(hideLoading());
       })
       .catch((e) => {
         this.store.dispatch({ type: 'DOCKER_AUTH', error: e });
         this.store.dispatch({ type: 'DOCKER_AUTH_END' });
+        this.store.dispatch(hideLoading());
       });
   }
 

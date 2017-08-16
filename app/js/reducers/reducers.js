@@ -6,7 +6,7 @@ import docker from './docker';
 
 const reducers = combineReducers({
   router: routerReducer,
-  loadingBar: loadingBarReducer,
+  loadingBarReducer,
   main,
   docker
 });

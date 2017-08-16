@@ -4,7 +4,7 @@ class WebWorker {
   constructor() {
     // firing first time immediately
     actions.checkDocker();
-    this.interval = setInterval(actions.checkDocker, 3000);
+    this.interval = setInterval(actions.checkDocker, 2000);
   }
 
   stop() {

@@ -1,6 +1,5 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import PropTypes from 'prop-types';
 
 import Box from 'grommet/components/Box';
 import Button from 'grommet/components/Button';
@@ -16,27 +15,49 @@ class UtilityPane extends React.Component {
     this.state = {
       tip: false,
       iconStatus: 'docker',
-      timout: false
+      timeout: false
     };
+    this.updateStatusIcon = this.updateStatusIcon.bind(this);
+  }
+
+  componentWillMount() {
+    this.setState({
+      tip: true,
+      iconStatus: 'docker-pending',
+      dockerStatus: 'Checking docker',
+      timeout: true
+    }, () => {
+      setTimeout(() => {
+        this.setState({
+          tip: false,
+          timeout: false
+        });
+        this.updateStatusIcon(this.props);
+      }, 1000);  
+    });
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.isRunning !== this.state.isRunning) {
-      this.setState({
-        tip: true,
-        iconStatus: nextProps.isRunning ? 'docker-up' : 'docker-down',
-        dockerStatus: nextProps.isRunning ? 'Docker is UP' : 'Docker is DOWN',
-        isRunning: nextProps.isRunning,
-        timeout: true
-      }, () => {
-        setTimeout(() => {
-          this.setState({
-            tip: false,
-            timeout: false
-          });
-        }, 3000);  
-      });
+      this.updateStatusIcon(nextProps);
     }
+  }
+
+  updateStatusIcon(nextProps) {
+    this.setState({
+      tip: true,
+      iconStatus: nextProps.isRunning ? 'docker-up' : 'docker-down',
+      dockerStatus: nextProps.isRunning ? 'Docker is UP' : 'Docker is DOWN',
+      isRunning: nextProps.isRunning,
+      timeout: true
+    }, () => {
+      setTimeout(() => {
+        this.setState({
+          tip: false,
+          timeout: false
+        });
+      }, 2000);  
+    });
   }
 
   stub() {}
@@ -64,9 +85,5 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = () => ({
   toggleSidebar: () => actions.toggleSidebar()
 });
-
-UtilityPane.contextProps = {
-  store: PropTypes.object
-}
 
 module.exports = connect(mapStateToProps, mapDispatchToProps)(UtilityPane);

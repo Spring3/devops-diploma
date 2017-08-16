@@ -74,7 +74,7 @@ class Sidebar extends React.Component {
       } else if (this.state.authResult && this.state.authResult.error) {
         component = (<Box pad='none'>
             <Button icon={<DockerIcon />} label='Sign in' id='authBtn' onClick={this.props.toggleModal}/>
-            <Tip target={'authBtn'} onClose={() => {}} colorIndex='light-2'>Wrong username or password</Tip>
+            <Tip target={'authBtn'} onClose={() => {}} colorIndex='light-2'>Unable to log in with given credentials</Tip>
           </Box>);
       } else {
         component = <Button icon={<DockerIcon />} label='Sign in' onClick={this.props.toggleModal}/>
