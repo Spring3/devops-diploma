@@ -1,6 +1,6 @@
 {
   "name": "riptide",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Final work diploma. Docker container manager",
   "main": "app.js",
   "directories": {},
