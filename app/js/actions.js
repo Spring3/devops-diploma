@@ -1,10 +1,11 @@
-import docker from './modules/docker.js';
 import { createStore, applyMiddleware } from 'redux';
-import combinedReducer from './reducers/reducers.js';
 import { routerMiddleware } from 'react-router-redux';
 import createHistory from 'history/createMemoryHistory';
 import storage from 'electron-json-storage';
 import { showLoading, hideLoading } from 'react-redux-loading-bar';
+
+import docker from './modules/docker';
+import combinedReducer from './reducers/reducers';
 
 // react-router-redux setup
 const history = createHistory();
@@ -24,7 +25,7 @@ class Actions {
     docker.getVersion()
       .then((info) => {
         this.store.dispatch({
-          type: 'UPDATE_DOCKER_INFO',
+          type: 'DOCKER_UPDATE_STATS',
           info
         });
       });
@@ -33,7 +34,7 @@ class Actions {
   checkDocker() {
     this.store.dispatch(showLoading());
     const status = {
-      type: 'UPDATE_DOCKER_STATS',
+      type: 'DOCKER_UPDATE_STATS',
       isRunning: false,
       containers: 0,
       images: 0,
@@ -72,11 +73,6 @@ class Actions {
   logOut() {
     storage.remove('auth');
     this.store.dispatch({ type: 'DOCKER_LOG_OUT' });
-  }
-
-  // reset auth that ended up with an error
-  resetAuth() {
-    this.store.dispatch({ type: 'DOCKER_AUTH_RESET' });
   }
 
   authenticate(data, cached = false) {

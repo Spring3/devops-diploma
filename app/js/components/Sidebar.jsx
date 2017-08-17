@@ -77,7 +77,7 @@ class Sidebar extends React.Component {
       } else if (this.state.authResult && this.state.authResult.error) {
         component = (<Box pad='none'>
             <Button icon={<DockerIcon />} label='Sign in' id='authBtn' onClick={this.props.toggleModal}/>
-            <Tip target={'authBtn'} onClose={this.props.resetAuth} text={'Unable to log in with given credentials'} />
+            <Tip target={'authBtn'} onClose={this.props.logOut} text={'Unable to log in with given credentials'} />
           </Box>);
       } else {
         // not authorized
@@ -125,7 +125,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   dispatch,
   openDockerPage: () => dispatch(push('/docker')),
-  resetAuth: () => actions.resetAuth()
+  logOut: () => actions.logOut()
 });
 
 Sidebar.contextTypes = {

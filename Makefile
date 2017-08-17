@@ -5,3 +5,4 @@ lint:
 	npm run lint
 test:
 	make lint
+	node_modules/.bin/jest
