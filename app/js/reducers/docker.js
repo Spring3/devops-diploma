@@ -22,6 +22,9 @@ module.exports = (state = initialState, action) => {
     case 'DOCKER_AUTH': {
       return Object.assign({}, state, { authResult: _.omit(action, 'type') });
     }
+    case 'DOCKER_AUTH_RESET': {
+      return Object.assign({}, _.omit(state, 'authResult'));
+    }
     case 'DOCKER_AUTH_START': {
       return Object.assign({}, state, { authInProgress: true });
     }

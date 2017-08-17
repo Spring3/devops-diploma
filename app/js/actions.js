@@ -74,6 +74,11 @@ class Actions {
     this.store.dispatch({ type: 'DOCKER_LOG_OUT' });
   }
 
+  // reset auth that ended up with an error
+  resetAuth() {
+    this.store.dispatch({ type: 'DOCKER_AUTH_RESET' });
+  }
+
   authenticate(data, cached = false) {
     this.store.dispatch(showLoading());
     // if from storage

@@ -17,6 +17,7 @@ class SidebarMenu extends React.Component {
       tasks: 0
     };
   }
+
   componentDidMount() {
     const { store } = this.context;
     const state = _.pick(store.getState().docker, 'containers', 'images', 'services', 'nodes', 'tasks');
