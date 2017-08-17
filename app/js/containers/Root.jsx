@@ -1,17 +1,29 @@
 import React from 'react';
 import { Provider } from 'react-redux';
-import { loadingBarMiddleware } from 'react-redux-loading-bar';
-import { createStore, applyMiddleware } from 'redux';
-import combinedReducer from '../reducers/reducers.js';
+import { Router, Route } from 'react-router';
+import { ConnectedRouter } from 'react-router-redux';
 import App from './App.jsx';
+import LoadingBar from '../components/LoadingBar.jsx';
 
-const store = createStore(combinedReducer, applyMiddleware(loadingBarMiddleware())); 
+import actions from '../actions.js';
+import Worker from '../modules/worker.js';
+// docker status worker
+const worker = Worker.start();
 
 class Root extends React.Component {
+  componentWillUnmount() {
+    worker.stop();
+  }
+
   render() {
     return (
-      <Provider store={store}>
-        <App />
+      <Provider store={actions.store}>
+        <ConnectedRouter history={actions.history}>
+          <div>
+            <LoadingBar/>
+            <App />
+          </div>
+        </ConnectedRouter>
       </Provider>
     );
   }

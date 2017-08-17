@@ -1,9 +1,10 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import { push } from 'react-router-redux';
 import Footer from 'grommet/components/Footer';
 import Title from 'grommet/components/Title';
 import Logo from 'grommet/components/SVGIcon';
 import Box from 'grommet/components/Box';
-import Paragraph from 'grommet/components/Paragraph';
 import Menu from 'grommet/components/Menu';
 import Anchor from 'grommet/components/Anchor';
 
@@ -28,19 +29,13 @@ class FooterComponent extends React.Component {
         <Box direction='row'
           align='center'
           pad={{"between": "medium"}}>
-          <Paragraph margin='none'>
-            © 2017-present Daniyil Vasylenko
-          </Paragraph>
           <Menu direction='row'
             size='small'
             dropAlign={{"right": "right"}}>
             <Anchor href='#'>
-              Support
-            </Anchor>
-            <Anchor href='#'>
               Contact
             </Anchor>
-            <Anchor href='#'>
+            <Anchor onClick={this.props.openAboutPage}>
               About
             </Anchor>
           </Menu>
@@ -50,4 +45,11 @@ class FooterComponent extends React.Component {
   }
 }
 
-module.exports = FooterComponent;
+const mapStateToProps = state => ({});
+
+const mapDispatchToProps = dispatch => ({
+  dispatch,
+  openAboutPage: () => dispatch(push('/about'))
+});
+
+module.exports = connect(mapStateToProps, mapDispatchToProps)(FooterComponent);

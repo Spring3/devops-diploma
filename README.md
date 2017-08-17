@@ -5,6 +5,9 @@
 ```npm i```
 
 ### Development
+- Run tests
+```npm test```
+
 - Run hot-reload server
 ```npm run wds```
 
