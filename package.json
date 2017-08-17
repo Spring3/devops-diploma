@@ -1,17 +1,19 @@
 {
-  "name": "yen",
-  "version": "0.0.1",
+  "name": "riptide",
+  "version": "0.0.2",
   "description": "Final work diploma. Docker container manager",
   "main": "app.js",
-  "directories": {
-    "test": "test"
-  },
+  "directories": {},
   "scripts": {
-    "test": "mocha test"
+    "test": "make test",
+    "lint": "./node_modules/.bin/eslint .",
+    "wds": "node wds.js",
+    "build": "NODE_ENV=production webpack --config ./webpack.prod.config.js --progress --profile --colors -p",
+    "start": "./node_modules/.bin/electron ."
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/Spring3/yen.git"
+    "url": "git+ssh://git@github.com/Spring3/riptide.git"
   },
   "keywords": [
     "react",
@@ -22,7 +24,51 @@
   "author": "Daniyil Vasylenko",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/Spring3/yen/issues"
+    "url": "https://github.com/Spring3/riptide/issues"
   },
-  "homepage": "https://github.com/Spring3/yen#readme"
+  "homepage": "https://github.com/Spring3/riptide#readme",
+  "dependencies": {
+    "dockerode": "^2.5.0",
+    "electron-json-storage": "^3.0.7",
+    "grommet": "^1.6.0",
+    "history": "^4.6.3",
+    "react": "^15.6.1",
+    "react-count-to": "^0.8.1",
+    "react-dom": "^15.6.1",
+    "react-redux": "^5.0.5",
+    "react-redux-loading-bar": "^2.9.2",
+    "react-router": "^4.1.2",
+    "react-router-dom": "^4.1.2",
+    "react-router-redux": "^5.0.0-alpha.6",
+    "redux": "^3.7.2",
+    "typeface-roboto": "0.0.31",
+    "underscore": "^1.8.3",
+    "webpack": "^3.4.1"
+  },
+  "devDependencies": {
+    "babel-core": "^6.25.0",
+    "babel-eslint": "^7.2.3",
+    "babel-jest": "^20.0.3",
+    "babel-loader": "^7.1.1",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-react": "^6.24.1",
+    "css-loader": "^0.28.4",
+    "deep-freeze": "0.0.1",
+    "electron": "^1.6.11",
+    "eslint": "^4.3.0",
+    "eslint-config-airbnb": "^15.1.0",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-jest": "^20.0.3",
+    "eslint-plugin-jsx-a11y": "^5.1.1",
+    "eslint-plugin-react": "^7.1.0",
+    "expect": "^1.20.2",
+    "jest": "^20.0.4",
+    "node-sass": "^4.5.3",
+    "prop-types": "^15.5.10",
+    "react-hot-loader": "^3.0.0-beta.7",
+    "sass-loader": "^6.0.6",
+    "style-loader": "^0.18.2",
+    "webpack-dev-server": "^2.6.1",
+    "webpack-node-externals": "^1.6.0"
+  }
 }

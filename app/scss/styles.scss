@@ -1,0 +1,94 @@
+@import 'grommet/scss/vanilla/index.scss';
+
+$dark: #312c32;
+$grey: #999999;
+$success: #57A773;
+$error: #F24236;
+$warn: #F4D35E;
+
+.invisible {
+  visibility: hidden;
+}
+
+.notPadded > span {
+  padding-left: 0 !important;
+}
+
+.grommetux-image--xsmall {
+  width: 100px;
+  clear: both;
+  margin: 0 !important;
+}
+
+.borderless {
+  border: none !important;
+}
+
+.sidebar {
+  min-width: 291px;
+  max-width: 291px;
+  height: 96px;
+}
+
+.shrinkSelect > input {
+  padding: 6px 10px;
+}
+
+.borderless > input[type='password'],
+.borderless > input[type='text'],
+input.borderless {
+  border-radius: 0px !important;
+  border: none !important;
+  border-bottom: 1px solid $grey !important;
+}
+
+.grommetux-select.borderless > input {
+  padding: 11px;
+  border: none;
+}
+
+.grommetux-select.borderless > button {
+  right: -10px;
+}
+
+.grommetux-form-field--focus,
+.grommetux-button--focus,
+.grommetux-list--focus {
+  outline: none !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.grommetux-control-icon > .docker-pending > path {
+  fill: $warn + #220022;
+  transition: fill 0.5s ease;
+}
+
+.grommetux-control-icon:hover > .docker-pending > path {
+  fill: #DDBB00;
+  transition: fill 0s ease;
+}
+
+.grommetux-control-icon > .docker-up > path {
+  fill: $success + #220022;
+  transition: fill 0.5s ease;
+}
+
+.grommetux-control-icon:hover > .docker-up > path {
+  fill: #00BB00;
+  transition: fill 0s ease;
+}
+
+.grommetux-control-icon > .docker-down > path {
+  fill: $error + #003333;
+  transition: fill 0.5s ease;
+}
+
+.grommetux-control-icon:hover > .docker-down > path {
+  fill: #DD0000;
+  transition: fill 0s ease;
+}
