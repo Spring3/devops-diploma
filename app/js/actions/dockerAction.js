@@ -11,9 +11,9 @@ class DockerAction {
 
   connect(config, save) {
     const connectionConfig = docker.connect({
-      socket: config.socket || undefined,
-      host: config.host || undefined,
-      port: config.port || undefined,
+      socket: config.connection === 'socket' ? config.socket || undefined : undefined,
+      host: config.connection === 'url' ? config.host || undefined : undefined,
+      port: config.connection === 'url' ? config.port || undefined : undefined,
       connection: config.connection || undefined
     }, save);
     this.store.dispatch(Object.assign({ type: 'DOCKER_CONFIG' }, connectionConfig));

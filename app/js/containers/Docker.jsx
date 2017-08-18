@@ -55,8 +55,10 @@ class DockerPage extends React.Component {
     if (!_.isEqual(nextProps.info, this.state.info)) {
       this.setState({ info: nextProps.info });
     }
+    console.log(nextProps.config);
     if (!_.isEqual(nextProps.config, this.state.config)) {
       console.log('Docker.jsx');
+      console.log(nextProps.config);
       this.setState({ config: nextProps.config });
     }
   }
@@ -104,7 +106,7 @@ class DockerPage extends React.Component {
           self.setState({
             timeout: null
           });
-        }, 1500)
+        }, 1000)
       });
     }
   }

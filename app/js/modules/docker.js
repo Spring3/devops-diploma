@@ -45,7 +45,6 @@ class Docker {
       socket: socket.trim()
     };
 
-
     if (save) {
       storage.set('config', config);
     }
@@ -56,24 +55,16 @@ class Docker {
           host: config.host,
           port: config.port,
         });
-        Object.assign(this.config, {
-          connection: 'url',
-          host: config.host,
-          port: config.port
-        });
         break;
       }
       default: {
         this.instance = new DockerAPI({
           socketPath: config.socket
         });
-        Object.assign(this.config, {
-          connection: 'socket',
-          socket: config.socket
-        });
         break;
       }
     }
+    Object.assign(this.config, config);
     return this.config;
   }
 
