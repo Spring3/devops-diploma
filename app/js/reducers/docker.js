@@ -8,6 +8,13 @@ const initialState = {
   tasks: 0,
   nodes: 0,
   authInProgress: false,
+  info: {},
+  config: {
+    connection: '',
+    socket: '',
+    host: '',
+    port: ''
+  },
   authResult: null
 };
 
@@ -15,6 +22,9 @@ module.exports = (state = initialState, action) => {
   switch (action.type) {
     case 'DOCKER_UPDATE_STATS': {
       return Object.assign({}, state, _.omit(action, 'type'));
+    }
+    case 'DOCKER_CONFIG': {
+      return Object.assign({}, state, { config: _.omit(action, 'type') });
     }
     case 'DOCKER_AUTH': {
       return Object.assign({}, state, { authResult: _.omit(action, 'type') });

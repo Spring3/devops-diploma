@@ -19,7 +19,7 @@ import docker from '../modules/docker.js';
 
 import CaretLeft from 'grommet/components/icons/base/CaretBack';
 
-const actions = require('../actions.js');
+const actions = require('../actions/actions.js');
 
 const path = require('path');
 const dockerLogoPath = path.posix.resolve('./app/img/docker-logo.jpg');
@@ -28,17 +28,20 @@ class DockerPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      isRunning: false,
-      connection: '',
-      host: '',
-      port: '',
-      socket: '',
+      isRunning: props.isRunning,
+      config: {
+        connection: docker.config.connection,
+        socket: docker.config.socket,
+        host: docker.config.host,
+        port: docker.config.port
+      },
+      info: props.info,
       timeout: null
     };
   }
 
   componentWillMount() {
-    actions.updateDockerInfo();
+    actions.docker.updateInfo();
   }
 
   componentWillUnmount() {
@@ -47,13 +50,14 @@ class DockerPage extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.isRunning !== this.state.isRunning) {
-      this.setState({
-        isRunning: nextProps.isRunning
-      });
+      this.setState({ isRunning: nextProps.isRunning });
     }
-    if (!_.isEqual(nextProps.info, this.state)) {
+    if (!_.isEqual(nextProps.info, this.state.info)) {
+      this.setState({ info: nextProps.info });
+    }
+    if (!_.isEqual(nextProps.config, this.state.config)) {
       console.log('Docker.jsx');
-      this.setState(nextProps.info);
+      this.setState({ config: nextProps.config });
     }
   }
 
@@ -61,21 +65,20 @@ class DockerPage extends React.Component {
     if (this.state.timeout) {
       clearTimeout(this.state.timeout)
     }
+    const config = this.state.config;
+    config[param] = e.target.value;
     this.setState({
-      [param]: e.target.value,
+      config: config,
       timeout: null
     });
     this.sync();
   }
 
   connectionChange(data) {
-    if (this.state.connection !== data.option) {
-      this.setState({
-        connection: data.option,
-        host: '',
-        port: '',
-        socket: ''
-      });
+    if (this.state.config.connection !== data.option) {
+      const config = this.state.config;
+      config.connection = data.option;
+      this.setState({ config: config });
       this.sync();
     }
   }
@@ -97,7 +100,7 @@ class DockerPage extends React.Component {
       const self = this;
       this.setState({
         timeout: setTimeout(() => {
-          docker.connect(self.state, true);
+          actions.docker.connect(self.state.config, true);
           self.setState({
             timeout: null
           });
@@ -105,6 +108,8 @@ class DockerPage extends React.Component {
       });
     }
   }
+
+  stub() {}
 
   render() {
     return (
@@ -127,8 +132,8 @@ class DockerPage extends React.Component {
             </Box>
             <Box pad='medium' margin={{vertical: 'small', horizontal: 'none'}}>
               <Headline size='small' strong={true}>Docker</Headline>
-              <Label margin='none'>Version: v{this.state.Version || 'N/A'}</Label>
-              <Label margin='small'>Api: v{this.state.ApiVersion || 'N/A'}</Label>
+              <Label margin='none'>Version: v{this.state.info.Version || 'N/A'}</Label>
+              <Label margin='small'>Api: v{this.state.info.ApiVersion || 'N/A'}</Label>
             </Box>
           </Box>
         </Box>
@@ -138,25 +143,25 @@ class DockerPage extends React.Component {
             <div style={{width: 100}}>
               <Select placeHolder='socket'
                 options={['socket', 'url']}
-                value={this.state.connection}
+                value={this.state.config.connection}
                 className='borderless'
                 onChange={this.connectionChange.bind(this)}/>
             </div>
           </Box>
           <hr/>
           <Form>
-            {this.state.connection === 'url' ? 
+            {this.state.config.connection === 'url' ? 
               <Box direction='row'>
                 <FormField label='Host' className='borderless'>
-                  <TextInput name='host' value={this.state.host} onDOMChange={this.hostChange.bind(this)} placeHolder='127.0.0.1' className='borderless'/>
+                  <TextInput name='host' value={this.state.config.host} onDOMChange={this.hostChange.bind(this)} onChange={this.stub} placeHolder='127.0.0.1' className='borderless'/>
                 </FormField>
                 <FormField label='Port' className='borderless'>
-                  <TextInput name='port' value={this.state.port} onDOMChange={this.portChange.bind(this)} placeHolder='2375' className='borderless'/>
+                  <TextInput name='port' value={this.state.config.port} onDOMChange={this.portChange.bind(this)} onChange={this.stub} placeHolder='2375' className='borderless'/>
                 </FormField>
               </Box>
               :
               <FormField label='Path to socket' className='borderless'>
-                <TextInput name='host' value={this.state.socket} onDOMChange={this.socketChange.bind(this)} placeHolder={docker.config.socket} className='borderless'/>
+                <TextInput name='host' value={this.state.config.socket} onDOMChange={this.socketChange.bind(this)} onChange={this.stub} placeHolder={docker.defaultSocketPath} className='borderless'/>
               </FormField>
             }
           </Form>
@@ -167,8 +172,9 @@ class DockerPage extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  isRunning: state.docker.isRunning,
   info: state.docker.info,
-  isRunning: state.docker.isRunning
+  config: state.docker.config
 });
 
 const mapDispatchToProps = () => ({});

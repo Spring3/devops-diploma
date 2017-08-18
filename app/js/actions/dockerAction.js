@@ -1,27 +1,25 @@
-import { createStore, applyMiddleware } from 'redux';
-import { routerMiddleware } from 'react-router-redux';
-import createHistory from 'history/createMemoryHistory';
 import storage from 'electron-json-storage';
-import { showLoading, hideLoading } from 'react-redux-loading-bar';
+import docker from './../modules/docker';
 
-import docker from './modules/docker';
-import combinedReducer from './reducers/reducers';
-
-// react-router-redux setup
-const history = createHistory();
-const middleware = routerMiddleware(history);
-const store = createStore(combinedReducer, applyMiddleware(middleware));
-
-class Actions {
-  constructor() {
+class DockerAction {
+  constructor(store) {
     this.store = store;
-    this.updateDockerInfo = this.updateDockerInfo.bind(this);
-    this.checkDocker = this.checkDocker.bind(this);
+    this.updateInfo = this.updateInfo.bind(this);
+    this.check = this.check.bind(this);
     this.authenticate = this.authenticate.bind(this);
-    this.toggleSidebar = this.toggleSidebar.bind(this);
   }
 
-  updateDockerInfo() {
+  connect(config, save) {
+    const connectionConfig = docker.connect({
+      socket: config.socket || undefined,
+      host: config.host || undefined,
+      port: config.port || undefined,
+      connection: config.connection || undefined
+    }, save);
+    this.store.dispatch(Object.assign({ type: 'DOCKER_CONFIG' }, connectionConfig));
+  }
+
+  updateInfo() {
     docker.getVersion()
       .then((info) => {
         this.store.dispatch({
@@ -31,8 +29,7 @@ class Actions {
       });
   }
 
-  checkDocker() {
-    this.store.dispatch(showLoading());
+  check() {
     const status = {
       type: 'DOCKER_UPDATE_STATS',
       isRunning: false,
@@ -65,7 +62,6 @@ class Actions {
         });
       } else {
         this.store.dispatch(status);
-        this.store.dispatch(hideLoading());
       }
     });
   }
@@ -76,7 +72,6 @@ class Actions {
   }
 
   authenticate(data, cached = false) {
-    this.store.dispatch(showLoading());
     // if from storage
     if (cached) {
       this.store.dispatch(Object.assign({ type: 'DOCKER_AUTH' }, data));
@@ -89,7 +84,7 @@ class Actions {
     };
     docker.instance.checkAuth(request)
       .then((result) => {
-        const response = { type: 'DOCKER_AUTH', username: request.username };
+        const response = { type: 'DOCKER_AUTH', username: request.username, serverAddress: request.serverAddress };
         this.store.dispatch(Object.assign(response, result));
         if (data.remember) {
           storage.set('auth', {
@@ -99,19 +94,12 @@ class Actions {
           });
         }
         this.store.dispatch({ type: 'DOCKER_AUTH_END' });
-        this.store.dispatch(hideLoading());
       })
       .catch((e) => {
         this.store.dispatch({ type: 'DOCKER_AUTH', error: e });
         this.store.dispatch({ type: 'DOCKER_AUTH_END' });
-        this.store.dispatch(hideLoading());
       });
-  }
-
-  toggleSidebar() {
-    this.store.dispatch({ type: 'TOGGLE_SIDEBAR' });
   }
 }
 
-module.exports = new Actions();
-module.exports.history = history;
+module.exports = DockerAction;

@@ -30,6 +30,7 @@ class App {
 
 const Riptide = new App({ width: 800, height: 600 });
 
+console.log(app.getPath('userData'));
 app.on('ready', Riptide.init);
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

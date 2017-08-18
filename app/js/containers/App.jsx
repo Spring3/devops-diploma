@@ -27,7 +27,7 @@ import DockerIcon from 'grommet/components/icons/base/PlatformDocker';
 import DockerLogo from '../components/DockerIcon.jsx';
 import AddIcon from 'grommet/components/icons/base/Add';
 
-const actions = require('../actions.js');
+const actions = require('../actions/actions.js');
 
 class App extends React.Component {
   constructor(props) {
@@ -93,7 +93,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = () => ({
-  auth: (data) => actions.authenticate(data)
+  auth: (data) => actions.docker.authenticate(data)
 });
 
 App.contextTypes = {

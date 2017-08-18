@@ -7,7 +7,7 @@ import SidebarIcon from 'grommet/components/icons/base/Sidebar';
 import DockerIcon from '../components/DockerIcon.jsx';
 import Tip from '../components/Tip';
 
-const actions = require('../actions.js');
+const actions = require('../actions/actions.js');
 
 class UtilityPane extends React.Component {
   constructor() {

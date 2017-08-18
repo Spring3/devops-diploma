@@ -16,7 +16,7 @@ import storage from 'electron-json-storage';
 import DockerIcon from 'grommet/components/icons/base/PlatformDocker';
 
 import Tip from './Tip';
-import actions from '../actions.js';
+import actions from '../actions/actions.js';
 
 class Sidebar extends React.Component {
   constructor(props){
@@ -34,7 +34,7 @@ class Sidebar extends React.Component {
     if (!state.docker.authResult) {
       storage.get('auth', (e, data) => {
         if (data.username) {
-          actions.authenticate(data, true);
+          actions.docker.authenticate(data, true);
         }
       });
     } else {
@@ -58,7 +58,7 @@ class Sidebar extends React.Component {
   profileOptionSelected(e) {
     switch(e.option) {
       case 'Log out': {
-        actions.logOut();
+        actions.docker.logOut();
         break;
       }
       default: {
@@ -125,7 +125,7 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   dispatch,
   openDockerPage: () => dispatch(push('/docker')),
-  logOut: () => actions.logOut()
+  logOut: () => actions.docker.logOut()
 });
 
 Sidebar.contextTypes = {

@@ -1,13 +1,20 @@
 const os = require('os');
+const path = require('path');
 const fs = require('fs');
 const DockerAPI = require('dockerode');
 const storage = require('electron-json-storage');
 
+const defaultSocketPath = os.platform() === 'win32' ? path.normalize('//./pipe/docker_engine') : '/var/run/docker.sock';
+
 class Docker {
   constructor() {
+    this.defaultSocketPath = defaultSocketPath;
     this.config = {
-      socket: os.platform() === 'win32' ? '//./pipe/docker_engine' : '/var/run/docker.sock',
-      registry: 'https://index.docker.io/v1'
+      socket: defaultSocketPath,
+      registry: 'https://index.docker.io/v1',
+      connection: 'socket',
+      host: '127.0.0.1',
+      port: '2375'
     };
     const stats = fs.statSync(this.config.socket);
     if (!stats.isSocket()) {
@@ -19,7 +26,7 @@ class Docker {
       } else {
         this.connect({
           connection: 'socket',
-          socket: this.config.socket
+          socket: defaultSocketPath
         });
       }
     });
@@ -27,17 +34,17 @@ class Docker {
 
   connect(data, save = false) {
     if (!data) {
-      return;
+      return undefined;
     }
 
-    const { connection = '', host = '', port = '', socket = '' } = data;
-
+    const { connection = 'socket', host = '127.0.0.1', port = '2375', socket = defaultSocketPath } = data;
     const config = {
       connection: connection.trim(),
-      host: host.trim() || '127.0.0.1',
-      port: parseInt(port, 10) || 2375,
-      socket: socket || this.config.socket
+      host: host.trim(),
+      port: port.trim(),
+      socket: socket.trim()
     };
+
 
     if (save) {
       storage.set('config', config);
@@ -47,6 +54,11 @@ class Docker {
         this.instance = new DockerAPI({
           protocol: 'http',
           host: config.host,
+          port: config.port,
+        });
+        Object.assign(this.config, {
+          connection: 'url',
+          host: config.host,
           port: config.port
         });
         break;
@@ -55,9 +67,14 @@ class Docker {
         this.instance = new DockerAPI({
           socketPath: config.socket
         });
+        Object.assign(this.config, {
+          connection: 'socket',
+          socket: config.socket
+        });
         break;
       }
     }
+    return this.config;
   }
 
   getContainers(all = false) {
