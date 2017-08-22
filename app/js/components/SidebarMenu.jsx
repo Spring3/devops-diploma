@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import CountTo from 'react-count-to';
 import List from 'grommet/components/List';
 import ListItem from 'grommet/components/ListItem';
+import { push } from 'react-router-redux';
 import _ from 'underscore';
 
 class SidebarMenu extends React.Component {
@@ -16,12 +17,21 @@ class SidebarMenu extends React.Component {
       nodes: 0,
       tasks: 0
     };
+    this.menuSelected = this.menuSelected.bind(this);
   }
 
   componentDidMount() {
     const { store } = this.context;
     const state = _.pick(store.getState().docker, 'containers', 'images', 'services', 'nodes', 'tasks');
     this.setState(state);
+  }
+
+
+  menuSelected(menuIndex) {
+    const pages = ['containers', 'services', 'images', 'nodes', 'tasks'];
+    const { store } = this.context;
+    // TODO : check that currently selected page differs
+    store.dispatch(push(`/${pages[menuIndex]}`));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -34,7 +44,7 @@ class SidebarMenu extends React.Component {
 
   render() {
     return (
-      <List selectable={true}>
+      <List selectable={true} onSelect={this.menuSelected}>
         <ListItem justify={'between'} separator={'none'} pad={{ horizontal: 'medium', vertical: 'small' }}>
           <span>
             Containers

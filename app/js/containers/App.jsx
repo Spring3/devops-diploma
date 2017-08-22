@@ -20,6 +20,7 @@ import LoginForm from '../components/LoginForm.jsx';
 
 // pages
 import About from '../containers/About.jsx';
+import ImagesPage from '../containers/Images.jsx';
 import DockerPage from '../containers/Docker.jsx';
 
 // icons
@@ -64,9 +65,10 @@ class App extends React.Component {
           </Animate>
           <Box justify={'between'} align={'end'} full={'vertical'} direction={'column'}>
             <Box justify={'end'} direction={'row'} full={'horizontal'} alignContent={'end'}>
-              <Box flex={true} pad={{ vertical: 'none', horizontal: 'medium' }}>
+              <Box flex={true} pad={{ vertical: 'none', horizontal: 'small' }} className='left-padded'>
                 <Route exact path='/' component={MainTabs} />
                 <Route path='/docker' component={DockerPage} />
+                <Route path='/images' component={ImagesPage} />
                 <Route path='/about' component={About} />
                 {
                   this.state.modal ? 
