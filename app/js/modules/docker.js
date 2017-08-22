@@ -16,10 +16,7 @@ class Docker {
       host: '127.0.0.1',
       port: '2375'
     };
-    const stats = fs.statSync(this.config.socket);
-    if (!stats.isSocket()) {
-      throw new Error('Unable to locate docker daemon');
-    }
+
     storage.get('config', (e, config) => {
       if (Object.keys(config).length > 0) {
         this.connect(config);
@@ -58,6 +55,11 @@ class Docker {
         break;
       }
       default: {
+        // socket
+        const stats = fs.statSync(config.socket);
+        if (!stats.isSocket()) {
+          throw new Error('Unable to locate docker daemon');
+        }
         this.instance = new DockerAPI({
           socketPath: config.socket
         });

@@ -17,11 +17,21 @@ class UtilityPane extends React.Component {
       dockerStatus: 'Checking docker'
     };
     this.updateStatusIcon = this.updateStatusIcon.bind(this);
+    // when on start docker is down, the state does not change by worker,
+    // so we need to manually change icon status to DOWN
+    this.timeout = setTimeout(() => this.updateStatusIcon(this.state), 2000);
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.isRunning !== this.state.isRunning) {
       this.updateStatusIcon(nextProps);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.timeout) {
+      clearTimeout(this.timeout);
+      this.timeout = null;
     }
   }
 
