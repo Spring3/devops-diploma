@@ -11,7 +11,6 @@ import Title from 'grommet/components/Title';
 import Animate from 'grommet/components/Animate';
 
 import MainTabs from '../components/MainTabs.jsx';
-import UtilityPane from '../components/UtilityPane.jsx';
 import Modal from '../components/Modal';
 
 import Sidebar from '../components/Sidebar.jsx';
@@ -22,11 +21,14 @@ import LoginForm from '../components/LoginForm.jsx';
 import About from '../containers/About.jsx';
 import ImagesPage from '../containers/Images.jsx';
 import DockerPage from '../containers/Docker.jsx';
+import SidebarIcon from 'grommet/components/icons/base/Sidebar';
 
 // icons
 import DockerIcon from 'grommet/components/icons/base/PlatformDocker';
+import DockerStatusIcon from '../components/DockerIcon.jsx';
 import DockerLogo from '../components/DockerIcon.jsx';
 import AddIcon from 'grommet/components/icons/base/Add';
+import CaretLeft from 'grommet/components/icons/base/CaretBack';
 
 const actions = require('../actions/actions.js');
 
@@ -63,8 +65,15 @@ class App extends React.Component {
           visible={this.state.sidebarOpen}>
             <Sidebar toggleModal={this.toggleModal.bind(this)}/>
           </Animate>
-          <Box justify={'between'} align={'end'} full={'vertical'} direction={'column'}>
-            <Box justify={'end'} direction={'row'} full={'horizontal'} alignContent={'end'}>
+          <Box pad={'none'} justify={'between'} full={'vertical'} align={'start'}>
+            <Box pad={{horizontal: 'small'}}>
+              <Button
+                icon={<CaretLeft/>}
+                onClick={this.props.history.goBack}
+                className='notPadded'
+              />
+            </Box>
+            <Box justify={'between'} direction={'row'} full={'horizontal'} flex={true} alignContent={'end'}>
               <Box flex={true} pad={{ vertical: 'none', horizontal: 'small' }} className='left-padded'>
                 <Route exact path='/' component={MainTabs} />
                 <Route path='/docker' component={DockerPage} />
@@ -78,9 +87,14 @@ class App extends React.Component {
                   :
                   ''
                 }
-                
               </Box>
-              <UtilityPane />
+            </Box>
+            <Box className='utility'>
+              <Button icon={<SidebarIcon />}
+                href='#'
+                onClick={actions.toggleSidebar}
+                plain={true} />
+              <DockerStatusIcon />
             </Box>
             <Footer />
           </Box>

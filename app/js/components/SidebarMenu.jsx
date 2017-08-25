@@ -23,7 +23,13 @@ class SidebarMenu extends React.Component {
   componentDidMount() {
     const { store } = this.context;
     const state = _.pick(store.getState().docker, 'containers', 'images', 'services', 'nodes', 'tasks');
-    this.setState(state);
+    this.setState({
+      containers: state.containers.items.length,
+      images: state.images.items.length,
+      services: state.services.items.length,
+      nodes: state.nodes.items.length,
+      tasks: state.tasks.items.length
+    });
   }
 
 
@@ -91,11 +97,11 @@ class SidebarMenu extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  containers: state.docker.containers,
-  images: state.docker.images,
-  services: state.docker.services,
-  nodes: state.docker.nodes,
-  tasks: state.docker.tasks
+  containers: state.docker.containers.items.length,
+  images: state.docker.images.items.length,
+  services: state.docker.services.items.length,
+  nodes: state.docker.nodes.items.length,
+  tasks: state.docker.tasks.items.length
 });
 
 const mapDispatchToProps = dispatch => ({

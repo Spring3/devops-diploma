@@ -23,7 +23,7 @@ class DockerAction {
     docker.getVersion()
       .then((info) => {
         this.store.dispatch({
-          type: 'DOCKER_UPDATE_STATS',
+          type: 'DOCKER_INFO',
           info
         });
       });
@@ -33,28 +33,28 @@ class DockerAction {
     const status = {
       type: 'DOCKER_UPDATE_STATS',
       isRunning: false,
-      containers: 0,
-      images: 0,
-      services: 0,
-      nodes: 0,
-      tasks: 0
+      containers: [],
+      images: [],
+      services: [],
+      nodes: [],
+      tasks: []
     };
     docker.isRunning().then((running) => {
       if (running) {
         Promise.all([
           docker.getContainers(true),
-          docker.getImages(true),
+          docker.getImages(),
           docker.getServices(),
           docker.getNodes(),
           docker.getTasks()
         ]).then((result) => {
           Object.assign(status, {
             isRunning: running,
-            containers: result[0].length,
-            images: result[1].length,
-            services: result[2].length,
-            nodes: result[3].length,
-            tasks: result[4].length
+            containers: result[0],
+            images: result[1],
+            services: result[2],
+            nodes: result[3],
+            tasks: result[4]
           });
           this.store.dispatch(status);
         }).catch(() => {
@@ -64,6 +64,10 @@ class DockerAction {
         this.store.dispatch(status);
       }
     });
+  }
+
+  getImages() {
+    docker.getImages(true).then(images => this.store.dispatch({ type: 'DOCKER_IMAGES', images }));
   }
 
   logOut() {

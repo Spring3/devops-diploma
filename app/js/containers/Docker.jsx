@@ -116,27 +116,18 @@ class DockerPage extends React.Component {
   render() {
     return (
       <Box direction='column'>
-        <Box direction='row'>
-          <Box justify='start' flex={false}>
-            <Button
-              icon={<CaretLeft/>}
-              onClick={this.props.history.goBack}
-              className='notPadded'
+        <Box justify='center' full='horizontal' align='center' pad='none' margin={{vertical: 'small', horizontal: 'none'}} direction='row'>
+          <Box>
+            <Image
+              src={dockerLogoPath}
+              size='small'
+              className='grommetux-image--xsmall'
             />
           </Box>
-          <Box justify='center' full='horizontal' align='center' pad='none' margin={{vertical: 'small', horizontal: 'none'}} direction='row'>
-            <Box>
-              <Image
-                src={dockerLogoPath}
-                size='small'
-                className='grommetux-image--xsmall'
-              />
-            </Box>
-            <Box pad='medium' margin={{vertical: 'small', horizontal: 'none'}}>
-              <Headline size='small' strong={true}>Docker</Headline>
-              <Label margin='none'>Version: v{this.state.info.Version || 'N/A'}</Label>
-              <Label margin='small'>Api: v{this.state.info.ApiVersion || 'N/A'}</Label>
-            </Box>
+          <Box pad='medium' margin={{vertical: 'small', horizontal: 'none'}}>
+            <Headline size='small' strong={true}>Docker</Headline>
+            <Label margin='none'>Version: v{this.state.info.Version || 'N/A'}</Label>
+            <Label margin='small'>Api: v{this.state.info.ApiVersion || 'N/A'}</Label>
           </Box>
         </Box>
         <Box justify='center' full='horizontal' align='center' pad='none' margin={{vertical: 'small', horizontal: 'none'}} direction='column'>

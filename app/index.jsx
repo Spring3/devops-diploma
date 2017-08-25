@@ -1,4 +1,5 @@
 import './scss/styles.scss';
+import 'regenerator-runtime';
 
 import React from 'react';
 import { render } from 'react-dom';

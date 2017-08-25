@@ -1,65 +1,77 @@
 import React from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 import Table from 'grommet/components/Table';
 import TableRow from 'grommet/components/TableRow';
 import Box from 'grommet/components/Box';
 import Button from 'grommet/components/Button';
 
-import CaretLeft from 'grommet/components/icons/base/CaretBack';
+import actions from '../actions/actions';
+
+const DAYS = 1000 * 3600 * 24;
 
 class ImagesPage extends React.Component {
 
   constructor(props) {
     super(props);
+
+    this.state = {
+      images: [],
+      tableItems: [],
+      selected: null
+    };
+    this.renderImages = this.renderImages.bind(this);
     this.imageSelected = this.imageSelected.bind(this);
+  }
+
+  componentWillMount() {
+    const { store } = this.context;
+    const images = store.getState().docker.images.items;
+    this.setState({ images });
+    this.renderImages(images);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.images.length !== this.state.images.length) {
+      this.renderImages(nextProps.images);
+    }
   }
 
   imageSelected(item) {
     console.log(item);
   }
 
+  renderImages(images) {
+    const tableItems = images.map((image, i) =>
+        (<TableRow key={i} className={'row'}>
+          <td>{image.repo}</td>
+          <td>{image.tag}</td>
+          <td>{image.id.substring(0, 12)}</td>
+          <td>{new Date(image.created).toISOString().slice(0, 10)}</td>
+          <td>{Math.ceil(image.size / 1000000) + ' MB'}</td>
+        </TableRow>));
+    this.setState({ tableItems });
+  }
+
   render() {
     return (
-      <Box direction='row'>
-        <Box justify='start' align='end' alignContent='end' flex={false} full={false}>
-          <Button
-            icon={<CaretLeft/>}
-            onClick={this.props.history.goBack}
-            className='notPadded'
-          />
-        </Box>
-        <Box justify='center' full='horizontal' align='center' pad='none' margin={{vertical: 'small', horizontal: 'none'}} direction='row'>
-          <Table responsive={false}
+      <Box>
+        <Box full='horizontal' pad='none' margin={{vertical: 'small', horizontal: 'none'}}>
+          <Table responsive={true}
             selectable={true}
             scrollable={true}
             onSelect={this.imageSelected}>
             <thead>
               <tr>
+                <th>Repository</th>
+                <th>Tag</th>
                 <th>Id</th>
-                <th>Name</th>
-                <th>Note</th>
+                <th>Created</th>
+                <th>Size</th>
               </tr>
             </thead>
             <tbody>
-              <TableRow>
-                <td>1</td>
-                <td>Alan</td>
-                <td className='secondary'>plays accordion</td>
-              </TableRow>
-              <TableRow>
-                <td>2</td>
-                <td>Chris</td>
-                <td className='secondary'>drops the mic</td>
-              </TableRow>
-              <TableRow>
-                <td>3</td>
-                <td>Eric</td>
-                <td className='secondary'>rides a bike</td>
-              </TableRow>
-              <TableRow>
-                <td>4</td>
-                <td>Tracy</td>
-                <td className='secondary'>travels the world</td>
-              </TableRow>
+              {this.state.tableItems}
             </tbody>
           </Table>
         </Box>
@@ -68,4 +80,16 @@ class ImagesPage extends React.Component {
   }
 }
 
-module.exports = ImagesPage;
+const mapStateToProps = state => ({
+  images: state.docker.images.items
+});
+
+const mapDispatchToProps = dispatch => ({
+  dispatch
+});
+
+ImagesPage.contextTypes = {
+  store: PropTypes.object
+};
+
+module.exports = connect(mapStateToProps, mapDispatchToProps)(ImagesPage);

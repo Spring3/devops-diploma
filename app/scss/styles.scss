@@ -11,7 +11,15 @@ $warn: #F4D35E;
 }
 
 .notPadded > span {
-  padding-left: 0 !important;
+  padding-left: 0px !important;
+}
+
+.utility {
+  flex-direction: row-reverse;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  z-index: 9999;
 }
 
 .grommetux-image--xsmall {
@@ -95,4 +103,8 @@ input.borderless {
 .grommetux-control-icon:hover > .docker-down > path {
   fill: #DD0000;
   transition: fill 0s ease;
+}
+
+.row > td {
+  padding: 0px;
 }
