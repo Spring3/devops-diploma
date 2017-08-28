@@ -38,7 +38,10 @@ class ImagesPage extends React.Component {
   }
 
   imageSelected(item) {
-    console.log(item);
+    const tableRow = this.state.tableItems[item];
+    const id = tableRow.props.children[2].props.children;
+    const fullId = this.state.images.filter(image => image.id.indexOf(id) >= 0)[0].id;
+    actions.docker.selectImage(fullId);
   }
 
   renderImages(images) {
@@ -50,7 +53,7 @@ class ImagesPage extends React.Component {
           <td>{new Date(image.created).toISOString().slice(0, 10)}</td>
           <td>{Math.ceil(image.size / 1000000) + ' MB'}</td>
         </TableRow>));
-    this.setState({ tableItems });
+    this.setState({ tableItems, images });
   }
 
   render() {

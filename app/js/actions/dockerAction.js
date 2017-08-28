@@ -1,4 +1,5 @@
 import storage from 'electron-json-storage';
+import { push } from 'react-router-redux';
 import docker from './../modules/docker';
 
 class DockerAction {
@@ -103,6 +104,18 @@ class DockerAction {
         this.store.dispatch({ type: 'DOCKER_AUTH', error: e });
         this.store.dispatch({ type: 'DOCKER_AUTH_END' });
       });
+  }
+
+  selectImage(id) {
+    if (!id) {
+      this.store.dispatch(push('/images'));
+    } else {
+      docker.instance.getImage(id).inspect()
+        .then((data) => {
+          this.store.dispatch({ type: 'SELECT_IMAGE', info: data });
+          this.store.dispatch(push('/images/selected/'));
+        });
+    }
   }
 }
 

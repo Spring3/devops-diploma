@@ -20,6 +20,7 @@ import LoginForm from '../components/LoginForm.jsx';
 // pages
 import About from '../containers/About.jsx';
 import ImagesPage from '../containers/Images.jsx';
+import ImagesStatusPage from '../containers/ImageStatus.jsx';
 import DockerPage from '../containers/Docker.jsx';
 import SidebarIcon from 'grommet/components/icons/base/Sidebar';
 
@@ -77,7 +78,8 @@ class App extends React.Component {
               <Box flex={true} pad={{ vertical: 'none', horizontal: 'small' }} className='left-padded'>
                 <Route exact path='/' component={MainTabs} />
                 <Route path='/docker' component={DockerPage} />
-                <Route path='/images' component={ImagesPage} />
+                <Route exact path='/images' component={ImagesPage} />
+                <Route path='/images/selected' component={ImagesStatusPage} />
                 <Route path='/about' component={About} />
                 {
                   this.state.modal ? 

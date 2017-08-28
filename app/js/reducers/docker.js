@@ -7,6 +7,7 @@ const initialState = {
     originalCount: 0
   },
   images: {
+    selected: {},
     items: [],
     originalCount: 0
   },
@@ -32,8 +33,6 @@ const initialState = {
   },
   authResult: null
 };
-
-const DAYS = 3600 * 24;
 
 function mapImages(images) {
   const result = [];
@@ -103,6 +102,11 @@ module.exports = (state = initialState, action) => {
         };
       }
       return Object.assign({}, state, changes);
+    }
+    case 'SELECT_IMAGE' : {
+      const newState = Object.assign({}, state);
+      newState.images.selected = action.info;
+      return newState;
     }
     case 'DOCKER_INFO' : {
       return Object.assign({}, state, { info: _.pick(action, 'info') });
