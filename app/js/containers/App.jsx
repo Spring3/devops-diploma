@@ -16,6 +16,7 @@ import Modal from '../components/Modal';
 import Sidebar from '../components/Sidebar.jsx';
 import Footer from '../components/Footer.jsx';
 import LoginForm from '../components/LoginForm.jsx';
+import TopMenu from '../components/TopMenu.jsx';
 
 // pages
 import About from '../containers/About.jsx';
@@ -67,12 +68,13 @@ class App extends React.Component {
             <Sidebar toggleModal={this.toggleModal.bind(this)}/>
           </Animate>
           <Box pad={'none'} justify={'between'} full={'vertical'} align={'start'}>
-            <Box pad={{horizontal: 'small'}}>
+            <Box pad={{horizontal: 'small'}} direction='row' full='horizontal' align='center'>
               <Button
                 icon={<CaretLeft/>}
                 onClick={this.props.history.goBack}
                 className='notPadded'
               />
+              <TopMenu/>
             </Box>
             <Box justify={'between'} direction={'row'} full={'horizontal'} flex={true} alignContent={'end'}>
               <Box flex={true} pad={{ vertical: 'none', horizontal: 'small' }} className='left-padded'>

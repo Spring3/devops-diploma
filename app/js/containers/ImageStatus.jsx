@@ -17,6 +17,8 @@ class ImageStatusPage extends React.Component {
 
   render() {
     const id = this.state.selectedImage.Id.split(':')[1];
+    const exposedPorts = this.state.selectedImage.Config.ExposedPorts ? Object.keys(this.state.selectedImage.Config.ExposedPorts) : [];
+    const volumes = this.state.selectedImage.Config.Volumes ? Object.keys(this.state.selectedImage.Config.Volumes) : [];
     const repoDigest = this.state.selectedImage.RepoDigests.map(digest => digest.split('@')[0]);
     const repoTags = this.state.selectedImage.RepoTags.map(tag => tag.split(':')[1]);
     const sizeMb = Math.ceil(this.state.selectedImage.Size / MB) + ' MB';
@@ -28,8 +30,9 @@ class ImageStatusPage extends React.Component {
         <InfoContainer name="Author" value={this.state.selectedImage.Author} inline={true}/>
         <InfoContainer name="Comment" value={this.state.selectedImage.Comment} inline={true}/>
         <InfoContainer name="Command" value={this.state.selectedImage.Config.Cmd} inline={true}/>
+        <InfoContainer name="Exposed Ports" value={exposedPorts}/>
         <InfoContainer name="Environment" value={this.state.selectedImage.Config.Env}/>
-        <InfoContainer name="Volumes" value={this.state.selectedImage.Config.Volumes} inline={true}/>
+        <InfoContainer name="Volumes" value={volumes}/>
         <InfoContainer name="Working Directory" value={this.state.selectedImage.WorkingDir} inline={true}/>
         <InfoContainer name="OS" value={this.state.selectedImage.Os} inline={true}/>
         <InfoContainer name="Repo Digests" value={repoDigest} inline={true}/>

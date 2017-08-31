@@ -132,14 +132,29 @@ input.borderless {
 .margined-value {
   position: relative;
   left: 150px;
-  top: -35px;
+  top: -38px;
 }
 
 .info-container-value > label,
 .info-container-value > input {
   font-size: 1rem;
+  color: $dark !important;
 }
 
 .small > * {
   font-size: 0.95rem !important
+}
+
+.grommetux-search-input {
+  width: 50% !important;
+  margin: 0 auto !important;
+  padding-right: 20px !important;
+}
+
+.grommetux-search-input__input {
+  width: 100%;
+  padding: 5px !important;
+  border: none !important;
+  border-bottom: 1px solid $grey !important;
+  border-radius: 0px !important;
 }

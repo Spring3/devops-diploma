@@ -106,6 +106,10 @@ class DockerAction {
       });
   }
 
+  search(target, value) {
+    this.store.dispatch({ type: 'SEARCH', target, query: value });
+  }
+
   selectImage(id) {
     if (!id) {
       this.store.dispatch(push('/images'));

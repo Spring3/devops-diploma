@@ -8,6 +8,7 @@ const initialState = {
   },
   images: {
     selected: {},
+    searchResult: [],
     items: [],
     originalCount: 0
   },
@@ -62,6 +63,18 @@ function mapImages(images) {
   return result;
 }
 
+function searchImages(images, query) {
+  if (!query) {
+    return [];
+  }
+  return images.filter((image) => {
+    if (image.id.includes(query) || image.repo.includes(query) || image.tag.includes(query)) {
+      return true;
+    }
+    return false;
+  });
+}
+
 module.exports = (state = initialState, action) => {
   // TODO: refactor, remove duplication
   switch (action.type) {
@@ -107,6 +120,29 @@ module.exports = (state = initialState, action) => {
       const newState = Object.assign({}, state);
       newState.images.selected = action.info;
       return newState;
+    }
+    case 'SEARCH': {
+      if (!action.target) {
+        return state;
+      }
+      const { target, query } = action;
+      let searchResult;
+      switch (target) {
+        case 'images': {
+          searchResult = searchImages(state.images.items, query);
+          break;
+        }
+        default: {
+          searchResult = null;
+        }
+      }
+
+      if (!searchResult) {
+        return state;
+      }
+
+      state[target].searchResult = searchResult; // eslint-disable-line no-param-reassign
+      return Object.assign({}, state);
     }
     case 'DOCKER_INFO' : {
       return Object.assign({}, state, _.pick(action, 'info'));

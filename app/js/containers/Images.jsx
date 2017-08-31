@@ -18,6 +18,7 @@ class ImagesPage extends React.Component {
     this.state = {
       images: [],
       tableItems: [],
+      searchResult: [],
       selected: null
     };
     this.renderImages = this.renderImages.bind(this);
@@ -34,18 +35,23 @@ class ImagesPage extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.images.length !== this.state.images.length) {
       this.renderImages(nextProps.images);
+    } else if (nextProps.searchResult.length !== this.state.searchResult.length) {
+      if (nextProps.searchResult.length > 0) {
+        this.renderImages(nextProps.searchResult, true);
+      } else {
+        this.renderImages(nextProps.images);
+      }
     }
   }
 
   imageSelected(item) {
     const tableRow = this.state.tableItems[item];
     const id = tableRow.props.children[2].props.children;
-    console.log(id);
     const fullId = this.state.images.filter(image => image.id.indexOf(id) >= 0)[0].id;
     actions.docker.selectImage(fullId);
   }
 
-  renderImages(images) {
+  renderImages(images, search = false) {
     const tableItems = images.map((image, i) =>
         (<TableRow key={i} className={'row'}>
           <td>{image.repo}</td>
@@ -54,7 +60,11 @@ class ImagesPage extends React.Component {
           <td>{new Date(image.created).toISOString().slice(0, 10)}</td>
           <td>{Math.ceil(image.size / 1000000) + ' MB'}</td>
         </TableRow>));
-    this.setState({ tableItems, images });
+    if (search) {
+      this.setState({ tableItems, searchResult: images })
+    } else {
+      this.setState({ tableItems, images });
+    }
   }
 
   render() {
@@ -85,7 +95,8 @@ class ImagesPage extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  images: state.docker.images.items
+  images: state.docker.images.items,
+  searchResult: state.docker.images.searchResult
 });
 
 const mapDispatchToProps = dispatch => ({

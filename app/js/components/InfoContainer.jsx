@@ -24,7 +24,7 @@ class InfoContainer extends React.Component {
         return value.map((v, i) =>
           this.props.editable === true ?
           (<TextInput className="borderless" onChange={this.stub} onDOMChange={this.valueChanged.bind(this)} value={v} key={i}></TextInput>) :
-          (<Label margin='none' key={i}>{v}</Label>)
+          (<Label size='small' key={i}>{v}</Label>)
         );
       } else {
         value = this.state.value.join(' ');
