@@ -108,3 +108,38 @@ input.borderless {
 .row > td {
   padding: 0px;
 }
+
+.info-container-wrapper {
+  width: 75% !important;
+  margin: 0 auto !important;
+  overflow-x: hidden;
+}
+
+.info-container-key {
+  min-width: 150px;
+}
+
+.info-container-value {
+  display: flex;
+  flex-direction: column;
+}
+
+.inline-value,
+.inline-key {
+  display: inline-block;
+}
+
+.margined-value {
+  position: relative;
+  left: 150px;
+  top: -35px;
+}
+
+.info-container-value > label,
+.info-container-value > input {
+  font-size: 1rem;
+}
+
+.small > * {
+  font-size: 0.95rem !important
+}

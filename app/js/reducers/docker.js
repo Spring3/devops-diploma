@@ -109,7 +109,7 @@ module.exports = (state = initialState, action) => {
       return newState;
     }
     case 'DOCKER_INFO' : {
-      return Object.assign({}, state, { info: _.pick(action, 'info') });
+      return Object.assign({}, state, _.pick(action, 'info'));
     }
     case 'DOCKER_CONFIG': {
       return Object.assign({}, state, { config: _.omit(action, 'type') });

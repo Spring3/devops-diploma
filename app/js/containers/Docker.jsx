@@ -49,6 +49,7 @@ class DockerPage extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    console.log(nextProps);
     if (nextProps.isRunning !== this.state.isRunning) {
       this.setState({ isRunning: nextProps.isRunning });
     }
