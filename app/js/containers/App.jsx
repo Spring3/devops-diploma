@@ -33,6 +33,7 @@ import AddIcon from 'grommet/components/icons/base/Add';
 import CaretLeft from 'grommet/components/icons/base/CaretBack';
 
 const actions = require('../actions/actions.js');
+const contextMenu = require('../modules/contextMenu.js');
 
 class App extends React.Component {
   constructor(props) {

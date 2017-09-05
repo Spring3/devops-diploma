@@ -121,6 +121,12 @@ class DockerAction {
         });
     }
   }
+
+  pruneImages() {
+    return docker.instance.pruneImages({
+      dangling: 0
+    });
+  }
 }
 
 module.exports = DockerAction;
