@@ -122,6 +122,10 @@ class DockerAction {
     }
   }
 
+  getImage(id) {
+    return docker.instance.getImage(id);
+  }
+
   pruneImages() {
     return docker.instance.pruneImages({
       dangling: 0

@@ -6,17 +6,23 @@ const { Menu, MenuItem } = remote;
 const mouseDownListener = window.addEventListener('mousedown', (e) => {
   switch (e.which) {
     case 3: {
+      console.log(e);
       e.preventDefault();
       const menu = new Menu();
-      menu.append(new MenuItem({ type: 'separator' }));
-      menu.append(new MenuItem({
-        label: 'Prune',
-        click: () => {
-          if (e.srcElement.innerText.includes('Images')) {
-            actions.docker.pruneImages();
+      const element = e.srcElement;
+      if (element.innerText.includes('Images') && element.tagName === 'LI') {
+        menu.append(new MenuItem({ label: 'Prune', click: () => actions.docker.pruneImages() }));
+      } else if (element.parentNode.className.includes('row-image')) {
+        menu.append(new MenuItem({
+          label: 'Delete',
+          click: () => {
+            const idPiece = element.parentNode.childNodes[2].innerText;
+            const state = actions.store.getState();
+            const image = state.docker.images.items.filter(img => img.id.includes(idPiece))[0];
+            actions.docker.getImage(image.id).remove();
           }
-        }
-      }));
+        }));
+      }
       menu.popup(remote.getCurrentWindow());
       break;
     }

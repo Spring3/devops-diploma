@@ -53,7 +53,7 @@ class ImagesPage extends React.Component {
 
   renderImages(images, search = false) {
     const tableItems = images.map((image, i) =>
-        (<TableRow key={i} className={'row'}>
+        (<TableRow key={i} className={'row row-image'}>
           <td>{image.repo}</td>
           <td>{image.tag}</td>
           <td>{image.id.substring(0, 12)}</td>
