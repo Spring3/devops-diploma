@@ -5,6 +5,7 @@ import Paragraph from 'grommet/components/Paragraph';
 import FormField from 'grommet/components/FormField';
 import FormFields from 'grommet/components/FormFields';
 import TextInput from 'grommet/components/TextInput';
+import Button from 'grommet/components/Button';
 
 class MainTabs extends React.Component {
   render() {
@@ -14,6 +15,7 @@ class MainTabs extends React.Component {
           <FormField label="From Dockerfile" className="borderless">
             <input type={'file'}/>
           </FormField>
+          <Button label="Use existing image"/>
           <hr/>
           <FormFields>
             <fieldset>

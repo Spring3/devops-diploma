@@ -144,7 +144,12 @@ module.exports = (state = initialState, action) => {
       state[target].searchResult = searchResult; // eslint-disable-line no-param-reassign
       return Object.assign({}, state);
     }
-    case 'DOCKER_INFO' : {
+    case 'REMOVE_SELECTED_IMAGE': {
+      const newState = Object.assign({}, state);
+      newState.images.selected = {};
+      return newState;
+    }
+    case 'DOCKER_INFO': {
       return Object.assign({}, state, _.pick(action, 'info'));
     }
     case 'DOCKER_CONFIG': {
