@@ -89,7 +89,7 @@ class Sidebar extends React.Component {
         <Box justify={'start'} align={'center'} direction={'column'}>
           <Box justify={'between'} direction={'row'} alignContent={'between'} pad={{ vertical: 'medium', horizontal: 'medium' }} colorIndex={'grey-2'} className='sidebar'>
             <Box justify={'center'}>
-              <Title>
+              <Title onClick={this.props.openHomepage}>
                 Riptide
               </Title>
             </Box>
@@ -124,6 +124,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   dispatch,
+  openHomepage: () => dispatch(push('/')),
   openDockerPage: () => dispatch(push('/docker')),
   logOut: () => actions.docker.logOut()
 });
