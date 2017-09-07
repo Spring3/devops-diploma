@@ -10,6 +10,14 @@ $warn: #F4D35E;
   visibility: hidden;
 }
 
+.padded-xl {
+  padding: 0px 40px 0px 30px;
+}
+
+.grommetux-form-fields > fieldset {
+  border: none;
+}
+
 .notPadded > span {
   padding-left: 0px !important;
 }
@@ -161,4 +169,25 @@ input.borderless {
 
 .margin-right {
   margin-right: 10px !important;
+}
+
+.wrapper-borderless > *,
+.wrapper-borderless > * > *,
+.wrapper-borderless > * > * > *{
+  border: none !important;
+}
+
+.wrapper-borderless > .grommetux-form-fields > fieldset > .grommetux-form-field > span,
+.wrapper-borderless > .grommetux-form-field > span {
+  background: whitesmoke;
+}
+
+.wrapper-borderless > .grommetux-form-fields > fieldset {
+  margin: 0;
+}
+
+
+.inline-select > ol > li {
+  width: 160px;
+  display: inline-block;
 }

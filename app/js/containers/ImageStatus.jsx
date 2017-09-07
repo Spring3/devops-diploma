@@ -2,6 +2,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import actions from '../actions/actions.js';
 import Box from 'grommet/components/Box';
+import Button from 'grommet/components/Button';
 import InfoContainer from '../components/InfoContainer';
 
 const MB = 1000000;
@@ -13,6 +14,17 @@ class ImageStatusPage extends React.Component {
       selectedImage: props.selectedImage
     };
     console.log(this.state.selectedImage);
+    this.deleteImage = this.deleteImage.bind(this);
+  }
+
+  deleteImage() {
+    actions.docker.getImage(this.state.selected.Id).remove();
+    store.dispatch({ type: 'REMOVE_SELECTED_IMAGE' });
+    this.props.history.goBack();
+  }
+
+  runImage() {
+
   }
 
   render() {
@@ -39,6 +51,18 @@ class ImageStatusPage extends React.Component {
         <InfoContainer name="Repo Tags" value={repoTags} />
         <InfoContainer name="Size" value={sizeMb} inline={true}/>
         <InfoContainer name="Created" value={this.state.selectedImage.Created.slice(0, 10)} inline={true}/>
+        <hr className='invisible'/>
+        <Box direction='row' full='horizontal' justify='center'>
+          <Button label='Run'
+            onClick={this.runImage}
+            accent={true}
+            className='margin-right' />
+          <Button label='Remove'
+            onClick={this.deleteImage}
+            critical={true}
+            className='margin-right' />
+        </Box>
+        <hr className='invisible'/>
       </div>
     );
   }
