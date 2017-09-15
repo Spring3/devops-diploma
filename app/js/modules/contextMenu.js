@@ -19,7 +19,7 @@ const mouseDownListener = window.addEventListener('mousedown', (e) => {
             const idPiece = element.parentNode.childNodes[2].innerText;
             const state = actions.store.getState();
             const image = state.docker.images.items.filter(img => img.id.includes(idPiece))[0];
-            actions.docker.getImage(image.id).remove();
+            actions.docker.image.get(image.id).remove();
           }
         }));
       }

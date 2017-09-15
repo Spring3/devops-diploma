@@ -118,8 +118,8 @@ class Sidebar extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  authInProgress: state.docker.authInProgress,
-  authResult: state.docker.authResult
+  authInProgress: state.docker.common.authInProgress,
+  authResult: state.docker.common.authResult
 });
 
 const mapDispatchToProps = dispatch => ({

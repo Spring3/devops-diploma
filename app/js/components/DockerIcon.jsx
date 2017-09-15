@@ -70,7 +70,7 @@ class DockerIcon extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  isRunning: state.docker.isRunning
+  isRunning: state.docker.common.isRunning
 });
 const mapDispatchToProps = () => ({
   toggleSidebar: () => actions.toggleSidebar()

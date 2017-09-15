@@ -166,9 +166,9 @@ class DockerPage extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  isRunning: state.docker.isRunning,
-  info: state.docker.info,
-  config: state.docker.config
+  isRunning: state.docker.common.isRunning,
+  info: state.docker.common.info,
+  config: state.docker.common.config
 });
 
 const mapDispatchToProps = () => ({});

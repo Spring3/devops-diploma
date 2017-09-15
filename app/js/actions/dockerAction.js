@@ -1,6 +1,6 @@
 import storage from 'electron-json-storage';
-import { push } from 'react-router-redux';
 import docker from './../modules/docker';
+import ImageActions from './imagesAction';
 
 class DockerAction {
   constructor(store) {
@@ -8,6 +8,7 @@ class DockerAction {
     this.updateInfo = this.updateInfo.bind(this);
     this.check = this.check.bind(this);
     this.authenticate = this.authenticate.bind(this);
+    this.image = new ImageActions(store);
   }
 
   connect(config, save) {
@@ -67,10 +68,6 @@ class DockerAction {
     });
   }
 
-  getImages() {
-    docker.getImages(true).then(images => this.store.dispatch({ type: 'DOCKER_IMAGES', images }));
-  }
-
   logOut() {
     storage.remove('auth');
     this.store.dispatch({ type: 'DOCKER_LOG_OUT' });
@@ -108,28 +105,6 @@ class DockerAction {
 
   search(target, value) {
     this.store.dispatch({ type: 'SEARCH', target, query: value });
-  }
-
-  selectImage(id) {
-    if (!id) {
-      this.store.dispatch(push('/images'));
-    } else {
-      docker.instance.getImage(id).inspect()
-        .then((data) => {
-          this.store.dispatch({ type: 'SELECT_IMAGE', info: data });
-          this.store.dispatch(push('/images/selected/'));
-        });
-    }
-  }
-
-  getImage(id) {
-    return docker.instance.getImage(id);
-  }
-
-  pruneImages() {
-    return docker.instance.pruneImages({
-      dangling: 0
-    });
   }
 }
 
