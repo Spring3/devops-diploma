@@ -1,4 +1,6 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import Box from 'grommet/components/Box';
 import FormField from 'grommet/components/FormField';
 import FormFields from 'grommet/components/FormFields';
@@ -17,9 +19,23 @@ class ImageBuildTab extends React.Component {
     this.selectionChanged = this.selectionChanged.bind(this);
   }
 
-
   selectionChanged(e) {
-    this.setState({ selected: e.value });
+    console.log(e);
+    const { store } = this.context;
+    const action = {
+      type: 'PICK_IMAGE_FIELD',
+      used: e.value.includes(e.option),
+      field: e.option
+    };
+    store.dispatch(action);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.selected.length !== this.state.selected.length) {
+      this.setState({
+        selected: nextProps.selected
+      });
+    }
   }
 
   render() {
@@ -64,75 +80,129 @@ class ImageBuildTab extends React.Component {
             </fieldset>
           </FormFields> : ''
         }
-        <FormField label='USER'>
-          <TextInput/>
-        </FormField>
-        <FormField label='SHELL'>
-          <TextInput/>
-        </FormField>
-        <FormField label='WORKDIR'>
-          <TextInput/>
-        </FormField>
-        <FormFields>
-          <fieldset>
-            <FormField label='ADD' htmlFor='adds'>
-              <textarea rows="3" type='text' id='adds' name='adds'/>
-            </FormField>
-          </fieldset>
-        </FormFields>
-        <FormFields>
-          <fieldset>
-            <FormField label='COPY' htmlFor='copies'>
-              <textarea rows="3" type='text' id='copies' name='copies'/>
-            </FormField>
-          </fieldset>
-        </FormFields>
-        <FormFields>
-          <fieldset>
-            <FormField label='RUN' htmlFor='runs'>
-              <textarea rows="3" type='text' id='runs' name='runs'/>
-            </FormField>
-          </fieldset>
-        </FormFields>
-        <FormFields>
-          <fieldset>
-            <FormField label='EXPOSE' htmlFor='ports'>
-              <textarea rows="3" type='text' id='ports' name='ports'/>
-            </FormField>
-          </fieldset>
-        </FormFields>
-        <FormFields>
-          <fieldset>
-            <FormField label='ENV' htmlFor='envs'>
-              <textarea rows="3" type='text' id='envs' name='envs'/>
-            </FormField>
-          </fieldset>
-        </FormFields>
-        <FormField label='VOLUME'>
-          <TextInput/>
-        </FormField>
-        <FormField label='ENTRYPOINT'>
-          <TextInput/>
-        </FormField>
-        <FormFields>
-          <fieldset>
-            <FormField label='ONBUILD' htmlFor='onbuilds'>
-              <textarea rows="3" type='text' id='onbuilds' name='onbuilds'/>
-            </FormField>
-          </fieldset>
-        </FormFields>
-        <FormField label='STOPSIGNAL'>
-          <TextInput/>
-        </FormField>
-        <FormField label='HEALTHCHECK'>
-          <TextInput/>
-        </FormField>
-        <FormField label='CMD'>
-          <TextInput/>
-        </FormField>
+        {
+          this.state.selected.includes('USER') ?
+          <FormField label='USER'>
+            <TextInput/>
+          </FormField> : ''
+        }
+        {
+          this.state.selected.includes('SHELL') ?
+          <FormField label='SHELL'>
+            <TextInput/>
+          </FormField> : ''
+        }
+        {
+          this.state.selected.includes('WORKDIR') ?
+          <FormField label='WORKDIR'>
+            <TextInput/>
+          </FormField> : ''
+        }
+        {
+          this.state.selected.includes('ADD') ?
+          <FormFields>
+            <fieldset>
+              <FormField label='ADD' htmlFor='adds'>
+                <textarea rows="3" type='text' id='adds' name='adds'/>
+              </FormField>
+            </fieldset>
+          </FormFields> : ''
+        }
+        {
+          this.state.selected.includes('COPY') ?
+          <FormFields>
+            <fieldset>
+              <FormField label='COPY' htmlFor='copies'>
+                <textarea rows="3" type='text' id='copies' name='copies'/>
+              </FormField>
+            </fieldset>
+          </FormFields> : ''
+        }
+        {
+          this.state.selected.includes('RUN') ?
+          <FormFields>
+            <fieldset>
+              <FormField label='RUN' htmlFor='runs'>
+                <textarea rows="3" type='text' id='runs' name='runs'/>
+              </FormField>
+            </fieldset>
+          </FormFields> : ''
+        }
+        {
+          this.state.selected.includes('EXPOSE') ?
+          <FormFields>
+            <fieldset>
+              <FormField label='EXPOSE' htmlFor='ports'>
+                <textarea rows="3" type='text' id='ports' name='ports'/>
+              </FormField>
+            </fieldset>
+          </FormFields> : ''
+        }
+        {
+          this.state.selected.includes('ENV') ?
+          <FormFields>
+            <fieldset>
+              <FormField label='ENV' htmlFor='envs'>
+                <textarea rows="3" type='text' id='envs' name='envs'/>
+              </FormField>
+            </fieldset>
+          </FormFields> : ''
+        }
+        {
+          this.state.selected.includes('VOLUME') ?
+          <FormField label='VOLUME'>
+            <TextInput/>
+          </FormField> : ''
+        }
+        {
+          this.state.selected.includes('ENTRY POINT') ?
+          <FormField label='ENTRY POINT'>
+            <TextInput/>
+          </FormField> : ''
+        }
+        {
+          this.state.selected.includes('ONBUILD') ?
+          <FormFields>
+            <fieldset>
+              <FormField label='ONBUILD' htmlFor='onbuilds'>
+                <textarea rows="3" type='text' id='onbuilds' name='onbuilds'/>
+              </FormField>
+            </fieldset>
+          </FormFields> : ''
+        }
+        {
+          this.state.selected.includes('STOP SIGNAL') ?
+          <FormField label='STOP SIGNAL'>
+            <TextInput/>
+          </FormField> : ''
+        }
+        {
+          this.state.selected.includes('HEALTHCHECK') ?
+          <FormField label='HEALTHCHECK'>
+            <TextInput/>
+          </FormField> : ''
+        }
+        {
+          this.state.selected.includes('CMD') ?
+          <FormField label='CMD'>
+            <TextInput/>
+          </FormField> : ''
+        }
       </Box>
     )
   }
 }
 
-module.exports = ImageBuildTab;
+const mapStateToProps = state => ({
+  selected: state.docker.build.images.fields
+});
+
+const mapDispatchToProps = dispatch => ({
+  dispatch
+});
+
+ImageBuildTab.contextTypes = {
+  store: PropTypes.object
+}
+
+module.exports = connect(mapStateToProps, mapDispatchToProps)(ImageBuildTab);

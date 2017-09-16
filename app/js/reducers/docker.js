@@ -1,6 +1,7 @@
 import _ from 'underscore';
 import { combineReducers } from 'redux';
 import images from './images';
+import imagesBuild from './imageBuild';
 import containers from './containers';
 import services from './services';
 import tasks from './tasks';
@@ -57,6 +58,9 @@ const docker = (state = initialState, action) => {
 module.exports = combineReducers({
   common: docker,
   images,
+  build: combineReducers({
+    images: imagesBuild
+  }),
   containers,
   services,
   nodes,
