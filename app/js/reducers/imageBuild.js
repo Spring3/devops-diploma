@@ -22,6 +22,17 @@ module.exports = (state = initialState, action) => {
       }
       return state;
     }
+    case 'IMAGE_VALUE_CHANGE': {
+      const { field, value } = action;
+      if (state.fields.includes(field) && {}.hasOwnProperty.call(state.data, field)) {
+        const data = Object.assign({}, state.data, { [field]: value });
+        return {
+          fields: state.fields,
+          data
+        };
+      }
+      return state;
+    }
     default: {
       return state;
     }

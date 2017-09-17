@@ -3,7 +3,7 @@ import Tabs from 'grommet/components/Tabs';
 import Tab from 'grommet/components/Tab';
 import Box from 'grommet/components/Box';
 import Paragraph from 'grommet/components/Paragraph';
-import ImageBuildTab from './ImageBuildTab';
+import ImageBuildTab from '../containers/ImageBuildTab.jsx';
 
 class MainTabs extends React.Component {
 
