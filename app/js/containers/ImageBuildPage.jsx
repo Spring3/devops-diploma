@@ -7,10 +7,11 @@ import FormFields from 'grommet/components/FormFields';
 import TextInput from 'grommet/components/TextInput';
 import Button from 'grommet/components/Button';
 import Select from 'grommet/components/Select';
+import Download from 'grommet/components/icons/base/DocumentDownload';
 
 import actions from '../actions/actions.js';
 
-class ImageBuildTab extends React.Component {
+class ImageBuildPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -19,6 +20,7 @@ class ImageBuildTab extends React.Component {
     };
     this.selectionChanged = this.selectionChanged.bind(this);
     this.valueChanged = this.valueChanged.bind(this);
+    this.buildDockerFile = this.buildDockerFile.bind(this);
   }
 
   selectionChanged(e) {
@@ -55,21 +57,21 @@ class ImageBuildTab extends React.Component {
     });
   }
 
+  buildDockerFile() {
+    console.log('Click');
+  }
+
   render() {
     return (
       <Box className='padded-xl wrapper-borderless'>
         <Box direction='row'>
           <Select inline={true}
             multiple={true}
-            options={['FROM', 'RUN', 'CMD', 'LABEL', 'EXPOSE', 'ENV', 'ADD', 'COPY', 'ENTRY POINT', 'VOLUME', 'USER', 'WORKDIR', 'ARG', 'ONBUILD', 'STOP SIGNAL', 'HEALTHCHECK', 'SHELL']}
+            options={['RUN', 'LABEL', 'ADD', 'COPY', 'ENTRY POINT', 'VOLUME', 'USER', 'WORKDIR', 'ARG', 'ONBUILD', 'STOP SIGNAL', 'HEALTHCHECK', 'SHELL']}
             value={this.state.selected}
             onChange={this.selectionChanged}
             className="inline-select" />
         </Box>
-        <hr/>
-        <FormField label="Import From Dockerfile" className="borderless">
-          <input type={'file'}/>
-        </FormField>
         <hr/>
         {
           this.state.selected.includes('ARG') ? 
@@ -205,6 +207,11 @@ class ImageBuildTab extends React.Component {
             <TextInput name='cmd' onDOMChange={this.valueChanged} value={this.state.data['CMD'] || ''}/>
           </FormField> : ''
         }
+        <Box direction='row' fill='horizontal' justify='center' pad='medium'>
+          <Button icon={<Download />}
+            label='Create Dockerfile'
+            onClick={this.buildDockerFile} />
+        </Box>
       </Box>
     )
   }
@@ -217,8 +224,8 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({ dispatch });
 
-ImageBuildTab.contextTypes = {
+ImageBuildPage.contextTypes = {
   store: PropTypes.object
 }
 
-module.exports = connect(mapStateToProps, mapDispatchToProps)(ImageBuildTab);
+module.exports = connect(mapStateToProps, mapDispatchToProps)(ImageBuildPage);

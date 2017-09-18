@@ -1,6 +1,11 @@
 const initialState = {
-  fields: [],
-  data: {}
+  fields: ['FROM', 'CMD', 'EXPOSE', 'ENV'],
+  data: {
+    FROM: '',
+    CMD: '',
+    EXPOSE: '',
+    ENV: ''
+  }
 };
 
 module.exports = (state = initialState, action) => {

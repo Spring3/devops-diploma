@@ -11,7 +11,7 @@ const mouseDownListener = window.addEventListener('mousedown', (e) => {
       const menu = new Menu();
       const element = e.srcElement;
       if (element.innerText.includes('Images') && element.tagName === 'LI') {
-        menu.append(new MenuItem({ label: 'Prune', click: () => actions.docker.pruneImages() }));
+        menu.append(new MenuItem({ label: 'Prune', click: () => actions.docker.image.prune() }));
       } else if (element.parentNode.className.includes('row-image')) {
         menu.append(new MenuItem({
           label: 'Delete',

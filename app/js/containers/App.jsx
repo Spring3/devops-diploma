@@ -10,7 +10,7 @@ import Button from 'grommet/components/Button';
 import Title from 'grommet/components/Title';
 import Animate from 'grommet/components/Animate';
 
-import MainTabs from '../components/MainTabs.jsx';
+import MainMenu from '../components/MainMenu.jsx';
 import Modal from '../components/Modal';
 
 import Sidebar from '../components/Sidebar.jsx';
@@ -20,6 +20,7 @@ import TopMenu from '../components/TopMenu.jsx';
 
 // pages
 import About from '../containers/About.jsx';
+import ImageBuildPage from '../containers/ImageBuildPage.jsx';
 import ImagesPage from '../containers/Images.jsx';
 import ImagesStatusPage from '../containers/ImageStatus.jsx';
 import DockerPage from '../containers/Docker.jsx';
@@ -79,8 +80,9 @@ class App extends React.Component {
             </Box>
             <Box justify={'between'} direction={'row'} full={'horizontal'} flex={true} alignContent={'end'}>
               <Box flex={true} pad={{ vertical: 'none', horizontal: 'small' }} className='left-padded'>
-                <Route exact path='/' component={MainTabs} />
+                <Route exact path='/' component={MainMenu} />
                 <Route path='/docker' component={DockerPage} />
+                <Route exact path='/image' component={ImageBuildPage} />
                 <Route exact path='/images' component={ImagesPage} />
                 <Route path='/images/selected' component={ImagesStatusPage} />
                 <Route path='/about' component={About} />

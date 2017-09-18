@@ -171,6 +171,10 @@ input.borderless {
   margin-right: 10px !important;
 }
 
+.wrapper-borderless {
+  display: inline-block;
+}
+
 .wrapper-borderless > *,
 .wrapper-borderless > * > *,
 .wrapper-borderless > * > * > *{
