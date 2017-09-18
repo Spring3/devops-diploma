@@ -32,6 +32,8 @@
     "electron-json-storage": "^3.0.7",
     "grommet": "^1.6.0",
     "history": "^4.6.3",
+    "memory-streams": "^0.1.2",
+    "prop-types": "^15.5.10",
     "react": "^15.6.1",
     "react-count-to": "^0.8.1",
     "react-dom": "^15.6.1",
@@ -43,8 +45,7 @@
     "redux": "^3.7.2",
     "typeface-roboto": "0.0.31",
     "underscore": "^1.8.3",
-    "webpack": "^3.4.1",
-    "prop-types": "^15.5.10"
+    "webpack": "^3.4.1"
   },
   "devDependencies": {
     "babel-core": "^6.25.0",

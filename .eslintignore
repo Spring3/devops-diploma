@@ -1,6 +1,7 @@
 /bin/**
 /build/**
 /coverage/**
+/documents/**
 /docs/**
 /jsdoc/**
 /node_modules/**

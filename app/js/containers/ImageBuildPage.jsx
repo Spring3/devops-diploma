@@ -1,4 +1,5 @@
 import React from 'react';
+import { ipcRenderer } from 'electron';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Box from 'grommet/components/Box';
@@ -7,6 +8,7 @@ import FormFields from 'grommet/components/FormFields';
 import TextInput from 'grommet/components/TextInput';
 import Button from 'grommet/components/Button';
 import Select from 'grommet/components/Select';
+import Toast from 'grommet/components/Toast';
 import Download from 'grommet/components/icons/base/DocumentDownload';
 
 import actions from '../actions/actions.js';
@@ -16,11 +18,35 @@ class ImageBuildPage extends React.Component {
     super(props);
     this.state = {
       selected: this.props.selected || ['FROM', 'CMD', 'EXPOSE', 'ENV', 'COPY', 'WORKDIR'],
-      data: this.props.data || {}
+      data: this.props.data || {},
+      toast: false,
+      toastMessage: ''
     };
     this.selectionChanged = this.selectionChanged.bind(this);
     this.valueChanged = this.valueChanged.bind(this);
     this.buildDockerFile = this.buildDockerFile.bind(this);
+  }
+
+  componentWillMount() {
+    this.listener = (e, data) => {
+      const self = this;
+      this.setState({
+        toast: true,
+        toastMessage: `${data.fileName} was created in ${data.filePath}`
+      }, () => {
+        setTimeout(() => {
+          self.setState({
+            toast: false,
+            toastMessage: ''
+          });
+        }, 4000);
+      });
+    };
+    ipcRenderer.on('build:rs', this.listener);
+  }
+
+  componentWillUnmount() {
+    ipcRenderer.removeListener('build:rs', this.listener);
   }
 
   selectionChanged(e) {
@@ -58,12 +84,23 @@ class ImageBuildPage extends React.Component {
   }
 
   buildDockerFile() {
-    console.log('Click');
+    const payload = this.state.selected
+      .map(item => ({ [item]: this.state.data[item]}))
+      .reduce((sum, next) => Object.assign(sum, next));
+    const data = {
+      type: 'DOCKERFILE',
+      payload
+    };
+    ipcRenderer.send('build', data);
   }
 
   render() {
     return (
       <Box className='padded-xl wrapper-borderless'>
+        {
+          this.state.toast ? 
+          <Toast status='ok'>{this.state.toastMessage}</Toast> : ''
+        }
         <Box direction='row'>
           <Select inline={true}
             multiple={true}
