@@ -56,13 +56,17 @@ class Docker {
       }
       default: {
         // socket
-        const stats = fs.statSync(config.socket);
-        if (!stats.isSocket()) {
-          throw new Error('Unable to locate docker daemon');
+        try {
+          const stats = fs.statSync(config.socket);
+          if (!stats.isSocket()) {
+            throw new Error('Unable to locate docker daemon');
+          }
+          this.instance = new DockerAPI({
+            socketPath: config.socket
+          });
+        } catch (e) {
+          console.error(e);
         }
-        this.instance = new DockerAPI({
-          socketPath: config.socket
-        });
         break;
       }
     }
