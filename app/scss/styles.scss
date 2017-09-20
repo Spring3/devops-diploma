@@ -219,7 +219,7 @@ input.borderless {
   width: 145px;
   display: inline-block;
   padding: 0px;
-  padding-top: 5px;
+  margin-top: 5px !important;
   min-height: 0px;
   max-height: 25px;
 }

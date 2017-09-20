@@ -23,7 +23,7 @@ class Sidebar extends React.Component {
     super(props);
     this.state = {
       authInProgress: false,
-      authResult: null
+      authResult: this.props.authResult || null
     }
   }
 
@@ -31,6 +31,7 @@ class Sidebar extends React.Component {
     // loading authResult from state store if exists
     const { store } = this.context;
     const state = store.getState();
+    console.log(state);
     if (!state.docker.authResult) {
       storage.get('auth', (e, data) => {
         if (data.username) {
