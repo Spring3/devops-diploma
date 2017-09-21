@@ -45,7 +45,7 @@ class App {
   }
 
   createDockerfile(payload) {
-    return new Promise((resolve) =>
+    return new Promise(resolve =>
       this.checkDocumentsDirectory().then(() => {
         const currentDate = new Date().toISOString();
         const fileName = `${currentDate}-Dockerfile`;

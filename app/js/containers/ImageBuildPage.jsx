@@ -98,14 +98,16 @@ class ImageBuildPage extends React.Component {
   }
 
   buildDockerFile() {
-    const payload = this.state.selected
-      .map(item => ({ [item]: this.state.data[item]}))
-      .reduce((sum, next) => Object.assign(sum, next));
-    const data = {
-      type: 'DOCKERFILE',
-      payload
-    };
-    ipcRenderer.send('build', data);
+    if (Object.keys(this.state.data) > 0) {
+      const payload = this.state.selected
+        .map(item => ({ [item]: this.state.data[item]}))
+        .reduce((sum, next) => Object.assign(sum, next));
+      const data = {
+        type: 'DOCKERFILE',
+        payload
+      };
+      ipcRenderer.send('build', data);
+    }
   }
 
   togglePreview() {
@@ -307,30 +309,34 @@ class ImageBuildPage extends React.Component {
               onChange={this.selectionChanged}
               className="inline-select" />
             <hr className='invisible'/>
-            <Button icon={<Download />}
-              label='Dockerfile'
-              onClick={this.buildDockerFile}
-              className='btn-small' />
-              <hr className='invisible'/>
-              {
-                this.state.fileName ? 
+            <Heading tag='h4' strong={true} margin='none'>Actions</Heading>
+            <hr className='invisible'/>
+            <Box direction='row' justify='center' colorIndex='light-2'>
+              <Button icon={<Download />}
+                box={true}
+                onClick={this.buildDockerFile}
+                plain={true}
+                a11yTitle='Save'
+                hoverIndicator={{background:'ok'}}
+                className='btn-small' />
+                <hr className='invisible'/>
                 <Button icon={<Search />}
-                label='Preview'
+                box={true}
                 onClick={this.togglePreview}
-                secondary={true}
+                a11yTitle='Preview'
+                plain={true}
                 className='btn-small'
-                /> : ''
-              }
-              <hr className='invisible'/>
-              {
-                this.state.fileName ? 
+                />
+                <hr className='invisible'/>
                 <Button icon={<Trash />}
-                label='Delete'
+                box={true}
+                a11yTitle='Delete'
                 onClick={this.deleteFile}
-                secondary={true}
+                hoverIndicator={{background:'critical'}}
+                plain={true}
                 className='btn-small'
-                /> : ''
-              }
+                />
+            </Box>
           </Box>
         </Box>
       </Box>
