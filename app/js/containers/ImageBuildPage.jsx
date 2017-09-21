@@ -9,9 +9,19 @@ import TextInput from 'grommet/components/TextInput';
 import Button from 'grommet/components/Button';
 import Select from 'grommet/components/Select';
 import Toast from 'grommet/components/Toast';
+import Section from 'grommet/components/Section';
+import Heading from 'grommet/components/Heading';
+import Paragraph from 'grommet/components/Paragraph';
+import Preview from '../components/Modal.jsx';
+
 import Download from 'grommet/components/icons/base/DocumentDownload';
+import Search from 'grommet/components/icons/base/Search';
+import Trash from 'grommet/components/icons/base/Trash';
 
 import actions from '../actions/actions.js';
+
+const fs = require('fs');
+const path = require('path');
 
 class ImageBuildPage extends React.Component {
   constructor(props) {
@@ -25,6 +35,8 @@ class ImageBuildPage extends React.Component {
     this.selectionChanged = this.selectionChanged.bind(this);
     this.valueChanged = this.valueChanged.bind(this);
     this.buildDockerFile = this.buildDockerFile.bind(this);
+    this.togglePreview = this.togglePreview.bind(this);
+    this.deleteFile = this.deleteFile.bind(this);
   }
 
   componentWillMount() {
@@ -32,14 +44,16 @@ class ImageBuildPage extends React.Component {
       const self = this;
       this.setState({
         toast: true,
-        toastMessage: `${data.fileName} was created in ${data.filePath}`
+        toastMessage: `${data.fileName} was created in ${data.filePath}`,
+        fileName: data.fileName,
+        filePath: data.filePath
       }, () => {
         setTimeout(() => {
           self.setState({
             toast: false,
             toastMessage: ''
           });
-        }, 4000);
+        }, 5000);
       });
     };
     ipcRenderer.on('build:rs', this.listener);
@@ -94,9 +108,56 @@ class ImageBuildPage extends React.Component {
     ipcRenderer.send('build', data);
   }
 
+  togglePreview() {
+    if (!this.state.preview) {
+      actions.readFile(`${this.state.filePath}${path.sep}${this.state.fileName}`)
+      .then((content) => {
+        this.setState({
+          preview: !this.state.preview,
+          content
+        });
+      })
+      .catch(() => {
+        this.setState({
+          fileName: null,
+          filePath: null,
+          content: null
+        });
+      });
+    } else {
+      this.setState({
+        preview: !this.state.preview
+      });
+    }
+  }
+
+  deleteFile() {
+    const file = `${this.state.filePath}${path.sep}${this.state.fileName}`;
+    actions.deleteFile(file)
+    .then(() => {
+      this.setState({
+        fileName: null,
+        filePath: null
+      });
+    });
+  }
+
   render() {
     return (
       <Box>
+        {
+          this.state.preview ?
+          <Preview closeBtn={true} toggleModal={this.togglePreview}>
+            <Section style={{ whiteSpace: 'pre' }}>
+              <Heading tag='h3' strong={true} margin='none'>{this.state.fileName}</Heading>
+              <hr className='invisible'/>
+              <Paragraph>
+                {this.state.content}
+              </Paragraph>
+            </Section>
+          </Preview>
+          : ''
+        }
         {
           this.state.toast ? 
           <Toast status='ok'>{this.state.toastMessage}</Toast> : ''
@@ -250,6 +311,26 @@ class ImageBuildPage extends React.Component {
               label='Dockerfile'
               onClick={this.buildDockerFile}
               className='btn-small' />
+              <hr className='invisible'/>
+              {
+                this.state.fileName ? 
+                <Button icon={<Search />}
+                label='Preview'
+                onClick={this.togglePreview}
+                secondary={true}
+                className='btn-small'
+                /> : ''
+              }
+              <hr className='invisible'/>
+              {
+                this.state.fileName ? 
+                <Button icon={<Trash />}
+                label='Delete'
+                onClick={this.deleteFile}
+                secondary={true}
+                className='btn-small'
+                /> : ''
+              }
           </Box>
         </Box>
       </Box>
