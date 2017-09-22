@@ -32,15 +32,19 @@ class Sidebar extends React.Component {
     const { store } = this.context;
     const state = store.getState();
     console.log(state);
-    if (!state.docker.authResult) {
+    if (!state.docker.common.authResult) {
       storage.get('auth', (e, data) => {
+        console.log(data);
+        if (data.password) {
+          data.password = Buffer.from(data.password, 'hex').toString('utf8');
+        }
         if (data.username) {
           actions.docker.authenticate(data, true);
         }
       });
     } else {
       this.setState({
-        authResult: state.docker.authResult
+        authResult: state.docker.common.authResult
       });
     }
   }

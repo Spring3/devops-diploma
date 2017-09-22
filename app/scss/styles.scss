@@ -233,6 +233,10 @@ input.borderless {
   padding: 6px !important;
 }
 
+.grommet.grommetux-drop {
+  z-index: 999999999;
+}
+
 textarea {
   padding-top: 5px !important;
 }

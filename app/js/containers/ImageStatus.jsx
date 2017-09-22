@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import actions from '../actions/actions.js';
 import Box from 'grommet/components/Box';
@@ -18,7 +19,8 @@ class ImageStatusPage extends React.Component {
   }
 
   deleteImage() {
-    actions.docker.getImage(this.state.selected.Id).remove();
+    const { store } = this.context;
+    actions.docker.image.get(this.state.selectedImage.Id).remove({ force: true });
     store.dispatch({ type: 'REMOVE_SELECTED_IMAGE' });
     this.props.history.goBack();
   }
@@ -71,5 +73,9 @@ class ImageStatusPage extends React.Component {
 const mapStateToProps = state => ({
   selectedImage: state.docker.images.selected
 });
+
+ImageStatusPage.contextTypes = {
+  store: PropTypes.object
+};
 
 module.exports = connect(mapStateToProps)(ImageStatusPage);

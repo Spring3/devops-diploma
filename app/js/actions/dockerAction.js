@@ -2,8 +2,11 @@ import storage from 'electron-json-storage';
 import docker from './../modules/docker';
 import ImageActions from './imagesAction';
 
-class DockerAction {
+import Action from './action';
+
+class DockerAction extends Action {
   constructor(store) {
+    super();
     this.store = store;
     this.updateInfo = this.updateInfo.bind(this);
     this.check = this.check.bind(this);
@@ -86,12 +89,18 @@ class DockerAction {
     };
     docker.instance.checkAuth(request)
       .then((result) => {
-        const response = { type: 'DOCKER_AUTH', username: request.username, serverAddress: request.serverAddress };
+        const response = {
+          type: 'DOCKER_AUTH',
+          username: request.username,
+          password: Buffer.from(request.password).toString('hex'),
+          serverAddress: request.serverAddress
+        };
         this.store.dispatch(Object.assign(response, result));
         if (data.remember) {
           storage.set('auth', {
             serverAddress: request.serverAddress,
             username: request.username,
+            password: response.password,
             token: result.IdentityToken
           });
         }

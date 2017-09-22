@@ -146,7 +146,8 @@ class ImageBuildPage extends React.Component {
   }
 
   runImage() {
-
+    const projectName = this.state.filePath.split(path.sep).pop();
+    actions.docker.image.build(this.state.filePath, { t: `${projectName}:riptide-test`.toLowerCase() });
   }
 
   pickDestination(e) {
@@ -206,7 +207,7 @@ class ImageBuildPage extends React.Component {
                 a11yTitle='Save'
                 className='btn-small' />
               <Button icon={<Play />}
-                onClick={this.state.fileName ? this.runImage : null}
+                onClick={this.state.filePath ? this.runImage : null}
                 a11yTitle='Run'
                 label='Run'
                 plain={true}
