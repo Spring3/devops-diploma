@@ -17,6 +17,8 @@ import Preview from '../components/Modal.jsx';
 import Download from 'grommet/components/icons/base/DocumentDownload';
 import Search from 'grommet/components/icons/base/Search';
 import Trash from 'grommet/components/icons/base/Trash';
+import Play from 'grommet/components/icons/base/Play';
+import Open from 'grommet/components/icons/base/FolderOpen';
 
 import actions from '../actions/actions.js';
 
@@ -30,13 +32,16 @@ class ImageBuildPage extends React.Component {
       selected: this.props.selected || ['FROM', 'CMD', 'EXPOSE', 'ENV', 'COPY', 'WORKDIR'],
       data: this.props.data || {},
       toast: false,
-      toastMessage: ''
+      toastMessage: '',
+      destination: ''
     };
     this.selectionChanged = this.selectionChanged.bind(this);
     this.valueChanged = this.valueChanged.bind(this);
     this.buildDockerFile = this.buildDockerFile.bind(this);
     this.togglePreview = this.togglePreview.bind(this);
     this.deleteFile = this.deleteFile.bind(this);
+    this.runImage = this.runImage.bind(this);
+    this.pickDestination = this.pickDestination.bind(this);
   }
 
   componentWillMount() {
@@ -57,6 +62,11 @@ class ImageBuildPage extends React.Component {
       });
     };
     ipcRenderer.on('build:rs', this.listener);
+  }
+
+  componentDidMount() {
+    this.destinationPicker.directory = true;
+    this.destinationPicker.webkitdirectory = true;
   }
 
   componentWillUnmount() {
@@ -98,13 +108,15 @@ class ImageBuildPage extends React.Component {
   }
 
   buildDockerFile() {
-    if (Object.keys(this.state.data) > 0) {
+    console.log(this.state);
+    if (Object.keys(this.state.data).length > 0) {
       const payload = this.state.selected
         .map(item => ({ [item]: this.state.data[item]}))
         .reduce((sum, next) => Object.assign(sum, next));
       const data = {
         type: 'DOCKERFILE',
-        payload
+        payload,
+        destination: this.state.destination
       };
       ipcRenderer.send('build', data);
     }
@@ -131,6 +143,17 @@ class ImageBuildPage extends React.Component {
         preview: !this.state.preview
       });
     }
+  }
+
+  runImage() {
+
+  }
+
+  pickDestination(e) {
+    const file = e.target.files[0];
+    this.setState({
+      destination: file.path
+    });
   }
 
   deleteFile() {
@@ -164,8 +187,51 @@ class ImageBuildPage extends React.Component {
           this.state.toast ? 
           <Toast status='ok'>{this.state.toastMessage}</Toast> : ''
         }
-        <Box direction='row' pad={{ horizontal: 'medium' }} className='left-padded'>
+        <Box direction='row' pad={{ horizontal: 'medium' }} className='left-padded' style={{ marginRight: '220px' }}>
           <Box className='wrapper-borderless' full='horizontal' alignContent="stretch">
+            <Box direction='row' justify='start' alignSelf='stretch' align='center' style={{ background: 'white', position: 'fixed', zIndex: 999, width: '100%' }}>
+              <Button icon={<Open />}
+                box={true}
+                label='Destination'
+                plain={true}
+                onClick={() => this.destinationPicker.click()}
+                a11yTitle='Destination'
+                className='btn-small'
+              />
+              <Button icon={<Download />}
+                box={true}
+                label='Save'
+                onClick={this.state.destination ? this.buildDockerFile : null}
+                plain={true}
+                a11yTitle='Save'
+                className='btn-small' />
+              <Button icon={<Play />}
+                onClick={this.state.fileName ? this.runImage : null}
+                a11yTitle='Run'
+                label='Run'
+                plain={true}
+                className='btn-small'
+              />
+              <Button icon={<Search />}
+                box={true}
+                onClick={this.state.fileName ? this.togglePreview : null}
+                a11yTitle='Preview'
+                label='Preview'
+                plain={true}
+                className='btn-small'
+                />
+              <Button icon={<Trash />}
+                box={true}
+                label='Delete'
+                a11yTitle='Delete'
+                onClick={this.state.fileName ? this.deleteFile : null}
+                plain={true}
+                className='btn-small'
+                />
+              <input ref={ input => this.destinationPicker = input } onChange={this.pickDestination} type='file' style={{ visibility: 'hidden' }} />
+            </Box>
+            <Heading tag='h4' strong={true} style={{ marginTop: '60px' }} margin='none'>Contents</Heading>
+            <hr className='invisible' />
             {
               this.state.selected.includes('ARG') ? 
               <FormFields>
@@ -301,42 +367,13 @@ class ImageBuildPage extends React.Component {
               </FormField> : ''
             }
           </Box>
-          <Box justify='start' align='center' full='vertical' basis='medium' pad={{ horizontal: 'medium' }}>
+          <Box justify='start' align='center' full='vertical' basis='medium' pad={{ horizontal: 'medium' }} style={{ position: 'fixed', right: '20px', zIndex: 1000 }}>
             <Select inline={true}
               multiple={true}
               options={['RUN', 'LABEL', 'ADD', 'COPY', 'ENTRY POINT', 'VOLUME', 'USER', 'WORKDIR', 'ARG', 'ONBUILD', 'STOP SIGNAL', 'HEALTHCHECK', 'SHELL']}
               value={this.state.selected}
               onChange={this.selectionChanged}
               className="inline-select" />
-            <hr className='invisible'/>
-            <Heading tag='h4' strong={true} margin='none'>Actions</Heading>
-            <hr className='invisible'/>
-            <Box direction='row' justify='center' colorIndex='light-2'>
-              <Button icon={<Download />}
-                box={true}
-                onClick={this.buildDockerFile}
-                plain={true}
-                a11yTitle='Save'
-                hoverIndicator={{background:'ok'}}
-                className='btn-small' />
-                <hr className='invisible'/>
-                <Button icon={<Search />}
-                box={true}
-                onClick={this.togglePreview}
-                a11yTitle='Preview'
-                plain={true}
-                className='btn-small'
-                />
-                <hr className='invisible'/>
-                <Button icon={<Trash />}
-                box={true}
-                a11yTitle='Delete'
-                onClick={this.deleteFile}
-                hoverIndicator={{background:'critical'}}
-                plain={true}
-                className='btn-small'
-                />
-            </Box>
           </Box>
         </Box>
       </Box>
