@@ -157,33 +157,9 @@ class ImageBuildPage extends React.Component {
 
   pickDestination(e) {
     const file = e.target.files[0];
-    const { store } = this.context;
-    // trying to find Dockerifle inside
-    const possibleDockerfile = `${file.path}${path.sep}Dockerfile`;
-    return actions.readFile(possibleDockerfile)
-    .then((contents) => {
-      const contentsArray = contents.split('\n');
-      console.log(contentsArray);
-      let previousKey;
-      const allKeys = supportedSettings.concat(defaultSettings);
-      const result = allKeys.map((key) => ({ [key]: '' })).reduce((sum, next) => Object.assign(sum, next));
-      for (const contentsLine of contentsArray) {
-        if (contentsLine) {
-          const keyMatch = contentsLine.match(/^[a-zA-Z]+\s/);
-          const valueMatch = contentsLine.match(/\s.+/);
-          const key = Array.isArray(keyMatch) ? keyMatch[0].trim() : previousKey;
-          const value = Array.isArray(valueMatch) ? valueMatch[0].trim() : null;
-          if (allKeys.includes(key) && value) {
-            result[key] += `${value.trim()}\n`;
-          }
-        }
-      }
-      for (const key of Object.keys(result)) {
-        if (!result[key]) {
-          delete result[key];
-        }
-      }
-      store.dispatch({ type: 'IMPORT_DOCKERFILE', data: result });
+    const allKeys = supportedSettings.concat(defaultSettings);
+    actions.lookupDockerfile(file, allKeys)
+    .then(() => {
       this.setState({
         destination: file.path
       });
