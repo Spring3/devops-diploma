@@ -57,6 +57,7 @@ class Actions extends Action {
         }
       }
       this.store.dispatch({ type: 'IMPORT_DOCKERFILE', data: result });
+      return possibleDockerfile;
     });
   }
 }

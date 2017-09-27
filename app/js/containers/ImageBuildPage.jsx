@@ -159,9 +159,11 @@ class ImageBuildPage extends React.Component {
     const file = e.target.files[0];
     const allKeys = supportedSettings.concat(defaultSettings);
     actions.lookupDockerfile(file, allKeys)
-    .then(() => {
+    .then((filePath) => {
       this.setState({
-        destination: file.path
+        destination: file.path,
+        filePath: file.path,
+        fileName: 'Dockerfile'
       });
     })
     .catch(() => {
