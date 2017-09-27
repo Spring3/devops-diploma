@@ -25,11 +25,14 @@ import actions from '../actions/actions.js';
 const fs = require('fs');
 const path = require('path');
 
+const supportedSettings = ['RUN', 'LABEL', 'ADD', 'COPY', 'ENTRY POINT', 'VOLUME', 'USER', 'WORKDIR', 'ARG', 'ONBUILD', 'STOP SIGNAL', 'HEALTHCHECK', 'SHELL'];
+const defaultSettings = ['FROM', 'CMD', 'EXPOSE', 'ENV', 'COPY', 'WORKDIR'];
+
 class ImageBuildPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      selected: this.props.selected || ['FROM', 'CMD', 'EXPOSE', 'ENV', 'COPY', 'WORKDIR'],
+      selected: this.props.selected || defaultSettings,
       data: this.props.data || {},
       toast: false,
       toastMessage: '',
@@ -67,6 +70,8 @@ class ImageBuildPage extends React.Component {
   componentDidMount() {
     this.destinationPicker.directory = true;
     this.destinationPicker.webkitdirectory = true;
+    console.log('picker');
+    console.log(this.destinationPicker);
   }
 
   componentWillUnmount() {
@@ -152,8 +157,41 @@ class ImageBuildPage extends React.Component {
 
   pickDestination(e) {
     const file = e.target.files[0];
-    this.setState({
-      destination: file.path
+    const { store } = this.context;
+    // trying to find Dockerifle inside
+    const possibleDockerfile = `${file.path}${path.sep}Dockerfile`;
+    return actions.readFile(possibleDockerfile)
+    .then((contents) => {
+      const contentsArray = contents.split('\n');
+      console.log(contentsArray);
+      let previousKey;
+      const allKeys = supportedSettings.concat(defaultSettings);
+      const result = allKeys.map((key) => ({ [key]: '' })).reduce((sum, next) => Object.assign(sum, next));
+      for (const contentsLine of contentsArray) {
+        if (contentsLine) {
+          const keyMatch = contentsLine.match(/^[a-zA-Z]+\s/);
+          const valueMatch = contentsLine.match(/\s.+/);
+          const key = Array.isArray(keyMatch) ? keyMatch[0].trim() : previousKey;
+          const value = Array.isArray(valueMatch) ? valueMatch[0].trim() : null;
+          if (allKeys.includes(key) && value) {
+            result[key] += `${value.trim()}\n`;
+          }
+        }
+      }
+      for (const key of Object.keys(result)) {
+        if (!result[key]) {
+          delete result[key];
+        }
+      }
+      store.dispatch({ type: 'IMPORT_DOCKERFILE', data: result });
+      this.setState({
+        destination: file.path
+      });
+    })
+    .catch(() => {
+      this.setState({
+        destination: file.path
+      });
     });
   }
 
@@ -371,7 +409,7 @@ class ImageBuildPage extends React.Component {
           <Box justify='start' align='center' full='vertical' basis='medium' pad={{ horizontal: 'medium' }} style={{ position: 'fixed', right: '20px', zIndex: 1000 }}>
             <Select inline={true}
               multiple={true}
-              options={['RUN', 'LABEL', 'ADD', 'COPY', 'ENTRY POINT', 'VOLUME', 'USER', 'WORKDIR', 'ARG', 'ONBUILD', 'STOP SIGNAL', 'HEALTHCHECK', 'SHELL']}
+              options={supportedSettings}
               value={this.state.selected}
               onChange={this.selectionChanged}
               className="inline-select" />

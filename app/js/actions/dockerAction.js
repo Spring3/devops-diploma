@@ -87,29 +87,31 @@ class DockerAction extends Action {
       password: data.password,
       serverAddress: data.customRegistry ? data.registry : docker.config.registry
     };
-    docker.instance.checkAuth(request)
-      .then((result) => {
-        const response = {
-          type: 'DOCKER_AUTH',
-          username: request.username,
-          password: Buffer.from(request.password).toString('hex'),
-          serverAddress: request.serverAddress
-        };
-        this.store.dispatch(Object.assign(response, result));
-        if (data.remember) {
-          storage.set('auth', {
-            serverAddress: request.serverAddress,
+    return docker.isRunning().then((isRunning) => {
+      if (isRunning) {
+        docker.instance.checkAuth(request).then((result) => {
+          const response = {
+            type: 'DOCKER_AUTH',
             username: request.username,
-            password: response.password,
-            token: result.IdentityToken
-          });
-        }
-        this.store.dispatch({ type: 'DOCKER_AUTH_END' });
-      })
-      .catch((e) => {
-        this.store.dispatch({ type: 'DOCKER_AUTH', error: e });
-        this.store.dispatch({ type: 'DOCKER_AUTH_END' });
-      });
+            password: Buffer.from(request.password).toString('hex'),
+            serverAddress: request.serverAddress
+          };
+          this.store.dispatch(Object.assign(response, result));
+          if (data.remember) {
+            storage.set('auth', {
+              serverAddress: request.serverAddress,
+              username: request.username,
+              password: response.password,
+              token: result.IdentityToken
+            });
+          }
+          this.store.dispatch({ type: 'DOCKER_AUTH_END' });
+        }).catch((e) => {
+          this.store.dispatch({ type: 'DOCKER_AUTH', error: e });
+          this.store.dispatch({ type: 'DOCKER_AUTH_END' });
+        });
+      }
+    });
   }
 
   search(target, value) {

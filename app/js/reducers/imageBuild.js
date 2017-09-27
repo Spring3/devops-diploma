@@ -10,6 +10,12 @@ const initialState = {
 
 module.exports = (state = initialState, action) => {
   switch (action.type) {
+    case 'IMPORT_DOCKERFILE': {
+      const nextState = Object.assign({}, state);
+      nextState.data = action.data;
+      nextState.fields = Object.keys(action.data);
+      return nextState;
+    }
     case 'PICK_IMAGE_FIELD': {
       // if should be used
       if (action.used && !state.fields.includes(action.field)) {
