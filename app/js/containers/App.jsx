@@ -18,6 +18,7 @@ import Footer from '../components/Footer.jsx';
 import LoginForm from '../components/LoginForm.jsx';
 import TopMenu from '../components/TopMenu.jsx';
 
+
 // pages
 import About from '../containers/About.jsx';
 import ImageBuildPage from '../containers/ImageBuildPage.jsx';
@@ -40,15 +41,14 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      modal: false
+      modal: false,
+      sidebarOpen: this.props.sidebarOpen
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.sidebarOpen !== this.state.sidebarOpen) {
-      this.setState({
-        sidebarOpen: nextProps.sidebarOpen
-      });
+    if (this.state.sidebarOpen !== nextProps.sidebarOpen) {
+      this.setState({ sidebarOpen: nextProps.sidebarOpen });
     }
   }
 

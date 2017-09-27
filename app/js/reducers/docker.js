@@ -37,7 +37,6 @@ const docker = (state = initialState, action) => {
       return Object.assign({}, state, { config: _.omit(action, 'type') });
     }
     case 'DOCKER_AUTH': {
-      console.log(action);
       return Object.assign({}, state, { authResult: _.omit(action, 'type') });
     }
     case 'DOCKER_AUTH_START': {

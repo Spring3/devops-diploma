@@ -25,40 +25,61 @@ class ImagesAction extends Action {
   }
 
   build(dirPath, opts) {
-    const dirName = dirPath.split(path.sep).pop();
-    const tarballName = `${dirName}.tar`;
-    const tarballPath = path.posix.resolve(dirPath, '../', tarballName);
-    const cwd = path.posix.resolve(dirPath, '../');
-    tar.create({
-      file: tarballPath,
-      cwd: dirPath
-    }, ['.']).then(() => {
-      const state = this.store.getState();
-      let registry;
-      let username;
-      let password;
-      if (state.docker.common.authResult) {
-        registry = state.docker.common.authResult.serverAddress;
-        username = state.docker.common.authResult.username;
-        password = Buffer.from(state.docker.common.authResult.password, 'hex').toString('utf8');
-      }
-      const options = Object.assign({}, opts, {
-        registryConfig: {
-          [registry]: {
-            username,
-            password
-          }
-        }
+    return new Promise((resolve, reject) => {
+      this.store.dispatch({
+        type: 'SHOW_NOTIFICATION',
+        notificationMessage: 'Creating tarball...',
+        notificationType: 'unknown',
+        notificationProgress: 30
       });
-      return docker.instance.buildImage(tarballPath, options)
-        .then((data) => {
-          console.log(data);
-        })
-        .then(() => this.deleteFile(tarballPath))
-        .catch((e) => {
-          console.error(e);
-          return this.deleteFile(tarballPath);
+      const dirName = dirPath.split(path.sep).pop();
+      const tarballName = `${dirName}.tar`;
+      const tarballPath = path.posix.resolve(dirPath, '../', tarballName);
+      tar.create({
+        file: tarballPath,
+        cwd: dirPath
+      }, ['.']).then(() => {
+        const state = this.store.getState();
+        let registry;
+        let username;
+        let password;
+        if (state.docker.common.authResult) {
+          registry = state.docker.common.authResult.serverAddress;
+          username = state.docker.common.authResult.username;
+          password = Buffer.from(state.docker.common.authResult.password, 'hex').toString('utf8');
+        }
+        const options = Object.assign({}, opts, {
+          registryConfig: {
+            [registry]: {
+              username,
+              password
+            }
+          }
         });
+        this.store.dispatch({
+          type: 'SHOW_NOTIFICATION',
+          notificationMessage: 'Building image...',
+          notificationType: 'unknown',
+          notificationProgress: 60
+        });
+        return docker.instance.buildImage(tarballPath, options)
+          .then((data) => {
+            console.log(data);
+          })
+          .then(() => {
+            this.store.dispatch({
+              type: 'SHOW_NOTIFICATION',
+              notificationMessage: 'Removing tarball...',
+              notificationType: 'unknown',
+              notificationProgress: 90
+            });
+            return this.deleteFile(tarballPath).then(resolve);
+          })
+          .catch((e) => {
+            console.error(e);
+            return this.deleteFile(tarballPath).then(reject);
+          });
+      });
     });
   }
 

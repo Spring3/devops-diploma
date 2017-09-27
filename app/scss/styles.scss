@@ -237,6 +237,10 @@ input.borderless {
   z-index: 999999999;
 }
 
+.grommetux-notification__message + * {
+  margin-top: 12px !important;
+}
+
 textarea {
   padding-top: 5px !important;
 }

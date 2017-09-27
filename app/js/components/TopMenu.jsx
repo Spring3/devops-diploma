@@ -57,6 +57,10 @@ class TopMenu extends React.Component {
         </Box>
       );
     }
+
+    if (this.state.showNotification === true) {
+      result += (<Notification percentComplete={30} size='small' />)
+    }
     return result;
   }
 }

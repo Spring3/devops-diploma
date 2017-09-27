@@ -43,7 +43,7 @@ class ImageBuildPage extends React.Component {
     this.buildDockerFile = this.buildDockerFile.bind(this);
     this.togglePreview = this.togglePreview.bind(this);
     this.deleteFile = this.deleteFile.bind(this);
-    this.runImage = this.runImage.bind(this);
+    this.buildImage = this.buildImage.bind(this);
     this.pickDestination = this.pickDestination.bind(this);
   }
 
@@ -96,7 +96,6 @@ class ImageBuildPage extends React.Component {
       });
     }
     if (JSON.stringify(this.state.data) !== JSON.stringify(nextProps.data)) {
-      console.log('here');
       this.setState({
         data: nextProps.data
       });
@@ -113,10 +112,11 @@ class ImageBuildPage extends React.Component {
   }
 
   buildDockerFile() {
-    console.log(this.state);
     if (Object.keys(this.state.data).length > 0) {
       const payload = this.state.selected
+        // ENV: 'NODE_ENV=production'
         .map(item => ({ [item]: this.state.data[item]}))
+        // compress to object
         .reduce((sum, next) => Object.assign(sum, next));
       const data = {
         type: 'DOCKERFILE',
@@ -150,9 +150,40 @@ class ImageBuildPage extends React.Component {
     }
   }
 
-  runImage() {
+  buildImage() {
+    const { store } = this.context;
     const projectName = this.state.filePath.split(path.sep).pop();
-    actions.docker.image.build(this.state.filePath, { t: `${projectName}:riptide-test`.toLowerCase() });
+    const self = this;
+    store.dispatch({
+      type: 'SHOW_NOTIFICATION',
+      notificationMessage: `Building ${projectName.toLowerCase()}:riptide-test image...`,
+      notificationType: 'unknown',
+      notificationProgress: 0
+    });
+    actions.docker.image.build(this.state.filePath, { t: `${projectName}:riptide-test`.toLowerCase() })
+    .then(() => {
+      store.dispatch({
+        type: 'SHOW_NOTIFICATION',
+        notificationMessage: `Image ${projectName.toLowerCase()}:riptide-test has been built`,
+        notificationType: 'ok',
+        notificationProgress: 100
+      });
+
+      setTimeout(() => {
+        store.dispatch({ type: 'HIDE_NOTIFICATION'});
+      }, 2000);
+    })
+    .catch(() => {
+      store.dispatch({
+        type: 'SHOW_NOTIFICATION',
+        notificationMessage: `Failed to build image. ${e.message}`,
+        notificationType: 'critical',
+        notificationProgress: 100
+      });
+      setTimeout(() => {
+        store.dispatch({ type: 'HIDE_NOTIFICATION'});
+      }, 2000);
+    });
   }
 
   pickDestination(e) {
@@ -223,7 +254,7 @@ class ImageBuildPage extends React.Component {
                 a11yTitle='Save'
                 className='btn-small' />
               <Button icon={<Play />}
-                onClick={this.state.filePath ? this.runImage : null}
+                onClick={this.state.filePath ? this.buildImage : null}
                 a11yTitle='Build'
                 label='Build'
                 plain={true}

@@ -72,7 +72,7 @@ class App {
                     // ENV NODE_ENV=production
                     return `${command}`;
                   }
-                  // if already has ENV
+                  // if does not have ENV
                   return `${item} ${command.trim()}`;
                 }).join('\n');
             }
