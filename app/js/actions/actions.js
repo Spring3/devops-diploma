@@ -7,7 +7,6 @@ import combinedReducer from './../reducers/reducers';
 
 import Action from './action';
 
-const fs = require('fs');
 const path = require('path');
 
 // react-router-redux setup

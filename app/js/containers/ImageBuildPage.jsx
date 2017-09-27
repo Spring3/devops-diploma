@@ -222,8 +222,8 @@ class ImageBuildPage extends React.Component {
                 className='btn-small' />
               <Button icon={<Play />}
                 onClick={this.state.filePath ? this.runImage : null}
-                a11yTitle='Run'
-                label='Run'
+                a11yTitle='Build'
+                label='Build'
                 plain={true}
                 className='btn-small'
               />
