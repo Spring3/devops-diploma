@@ -36,7 +36,9 @@ class ImageBuildPage extends React.Component {
       data: this.props.data || {},
       toast: false,
       toastMessage: '',
-      destination: ''
+      destination: '',
+      fileName: this.props.fileName,
+      filePath: this.props.filePath
     };
     this.selectionChanged = this.selectionChanged.bind(this);
     this.valueChanged = this.valueChanged.bind(this);
@@ -48,13 +50,17 @@ class ImageBuildPage extends React.Component {
   }
 
   componentWillMount() {
+    const { store } = this.context;
     this.listener = (e, data) => {
       const self = this;
+      store.dispatch({
+        type: 'SET_DESTINATION',
+        fileName: data.fileName,
+        filePath: data.filePath
+      });
       this.setState({
         toast: true,
         toastMessage: `${data.fileName} was created in ${data.filePath}`,
-        fileName: data.fileName,
-        filePath: data.filePath
       }, () => {
         setTimeout(() => {
           self.setState({
@@ -100,14 +106,20 @@ class ImageBuildPage extends React.Component {
         data: nextProps.data
       });
     }
+    if (this.state.fileName !== nextProps.fileName || this.state.filePath !== nextProps.filePath) {
+      this.setState({
+        filePath: nextProps.filePath,
+        fileName: nextProps.fileName
+      });
+    }
   }
 
   valueChanged(e) {
     const { store } = this.context;
     store.dispatch({
       type: 'IMAGE_VALUE_CHANGE',
-      field: e.target.name.toUpperCase(),
-      value: e.target.value
+      field: e.target.name.toUpperCase(), // ENV
+      value: e.target.value // NODE_ENV=production
     });
   }
 
@@ -128,6 +140,7 @@ class ImageBuildPage extends React.Component {
   }
 
   togglePreview() {
+    const { store } = this.context;
     if (!this.state.preview) {
       actions.readFile(`${this.state.filePath}${path.sep}${this.state.fileName}`)
       .then((content) => {
@@ -137,9 +150,10 @@ class ImageBuildPage extends React.Component {
         });
       })
       .catch(() => {
+        store.dispatch({
+          type: 'DELETE_DOCKERFILE'
+        });
         this.setState({
-          fileName: null,
-          filePath: null,
           content: null
         });
       });
@@ -187,12 +201,16 @@ class ImageBuildPage extends React.Component {
   }
 
   pickDestination(e) {
+    const { store } = this.context;
     const file = e.target.files[0];
     const allKeys = supportedSettings.concat(defaultSettings);
     actions.lookupDockerfile(file, allKeys)
     .then((filePath) => {
       this.setState({
-        destination: file.path,
+        destination: file.path
+      });
+      store.dispatch({
+        type: 'SET_DESTINATION',
         filePath: file.path,
         fileName: 'Dockerfile'
       });
@@ -201,17 +219,20 @@ class ImageBuildPage extends React.Component {
       this.setState({
         destination: file.path
       });
+      store.dispatch({
+        type: 'SET_DESTINATION',
+        filePath: undefined,
+        fileName: undefined
+      });
     });
   }
 
   deleteFile() {
+    const { store } = this.context;
     const file = `${this.state.filePath}${path.sep}${this.state.fileName}`;
     actions.deleteFile(file)
     .then(() => {
-      this.setState({
-        fileName: null,
-        filePath: null
-      });
+      store.dispatch({ type: 'DELETE_DOCKERFILE' });
     });
   }
 
@@ -431,7 +452,9 @@ class ImageBuildPage extends React.Component {
 
 const mapStateToProps = state => ({
   selected: state.docker.build.images.fields,
-  data: state.docker.build.images.data
+  data: state.docker.build.images.data,
+  fileName: state.docker.build.images.fileName,
+  filePath: state.docker.build.images.filePath
 });
 
 const mapDispatchToProps = dispatch => ({ dispatch });

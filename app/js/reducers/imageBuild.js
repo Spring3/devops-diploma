@@ -5,7 +5,9 @@ const initialState = {
     CMD: '',
     EXPOSE: '',
     ENV: ''
-  }
+  },
+  filePath: undefined,
+  fileName: undefined
 };
 
 module.exports = (state = initialState, action) => {
@@ -32,6 +34,19 @@ module.exports = (state = initialState, action) => {
         };
       }
       return state;
+    }
+    case 'SET_DESTINATION': {
+      return Object.assign({}, state, {
+        destination: action.destination,
+        filePath: action.filePath,
+        fileName: action.fileName
+      });
+    }
+    case 'DELETE_DOCKERFILE': {
+      return Object.assign({}, state, {
+        filePath: undefined,
+        fileName: undefined
+      });
     }
     case 'IMAGE_VALUE_CHANGE': {
       const { field, value } = action;
