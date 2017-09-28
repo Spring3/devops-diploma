@@ -33,14 +33,14 @@ class ImagesPage extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.images.length !== this.state.images.length) {
-      this.renderImages(nextProps.images);
-    } else if (nextProps.searchResult && nextProps.searchResult.length !== this.state.searchResult.length) {
+    if (nextProps.searchResult && nextProps.searchResult.length !== this.state.searchResult.length) {
       if (nextProps.searchResult.length > 0) {
         this.renderImages(nextProps.searchResult, true);
       } else {
         this.renderImages(nextProps.images);
       }
+    } else {
+      this.renderImages(nextProps.images);
     }
   }
 

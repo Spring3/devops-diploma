@@ -51,7 +51,12 @@ module.exports = (state = initialState, action) => {
   switch (action.type) {
     case 'DOCKER_UPDATE_STATS': {
       const stats = _.omit(action, 'type');
-      if (stats.images.length !== state.originalCount) {
+      let shouldUpdate = false;
+      if (state.items.length > 0) {
+        const newestImage = state.items[0];
+        shouldUpdate = newestImage.repo === '<none>' && newestImage.tag === '<none>';
+      }
+      if (stats.images.length !== state.originalCount || shouldUpdate) {
         return {
           items: mapImages(stats.images),
           originalCount: stats.images.length
@@ -86,7 +91,7 @@ module.exports = (state = initialState, action) => {
       return Object.assign({}, state);
     }
     case 'REMOVE_SELECTED_IMAGE': {
-      return Object.assign({}, state, { selected: {}});
+      return Object.assign({}, state, { selected: {} });
     }
     default: {
       return state;

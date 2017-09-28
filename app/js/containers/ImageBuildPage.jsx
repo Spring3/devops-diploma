@@ -76,8 +76,6 @@ class ImageBuildPage extends React.Component {
   componentDidMount() {
     this.destinationPicker.directory = true;
     this.destinationPicker.webkitdirectory = true;
-    console.log('picker');
-    console.log(this.destinationPicker);
   }
 
   componentWillUnmount() {
@@ -95,7 +93,6 @@ class ImageBuildPage extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log(nextProps);
     if (nextProps.selected.length !== this.state.selected.length) {
       this.setState({
         selected: nextProps.selected
@@ -166,19 +163,19 @@ class ImageBuildPage extends React.Component {
 
   buildImage() {
     const { store } = this.context;
-    const projectName = this.state.filePath.split(path.sep).pop();
+    const projectName = this.state.filePath.split(path.sep).pop().toLowerCase();
     const self = this;
     store.dispatch({
       type: 'SHOW_NOTIFICATION',
-      notificationMessage: `Building ${projectName.toLowerCase()}:riptide-test image...`,
+      notificationMessage: `Building ${projectName}:latest image...`,
       notificationType: 'unknown',
       notificationProgress: 0
     });
-    actions.docker.image.build(this.state.filePath, { t: `${projectName}:riptide-test`.toLowerCase() })
+    actions.docker.image.build(this.state.filePath, { t: `${projectName}:latest` })
     .then(() => {
       store.dispatch({
         type: 'SHOW_NOTIFICATION',
-        notificationMessage: `Image ${projectName.toLowerCase()}:riptide-test has been built`,
+        notificationMessage: `Image ${projectName}:latest has been built`,
         notificationType: 'ok',
         notificationProgress: 100
       });
