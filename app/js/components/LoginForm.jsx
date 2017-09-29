@@ -15,7 +15,7 @@ import PasswordInput from 'grommet/components/PasswordInput';
 const path = require('path');
 const dockerLogoPath = path.posix.resolve('./app/img/docker-logo.jpg');
 
-const actions = require('../actions.js');
+const actions = require('../actions/actions.js');
 
 class LoginForm extends React.Component {
   constructor(props){
@@ -67,7 +67,7 @@ class LoginForm extends React.Component {
 
   onSubmit(e) {
     e.preventDefault();
-    actions.authenticate(this.state);
+    actions.docker.authenticate(this.state);
     this.props.toggleModal();
   }
 

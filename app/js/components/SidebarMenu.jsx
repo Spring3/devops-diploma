@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import CountTo from 'react-count-to';
 import List from 'grommet/components/List';
 import ListItem from 'grommet/components/ListItem';
+import { push } from 'react-router-redux';
 import _ from 'underscore';
 
 class SidebarMenu extends React.Component {
@@ -16,12 +17,27 @@ class SidebarMenu extends React.Component {
       nodes: 0,
       tasks: 0
     };
+    this.menuSelected = this.menuSelected.bind(this);
   }
 
   componentDidMount() {
     const { store } = this.context;
     const state = _.pick(store.getState().docker, 'containers', 'images', 'services', 'nodes', 'tasks');
-    this.setState(state);
+    this.setState({
+      containers: state.containers.items.length,
+      images: state.images.items.length,
+      services: state.services.items.length,
+      nodes: state.nodes.items.length,
+      tasks: state.tasks.items.length
+    });
+  }
+
+
+  menuSelected(menuIndex) {
+    const pages = ['containers', 'services', 'images', 'nodes', 'tasks'];
+    const { store } = this.context;
+    // TODO : check that currently selected page differs
+    store.dispatch(push(`/${pages[menuIndex]}`));
   }
 
   componentWillReceiveProps(nextProps) {
@@ -34,7 +50,7 @@ class SidebarMenu extends React.Component {
 
   render() {
     return (
-      <List selectable={true}>
+      <List selectable={true} onSelect={this.menuSelected}>
         <ListItem justify={'between'} separator={'none'} pad={{ horizontal: 'medium', vertical: 'small' }}>
           <span>
             Containers
@@ -81,11 +97,11 @@ class SidebarMenu extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  containers: state.docker.containers,
-  images: state.docker.images,
-  services: state.docker.services,
-  nodes: state.docker.nodes,
-  tasks: state.docker.tasks
+  containers: state.docker.containers.items.length,
+  images: state.docker.images.items.length,
+  services: state.docker.services.items.length,
+  nodes: state.docker.nodes.items.length,
+  tasks: state.docker.tasks.items.length
 });
 
 const mapDispatchToProps = dispatch => ({

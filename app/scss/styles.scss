@@ -10,8 +10,24 @@ $warn: #F4D35E;
   visibility: hidden;
 }
 
+.padded-xl {
+  padding: 0px 40px 0px 30px;
+}
+
+.grommetux-form-fields > fieldset {
+  border: none;
+}
+
 .notPadded > span {
-  padding-left: 0 !important;
+  padding-left: 0px !important;
+}
+
+.utility {
+  flex-direction: row-reverse;
+  position: absolute;
+  right: 0px;
+  top: 0px;
+  z-index: 9999;
 }
 
 .grommetux-image--xsmall {
@@ -63,6 +79,14 @@ input.borderless {
   font-weight: bold;
 }
 
+.left-padded {
+  padding-right: 0px !important;
+}
+
+.right-padded {
+  padding-left: 0px !important;
+}
+
 .grommetux-control-icon > .docker-pending > path {
   fill: $warn + #220022;
   transition: fill 0.5s ease;
@@ -91,4 +115,132 @@ input.borderless {
 .grommetux-control-icon:hover > .docker-down > path {
   fill: #DD0000;
   transition: fill 0s ease;
+}
+
+.row > td {
+  padding: 0px;
+}
+
+.info-container-wrapper {
+  width: 80% !important;
+  margin: 0 auto !important;
+  overflow-x: hidden;
+}
+
+.info-container-key {
+  min-width: 150px;
+}
+
+.info-container-value {
+  display: flex;
+  flex-direction: column;
+}
+
+.inline-value,
+.inline-key {
+  display: inline-block;
+}
+
+.margined-value {
+  position: relative;
+  left: 150px;
+  top: -38px;
+}
+
+.info-container-value > label,
+.info-container-value > input {
+  font-size: 1rem;
+  color: $dark !important;
+}
+
+.small > * {
+  font-size: 0.95rem !important
+}
+
+.grommetux-search-input {
+  width: 50% !important;
+  margin: 0 auto !important;
+  padding-right: 20px !important;
+}
+
+.grommetux-search-input__input {
+  width: 100%;
+  padding: 5px !important;
+  border: none !important;
+  border-bottom: 1px solid $grey !important;
+  border-radius: 0px !important;
+}
+
+.margin-right {
+  margin-right: 10px !important;
+}
+
+.wrapper-borderless {
+  display: inline-block;
+}
+
+.wrapper-borderless > *,
+.wrapper-borderless > * > *,
+.wrapper-borderless > * > * > *{
+  border: none !important;
+}
+
+.wrapper-borderless > .grommetux-form-fields > fieldset > .grommetux-form-field > span,
+.wrapper-borderless > .grommetux-form-field > span {
+  background: whitesmoke;
+}
+
+.wrapper-borderless > .grommetux-form-fields > fieldset {
+  margin: 0;
+}
+
+.inline-select > ol > li > label > span > .grommetux-check-box__control {
+  height: 22px !important;
+  width: 22px !important;
+}
+
+.inline-select > ol > li > label > span > .grommetux-check-box__control > .grommetux-check-box__control-check {
+  width: 22px !important;
+  height: 22px !important;
+}
+
+.inline-select > ol > li > label > .grommetux-check-box__label {
+  font-size: 14px !important;
+}
+
+.inline-select > ol {
+  padding: 2px;
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 5px;
+}
+
+.inline-select > ol > li {
+  width: 145px;
+  display: inline-block;
+  padding: 0px;
+  margin-top: 5px !important;
+  min-height: 0px;
+  max-height: 25px;
+}
+
+.btn-small {
+  font-size: 16px !important;
+  display: block;
+}
+
+.btn-small > span.grommetux-button__icon {
+  padding: 6px !important;
+}
+
+.grommet.grommetux-drop {
+  z-index: 999999999;
+}
+
+.grommetux-notification__message + * {
+  margin-top: 12px !important;
+}
+
+textarea {
+  padding-top: 5px !important;
 }

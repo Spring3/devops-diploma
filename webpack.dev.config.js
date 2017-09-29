@@ -2,7 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const nodeExternals = require('webpack-node-externals');
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 
 module.exports = {
   devtool: 'eval-source-map',

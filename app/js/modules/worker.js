@@ -1,10 +1,10 @@
-const actions = require('../actions.js');
+const actions = require('../actions/actions.js');
 
 class WebWorker {
   constructor() {
     // firing first time immediately
-    actions.checkDocker();
-    this.interval = setInterval(actions.checkDocker, 2000);
+    actions.docker.check();
+    this.interval = setInterval(actions.docker.check, 2000);
   }
 
   stop() {

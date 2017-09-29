@@ -16,14 +16,14 @@ import storage from 'electron-json-storage';
 import DockerIcon from 'grommet/components/icons/base/PlatformDocker';
 
 import Tip from './Tip';
-import actions from '../actions.js';
+import actions from '../actions/actions.js';
 
 class Sidebar extends React.Component {
   constructor(props){
     super(props);
     this.state = {
       authInProgress: false,
-      authResult: null
+      authResult: this.props.authResult || null
     }
   }
 
@@ -31,15 +31,20 @@ class Sidebar extends React.Component {
     // loading authResult from state store if exists
     const { store } = this.context;
     const state = store.getState();
-    if (!state.docker.authResult) {
+    console.log(state);
+    if (!state.docker.common.authResult) {
       storage.get('auth', (e, data) => {
+        console.log(data);
+        if (data.password) {
+          data.password = Buffer.from(data.password, 'hex').toString('utf8');
+        }
         if (data.username) {
-          actions.authenticate(data, true);
+          actions.docker.authenticate(data, true);
         }
       });
     } else {
       this.setState({
-        authResult: state.docker.authResult
+        authResult: state.docker.common.authResult
       });
     }
   }
@@ -58,7 +63,7 @@ class Sidebar extends React.Component {
   profileOptionSelected(e) {
     switch(e.option) {
       case 'Log out': {
-        actions.logOut();
+        actions.docker.logOut();
         break;
       }
       default: {
@@ -89,7 +94,7 @@ class Sidebar extends React.Component {
         <Box justify={'start'} align={'center'} direction={'column'}>
           <Box justify={'between'} direction={'row'} alignContent={'between'} pad={{ vertical: 'medium', horizontal: 'medium' }} colorIndex={'grey-2'} className='sidebar'>
             <Box justify={'center'}>
-              <Title>
+              <Title onClick={this.props.openHomepage}>
                 Riptide
               </Title>
             </Box>
@@ -118,14 +123,15 @@ class Sidebar extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  authInProgress: state.docker.authInProgress,
-  authResult: state.docker.authResult
+  authInProgress: state.docker.common.authInProgress,
+  authResult: state.docker.common.authResult
 });
 
 const mapDispatchToProps = dispatch => ({
   dispatch,
+  openHomepage: () => dispatch(push('/')),
   openDockerPage: () => dispatch(push('/docker')),
-  logOut: () => actions.logOut()
+  logOut: () => actions.docker.logOut()
 });
 
 Sidebar.contextTypes = {
