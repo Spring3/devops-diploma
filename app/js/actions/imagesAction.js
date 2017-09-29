@@ -1,8 +1,8 @@
 import { push } from 'react-router-redux';
+import tar from 'tar';
+import path from 'path';
 import docker from './../modules/docker';
 import Action from './action';
-const tar = require('tar');
-const path = require('path');
 
 class ImagesAction extends Action {
   constructor(store) {

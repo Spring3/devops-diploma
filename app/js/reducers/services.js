@@ -12,7 +12,7 @@ module.exports = (state = initialState, action) => {
       if (stats.services.length !== state.originalCount) {
         return {
           items: stats.services,
-          originalCount: stats.images.length
+          originalCount: stats.services.length
         };
       }
       return state;

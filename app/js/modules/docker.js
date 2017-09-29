@@ -16,17 +16,6 @@ class Docker {
       host: '127.0.0.1',
       port: '2375'
     };
-
-    storage.get('config', (e, config) => {
-      if (Object.keys(config).length > 0) {
-        this.connect(config);
-      } else {
-        this.connect({
-          connection: 'socket',
-          socket: defaultSocketPath
-        });
-      }
-    });
   }
 
   connect(data, save = false) {
@@ -56,17 +45,13 @@ class Docker {
       }
       default: {
         // socket
-        try {
-          const stats = fs.statSync(config.socket);
-          if (!stats.isSocket()) {
-            throw new Error('Unable to locate docker daemon');
-          }
-          this.instance = new DockerAPI({
-            socketPath: config.socket
-          });
-        } catch (e) {
-          console.error(e);
+        const stats = fs.statSync(config.socket);
+        if (!stats.isSocket()) {
+          throw new Error('Unable to locate docker daemon');
         }
+        this.instance = new DockerAPI({
+          socketPath: config.socket
+        });
         break;
       }
     }
@@ -99,12 +84,33 @@ class Docker {
   }
 
   isRunning() {
-    if (!this.instance) {
-      return Promise.resolve(false);
-    }
-    return this.instance.ping()
-      .then(() => (true))
-      .catch(() => (false));
+    return new Promise((resolve) => {
+      if (!this.instance) {
+        storage.get('config', (e, config) => {
+          if (e) {
+            return resolve(false);
+          }
+          try {
+            if (Object.keys(config).length > 0) {
+              this.connect(config);
+            } else {
+              this.connect({
+                connection: 'socket',
+                socket: defaultSocketPath
+              });
+            }
+            return resolve(true);
+          } catch (error) {
+            console.error(error);
+            return resolve(false);
+          }
+        });
+        return resolve(false);
+      }
+      return this.instance.ping()
+        .then(() => resolve(true))
+        .catch(() => resolve(false));
+    });
   }
 }
 

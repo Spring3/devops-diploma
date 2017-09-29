@@ -16,9 +16,7 @@ module.exports = (state = initialState, action) => {
     }
     case 'SHOW_NOTIFICATION': {
       /*
-        showNotification,
         notificationMessage,
-        notificationState,
         notificationType,
         notificationProgress
        */

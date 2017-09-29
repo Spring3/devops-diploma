@@ -3,7 +3,7 @@ const actions = require('../actions/actions.js');
 
 const { Menu, MenuItem } = remote;
 
-const mouseDownListener = window.addEventListener('mousedown', (e) => {
+const mouseDownListener = window.addEventListener('mousedown', (e) => { // eslint-disable-line no-undef
   switch (e.which) {
     case 3: {
       console.log(e);
