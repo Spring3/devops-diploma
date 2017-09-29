@@ -10,38 +10,45 @@ import Button from 'grommet/components/Button';
 import Title from 'grommet/components/Title';
 import Animate from 'grommet/components/Animate';
 
-import MainTabs from '../components/MainTabs.jsx';
-import UtilityPane from '../components/UtilityPane.jsx';
+import MainMenu from '../components/MainMenu.jsx';
 import Modal from '../components/Modal';
 
 import Sidebar from '../components/Sidebar.jsx';
 import Footer from '../components/Footer.jsx';
 import LoginForm from '../components/LoginForm.jsx';
+import TopMenu from '../components/TopMenu.jsx';
+
 
 // pages
 import About from '../containers/About.jsx';
+import ImageBuildPage from '../containers/ImageBuildPage.jsx';
+import ImagesPage from '../containers/Images.jsx';
+import ImagesStatusPage from '../containers/ImageStatus.jsx';
 import DockerPage from '../containers/Docker.jsx';
+import SidebarIcon from 'grommet/components/icons/base/Sidebar';
 
 // icons
 import DockerIcon from 'grommet/components/icons/base/PlatformDocker';
+import DockerStatusIcon from '../components/DockerIcon.jsx';
 import DockerLogo from '../components/DockerIcon.jsx';
 import AddIcon from 'grommet/components/icons/base/Add';
+import CaretLeft from 'grommet/components/icons/base/CaretBack';
 
-const actions = require('../actions.js');
+const actions = require('../actions/actions.js');
+const contextMenu = require('../modules/contextMenu.js');
 
 class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      modal: false
+      modal: false,
+      sidebarOpen: this.props.sidebarOpen
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.sidebarOpen !== this.state.sidebarOpen) {
-      this.setState({
-        sidebarOpen: nextProps.sidebarOpen
-      });
+    if (this.state.sidebarOpen !== nextProps.sidebarOpen) {
+      this.setState({ sidebarOpen: nextProps.sidebarOpen });
     }
   }
 
@@ -62,11 +69,22 @@ class App extends React.Component {
           visible={this.state.sidebarOpen}>
             <Sidebar toggleModal={this.toggleModal.bind(this)}/>
           </Animate>
-          <Box justify={'between'} align={'end'} full={'vertical'} direction={'column'}>
-            <Box justify={'end'} direction={'row'} full={'horizontal'} alignContent={'end'}>
-              <Box flex={true} pad={{ vertical: 'none', horizontal: 'medium' }}>
-                <Route exact path='/' component={MainTabs} />
+          <Box pad={'none'} justify={'between'} full={'vertical'} align={'start'}>
+            <Box pad={{horizontal: 'small'}} direction='row' full='horizontal' align='center'>
+              <Button
+                icon={<CaretLeft/>}
+                onClick={this.props.history.goBack}
+                className='notPadded'
+              />
+              <TopMenu/>
+            </Box>
+            <Box justify={'between'} direction={'row'} full={'horizontal'} flex={true} alignContent={'end'}>
+              <Box flex={true} pad={{ vertical: 'none', horizontal: 'small' }} className='left-padded'>
+                <Route exact path='/' component={MainMenu} />
                 <Route path='/docker' component={DockerPage} />
+                <Route exact path='/image' component={ImageBuildPage} />
+                <Route exact path='/images' component={ImagesPage} />
+                <Route path='/images/selected' component={ImagesStatusPage} />
                 <Route path='/about' component={About} />
                 {
                   this.state.modal ? 
@@ -76,9 +94,14 @@ class App extends React.Component {
                   :
                   ''
                 }
-                
               </Box>
-              <UtilityPane />
+            </Box>
+            <Box className='utility'>
+              <Button icon={<SidebarIcon />}
+                href='#'
+                onClick={actions.toggleSidebar}
+                plain={true} />
+              <DockerStatusIcon />
             </Box>
             <Footer />
           </Box>
@@ -93,7 +116,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = () => ({
-  auth: (data) => actions.authenticate(data)
+  auth: (data) => actions.docker.authenticate(data)
 });
 
 App.contextTypes = {

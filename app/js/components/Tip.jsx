@@ -59,7 +59,7 @@ class Tip extends React.Component {
 
   render() {
     if (this.state.text && this.state.timeout) { 
-      return <TipPopup target={this.state.target} onClose={this.onClose} colorIndex='light-2'>{this.state.text}</TipPopup>
+      return <TipPopup target={this.state.target} onClose={this.onClose} style={{ zIndex: 999999 }} colorIndex='light-2'>{this.state.text}</TipPopup>
     }
     return <div style={{ display: 'none'}}></div>
   }

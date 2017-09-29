@@ -1,20 +1,40 @@
 import _ from 'underscore';
+import { combineReducers } from 'redux';
+import images from './images';
+import imagesBuild from './imageBuild';
+import containers from './containers';
+import services from './services';
+import tasks from './tasks';
+import nodes from './nodes';
 
 const initialState = {
   isRunning: false,
-  containers: 0,
-  images: 0,
-  services: 0,
-  tasks: 0,
-  nodes: 0,
   authInProgress: false,
+  info: {},
+  config: {
+    connection: '',
+    socket: '',
+    host: '',
+    port: ''
+  },
   authResult: null
 };
 
-module.exports = (state = initialState, action) => {
+const docker = (state = initialState, action) => {
+  // TODO: refactor, remove duplication
   switch (action.type) {
     case 'DOCKER_UPDATE_STATS': {
-      return Object.assign({}, state, _.omit(action, 'type'));
+      const stats = _.omit(action, 'type');
+      if (stats.isRunning !== state.isRunning) {
+        return Object.assign({}, state, { isRunning: stats.isRunning });
+      }
+      return state;
+    }
+    case 'DOCKER_INFO': {
+      return Object.assign({}, state, _.pick(action, 'info'));
+    }
+    case 'DOCKER_CONFIG': {
+      return Object.assign({}, state, { config: _.omit(action, 'type') });
     }
     case 'DOCKER_AUTH': {
       return Object.assign({}, state, { authResult: _.omit(action, 'type') });
@@ -34,3 +54,15 @@ module.exports = (state = initialState, action) => {
     }
   }
 };
+
+module.exports = combineReducers({
+  common: docker,
+  images,
+  build: combineReducers({
+    images: imagesBuild
+  }),
+  containers,
+  services,
+  nodes,
+  tasks
+});

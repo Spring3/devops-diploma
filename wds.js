@@ -2,7 +2,7 @@ const webpack = require('webpack');
 const WDS = require('webpack-dev-server');
 const config = require('./webpack.dev.config.js');
 
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 5000;
 
 new WDS(webpack(config), {
   publicPath: config.output.publicPath,
