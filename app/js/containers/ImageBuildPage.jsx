@@ -33,6 +33,7 @@ class ImageBuildPage extends React.Component {
     super(props);
     this.state = {
       selected: this.props.selected || defaultSettings,
+      imageLookup: [],
       data: this.props.data || {},
       toast: false,
       toastMessage: '',
@@ -111,8 +112,26 @@ class ImageBuildPage extends React.Component {
     }
   }
 
+  suggestionSelected(suggestion) {
+    const { store } = this.context;
+    store.dispatch({
+      type: 'IMAGE_VALUE_CHANGE',
+      field: suggestion.target.name.toUpperCase(), // ENV
+      value: suggestion.suggestion // NODE_ENV=production
+    });
+  }
+
   valueChanged(e) {
     const { store } = this.context;
+    if (e.target.name.toUpperCase() === 'FROM') {
+      actions.docker.image.search(e.target.value).then((data) => {
+        console.log(data);
+        this.setState({
+          imageLookup: data
+        });
+        console.log(this.state.imageLookup);
+      });
+    }
     store.dispatch({
       type: 'IMAGE_VALUE_CHANGE',
       field: e.target.name.toUpperCase(), // ENV
@@ -311,7 +330,7 @@ class ImageBuildPage extends React.Component {
             {
               this.state.selected.includes('FROM') ?
               <FormField label='FROM'>
-                <TextInput name='from' onDOMChange={this.valueChanged} value={this.state.data['FROM']}/>
+                <TextInput name='from' onDOMChange={this.valueChanged} value={this.state.data['FROM']} suggestions={this.state.imageLookup} onSelect={this.suggestionSelected.bind(this)}/>
               </FormField> : ''
             }
             {

@@ -83,6 +83,13 @@ class ImagesAction extends Action {
     });
   }
 
+  search(filter) {
+    return docker.instance.searchImages({
+      term: filter,
+      limit: 5
+    }).then(data => data.map(img => img.name));
+  }
+
   select(id) {
     if (!id) {
       this.store.dispatch(push('/images'));

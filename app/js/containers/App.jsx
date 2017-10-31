@@ -22,6 +22,7 @@ import TopMenu from '../components/TopMenu.jsx';
 // pages
 import About from '../containers/About.jsx';
 import ImageBuildPage from '../containers/ImageBuildPage.jsx';
+import ComposeBuildPage from '../containers/ComposeBuildPage.jsx';
 import ImagesPage from '../containers/Images.jsx';
 import ImagesStatusPage from '../containers/ImageStatus.jsx';
 import DockerPage from '../containers/Docker.jsx';
@@ -82,6 +83,7 @@ class App extends React.Component {
               <Box flex={true} pad={{ vertical: 'none', horizontal: 'small' }} className='left-padded'>
                 <Route exact path='/' component={MainMenu} />
                 <Route path='/docker' component={DockerPage} />
+                <Route path='/compose' component={ComposeBuildPage} />
                 <Route exact path='/image' component={ImageBuildPage} />
                 <Route exact path='/images' component={ImagesPage} />
                 <Route path='/images/selected' component={ImagesStatusPage} />
