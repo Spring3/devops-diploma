@@ -25,6 +25,7 @@ class Action {
       this.checkFile(filePath).then(() =>
         fs.unlink(filePath, resolve)
       ).catch((e) => {
+        console.error(e);
         return resolve();
       })
     );

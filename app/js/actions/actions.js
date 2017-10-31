@@ -8,6 +8,7 @@ import combinedReducer from './../reducers/reducers';
 import Action from './action';
 
 const path = require('path');
+const YML = require('yamljs');
 
 // react-router-redux setup
 const history = createHistory();
@@ -58,6 +59,17 @@ class Actions extends Action {
       }
       this.store.dispatch({ type: 'IMPORT_DOCKERFILE', data: result });
       return possibleDockerfile;
+    });
+  }
+
+  lookupComposeFile(directory) {
+    const possibleComposeFile = `${directory.path}${path.sep}docker-compose.yml`;
+    console.log(possibleComposeFile);
+    return this.readFile(possibleComposeFile).then((contents) => {
+      console.log(contents);
+      const content = YML.parse(contents);
+      console.log(content);
+      return possibleComposeFile;
     });
   }
 }

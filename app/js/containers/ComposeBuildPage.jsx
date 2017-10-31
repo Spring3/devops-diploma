@@ -30,27 +30,37 @@ class ComposeBuildPage extends React.Component {
     this.destinationPicker.webkitdirectory = true;
   }
 
+  componentWillReceiveProps(nextProps) {
+    if (this.state.destination !== nextProps.destination) {
+      this.setState({
+        destination: nextProps.destination
+      });
+    }
+
+    if (this.state.fileName !== nextProps.fileName || this.state.filePath !== nextProps.filePath) {
+      this.setState({
+        fileName: nextProps.fileName,
+        filePath: nextProps.filePath
+      });
+    }
+  }
+
   pickDestination(e) {
     const { store } = this.context;
     const file = e.target.files[0];
-    const allKeys = supportedSettings.concat(defaultSettings);
-    actions.lookupDockerfile(file, allKeys)
+    actions.lookupComposeFile(file)
     .then((filePath) => {
-      this.setState({
-        destination: file.path
-      });
       store.dispatch({
-        type: 'SET_DESTINATION',
+        type: 'SET_COMPOSE_DESTINATION',
+        destination: file.path,
         filePath: file.path,
-        fileName: 'Dockerfile'
+        fileName: 'docker-compose.yml'
       });
     })
     .catch(() => {
-      this.setState({
-        destination: file.path
-      });
       store.dispatch({
-        type: 'SET_DESTINATION',
+        type: 'SET_COMPOSE_DESTINATION',
+        destination: file.path,
         filePath: undefined,
         fileName: undefined
       });
@@ -110,8 +120,16 @@ class ComposeBuildPage extends React.Component {
   }
 }
 
+const mapDispatchToProps = dispatch => ({ dispatch });
+
+const mapStateToProps = state => ({
+  destination: state.docker.build.compose.destination,
+  fileName: state.docker.build.compose.fileName,
+  filePath: state.docker.build.compose.filePath
+});
+
 ComposeBuildPage.contextTypes = {
   store: PropTypes.object
 }
 
-module.exports = connect()(ComposeBuildPage);
+module.exports = connect(mapStateToProps, mapDispatchToProps)(ComposeBuildPage);
