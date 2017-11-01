@@ -1,5 +1,7 @@
 const fs = require('fs');
 
+let authConfig = {};
+
 class Action {
   checkFile(filePath) {
     return new Promise((resolve, reject) => {
@@ -29,6 +31,20 @@ class Action {
         return resolve();
       })
     );
+  }
+
+  set credentials(value) {
+    authConfig = value;
+  }
+
+  get credentials() {
+    const result = authConfig;
+    try {
+      result.password = result.password instanceof Buffer ? result.password.toString('utf8') : result.password;
+    } catch (e) {
+      result.password = undefined;
+    }
+    return result;
   }
 }
 

@@ -4,6 +4,8 @@ import path from 'path';
 import docker from './../modules/docker';
 import Action from './action';
 
+const REGEX_TAG = /:\w+$/;
+
 class ImagesAction extends Action {
   constructor(store) {
     super();
@@ -39,23 +41,13 @@ class ImagesAction extends Action {
         file: tarballPath,
         cwd: dirPath
       }, ['.']).then(() => {
-        const state = this.store.getState();
-        let registry;
-        let username;
-        let password;
-        if (state.docker.common.authResult) {
-          registry = state.docker.common.authResult.serverAddress;
-          username = state.docker.common.authResult.username;
-          password = Buffer.from(state.docker.common.authResult.password, 'hex').toString('utf8');
-        }
-        const options = Object.assign({}, opts, {
-          registryConfig: {
-            [registry]: {
-              username,
-              password
-            }
+        const config = {
+          [this.credentials.serverAddress]: {
+            username: this.credentials.username,
+            password: this.credentials.password
           }
-        });
+        };
+        const options = Object.assign({}, opts, { registryConfig: config });
         this.store.dispatch({
           type: 'SHOW_NOTIFICATION',
           notificationMessage: 'Building image...',
@@ -80,6 +72,25 @@ class ImagesAction extends Action {
             return this.deleteFile(tarballPath).then(reject);
           });
       });
+    });
+  }
+
+  push(name) {
+    return new Promise((resolve, reject) => {
+      if (!name) return reject();
+      if (!this.credentials.password) return reject('Not Authorized');
+      const matching = name.match(REGEX_TAG);
+      const tagStartIndex = Array.isArray(matching) ? matching.index : undefined;
+      const imageName = tagStartIndex ? name.substring(0, tagStartIndex) : name;
+      // +1 because the tag includes :
+      const tag = tagStartIndex ? name.substring(tagStartIndex + 1, name.length) : undefined;
+      console.log('pushing');
+      console.log(this.credentials);
+      return this.get(imageName).push({
+        name: imageName,
+        tag,
+        authconfig: this.credentials
+      }).then(resolve).catch(reject);
     });
   }
 

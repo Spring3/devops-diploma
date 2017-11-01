@@ -3,6 +3,7 @@ import { ipcRenderer } from 'electron';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import Box from 'grommet/components/Box';
+import Form from 'grommet/components/Form';
 import FormField from 'grommet/components/FormField';
 import FormFields from 'grommet/components/FormFields';
 import TextInput from 'grommet/components/TextInput';
@@ -13,12 +14,15 @@ import Section from 'grommet/components/Section';
 import Heading from 'grommet/components/Heading';
 import Paragraph from 'grommet/components/Paragraph';
 import Preview from '../components/Modal.jsx';
+import BuildModal from '../components/Modal.jsx';
+import Footer from 'grommet/components/Footer';
 
 import Download from 'grommet/components/icons/base/DocumentDownload';
 import Search from 'grommet/components/icons/base/Search';
 import Trash from 'grommet/components/icons/base/Trash';
 import Play from 'grommet/components/icons/base/Play';
 import Open from 'grommet/components/icons/base/FolderOpen';
+import Push from 'grommet/components/icons/base/CloudUpload';
 
 import actions from '../actions/actions.js';
 
@@ -32,22 +36,31 @@ class ImageBuildPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      built: false,
+      lastBuiltImage: undefined,
+      imageName: undefined,
+      buildModalVisible: false, 
       selected: this.props.selected || defaultSettings,
       imageLookup: [],
+      lookupTimeout: undefined,
       data: this.props.data || {},
       toast: false,
       toastMessage: '',
-      destination: '',
+      destination: this.props.destination || this.props.filePath,
       fileName: this.props.fileName,
       filePath: this.props.filePath
     };
     this.selectionChanged = this.selectionChanged.bind(this);
+    this.imageNameChange = this.imageNameChange.bind(this);
     this.valueChanged = this.valueChanged.bind(this);
     this.buildDockerFile = this.buildDockerFile.bind(this);
     this.togglePreview = this.togglePreview.bind(this);
+    this.toggleBuildPreview = this.toggleBuildPreview.bind(this);
     this.deleteFile = this.deleteFile.bind(this);
     this.buildImage = this.buildImage.bind(this);
     this.pickDestination = this.pickDestination.bind(this);
+    this.pushImage = this.pushImage.bind(this);
+    this.processChunk = this.processChunk.bind(this);
   }
 
   componentWillMount() {
@@ -107,7 +120,8 @@ class ImageBuildPage extends React.Component {
     if (this.state.fileName !== nextProps.fileName || this.state.filePath !== nextProps.filePath) {
       this.setState({
         filePath: nextProps.filePath,
-        fileName: nextProps.fileName
+        fileName: nextProps.fileName,
+        destination: nextProps.filePath || this.state.filePath
       });
     }
   }
@@ -124,13 +138,23 @@ class ImageBuildPage extends React.Component {
   valueChanged(e) {
     const { store } = this.context;
     if (e.target.name.toUpperCase() === 'FROM') {
-      actions.docker.image.search(e.target.value).then((data) => {
-        console.log(data);
-        this.setState({
-          imageLookup: data
+      if (this.state.lookupTimeout) {
+        clearTimeout(this.state.lookupTimeout);
+        this.setState({ lookupTimeout: undefined });
+      }
+      const self = this;
+      var value = e.target.value;
+      const timeout = setTimeout(() => {
+        console.log('In timeout');
+        actions.docker.image.search(value).then((data) => {
+          console.log(data);
+          self.setState({
+            imageLookup: data
+          });
+          console.log(self.state.imageLookup);
         });
-        console.log(this.state.imageLookup);
-      });
+      }, 300);
+      this.setState({ lookupTimeout: timeout });
     }
     store.dispatch({
       type: 'IMAGE_VALUE_CHANGE',
@@ -180,21 +204,36 @@ class ImageBuildPage extends React.Component {
     }
   }
 
+  toggleBuildPreview(doBuild, e, test) {
+    this.setState({
+      buildModalVisible: !this.state.buildModalVisible
+    });
+    if (doBuild === true) {
+      this.buildImage();
+    }
+  }
+
   buildImage() {
     const { store } = this.context;
     const projectName = this.state.filePath.split(path.sep).pop().toLowerCase();
+    const dockerImageName = this.state.imageName || projectName;
     const self = this;
     store.dispatch({
       type: 'SHOW_NOTIFICATION',
-      notificationMessage: `Building ${projectName}:latest image...`,
+      notificationMessage: `Building ${dockerImageName} image...`,
       notificationType: 'unknown',
       notificationProgress: 0
     });
-    actions.docker.image.build(this.state.filePath, { t: `${projectName}:latest` })
+    actions.docker.image.build(this.state.filePath, { t: dockerImageName })
     .then(() => {
+      this.setState({
+        imageName: undefined,
+        lastBuiltImage: this.state.imageName,
+        built: true
+      });
       store.dispatch({
         type: 'SHOW_NOTIFICATION',
-        notificationMessage: `Image ${projectName}:latest has been built`,
+        notificationMessage: `Image ${dockerImageName} has been built`,
         notificationType: 'ok',
         notificationProgress: 100
       });
@@ -204,6 +243,7 @@ class ImageBuildPage extends React.Component {
       }, 2000);
     })
     .catch(() => {
+      this.setState({ imageName: undefined });
       store.dispatch({
         type: 'SHOW_NOTIFICATION',
         notificationMessage: `Failed to build image. ${e.message}`,
@@ -222,9 +262,7 @@ class ImageBuildPage extends React.Component {
     const allKeys = supportedSettings.concat(defaultSettings);
     actions.lookupDockerfile(file, allKeys)
     .then((filePath) => {
-      this.setState({
-        destination: file.path
-      });
+      this.setState({ destination: file.path });
       store.dispatch({
         type: 'SET_DESTINATION',
         filePath: file.path,
@@ -232,9 +270,7 @@ class ImageBuildPage extends React.Component {
       });
     })
     .catch(() => {
-      this.setState({
-        destination: file.path
-      });
+      this.setState({ destination: file.path });
       store.dispatch({
         type: 'SET_DESTINATION',
         filePath: undefined,
@@ -252,6 +288,57 @@ class ImageBuildPage extends React.Component {
     });
   }
 
+  processChunk(chunk) {
+    const { store } = this.context;
+    try {
+      if (chunk) {
+        const validChunk = JSON.parse(Buffer.from(chunk).toString('utf8'));
+        let text = '';
+        if (validChunk.error) {
+          text = validChunk.error;
+        } else {
+          text = validChunk.id ? `${validChunk.status} ${validChunk.id}` : validChunk.status;
+        }
+        store.dispatch({
+          type: 'SHOW_NOTIFICATION',
+          notificationMessage: text,
+          notificationType: validChunk.error ? 'critical' : 'unknown'
+        });
+      }
+    } catch (e) {}
+  }
+
+  pushImage() {
+    const { store } = this.context;
+    const projectName = this.state.filePath.split(path.sep).pop().toLowerCase();
+    const imageName = this.state.lastBuiltImage || projectName;
+    actions.docker.image.push(imageName).then((stream) => {
+      stream
+      .on('data', this.processChunk)
+      .on('end', (chunk) => {
+        if (chunk) {
+          this.processChunk(chunk);
+        }
+        setTimeout(() => {
+          store.dispatch({ type: 'HIDE_NOTIFICATION'});
+        }, 2000);
+      });
+    }).catch((e) => {
+      store.dispatch({
+        type: 'SHOW_NOTIFICATION',
+        notificationMessage: `Failed to push ${imageName}. ${e.message}`,
+        notificationType: 'critical'
+      });
+      setTimeout(() => {
+        store.dispatch({ type: 'HIDE_NOTIFICATION'});
+      }, 2000);
+    });
+  }
+
+  imageNameChange(e) {
+    this.setState({ imageName: e.target.value });
+  }
+
   render() {
     return (
       <Box>
@@ -266,6 +353,28 @@ class ImageBuildPage extends React.Component {
               </Paragraph>
             </Section>
           </Preview>
+          : ''
+        }
+        {
+          this.state.buildModalVisible ?
+            <BuildModal closeBtn={true} toggleModal={this.toggleBuildPreview}>
+              <Form pad='medium' onSubmit={this.toggleBuildPreview.bind(this, true)}>
+                <FormFields>
+                  <FormField label='Image Name' className="borderless">
+                    <TextInput name='name' className="borderless" placeHolder="organization/imageName:imageTag" onChange={this.imageNameChange}/>
+                  </FormField>
+                </FormFields>
+                <Footer pad={{"vertical": "medium"}} justify="center">
+                  <Button icon={<Play />}
+                    a11yTitle='Build'
+                    label='Build'
+                    type="submit"
+                    style={{ padding: "0px" }}
+                    className='btn-small'
+                  />
+                </Footer>
+              </Form>
+            </BuildModal>
           : ''
         }
         {
@@ -290,13 +399,6 @@ class ImageBuildPage extends React.Component {
                 plain={true}
                 a11yTitle='Save'
                 className='btn-small' />
-              <Button icon={<Play />}
-                onClick={this.state.filePath ? this.buildImage : null}
-                a11yTitle='Build'
-                label='Build'
-                plain={true}
-                className='btn-small'
-              />
               <Button icon={<Search />}
                 box={true}
                 onClick={this.state.fileName ? this.togglePreview : null}
@@ -310,6 +412,21 @@ class ImageBuildPage extends React.Component {
                 label='Delete'
                 a11yTitle='Delete'
                 onClick={this.state.fileName ? this.deleteFile : null}
+                plain={true}
+                className='btn-small'
+                />
+              <Button icon={<Play />}
+                onClick={this.state.filePath ? this.toggleBuildPreview : null}
+                a11yTitle='Build'
+                label='Build'
+                plain={true}
+                className='btn-small'
+              />
+              <Button icon={<Push />}
+                box={true}
+                label='Push'
+                a11yTitle='Push'
+                onClick={this.state.built ? this.pushImage : null}
                 plain={true}
                 className='btn-small'
                 />
