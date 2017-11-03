@@ -18,14 +18,14 @@ import Footer from '../components/Footer.jsx';
 import LoginForm from '../components/LoginForm.jsx';
 import TopMenu from '../components/TopMenu.jsx';
 
-
 // pages
-import About from '../containers/About.jsx';
-import ImageBuildPage from '../containers/ImageBuildPage.jsx';
-import ComposeBuildPage from '../containers/ComposeBuildPage.jsx';
-import ImagesPage from '../containers/Images.jsx';
-import ImagesStatusPage from '../containers/ImageStatus.jsx';
-import DockerPage from '../containers/Docker.jsx';
+import About from './About.jsx';
+import ImageBuildPage from './ImageBuildPage.jsx';
+import ComposeBuildPage from './ComposeBuildPage.jsx';
+import StackBuildPage from './StackBuildPage.jsx';
+import ImagesPage from './Images.jsx';
+import ImagesStatusPage from './ImageStatus.jsx';
+import DockerPage from './Docker.jsx';
 import SidebarIcon from 'grommet/components/icons/base/Sidebar';
 
 // icons
@@ -84,6 +84,7 @@ class App extends React.Component {
                 <Route exact path='/' component={MainMenu} />
                 <Route path='/docker' component={DockerPage} />
                 <Route path='/compose' component={ComposeBuildPage} />
+                <Route path='/stack' component={StackBuildPage} />
                 <Route exact path='/image' component={ImageBuildPage} />
                 <Route exact path='/images' component={ImagesPage} />
                 <Route path='/images/selected' component={ImagesStatusPage} />

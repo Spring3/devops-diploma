@@ -72,6 +72,17 @@ class Actions extends Action {
       return possibleComposeFile;
     });
   }
+
+  lookupStackFile(directory) {
+    const possibleComposeFile = `${directory.path}${path.sep}${directory.name.toLowerCase()}.yml`;
+    console.log(possibleComposeFile);
+    return this.readFile(possibleComposeFile).then((contents) => {
+      console.log(contents);
+      const content = YML.parse(contents);
+      console.log(content);
+      return possibleComposeFile;
+    });
+  }
 }
 
 module.exports = new Actions();
