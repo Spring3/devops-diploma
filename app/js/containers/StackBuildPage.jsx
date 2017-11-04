@@ -31,6 +31,11 @@ class StackBuildPage extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
+      volume: {},
+      volumes: [],
+      service: {},
+      services: [],
+      network: {},
       networks: [],
       deployMode: undefined,
       imageLookup: [],
@@ -49,6 +54,7 @@ class StackBuildPage extends React.Component {
     this.toggleNetworkModal = this.toggleNetworkModal.bind(this);
     this.toggleVolumeModal = this.toggleVolumeModal.bind(this);
     this.suggestionSelected = this.suggestionSelected.bind(this);
+    this.valueChange = this.valueChange.bind(this);
     this.lookupImage = this.lookupImage.bind(this);
   }
 
@@ -94,19 +100,40 @@ class StackBuildPage extends React.Component {
       });
   }
 
-  toggleServiceModal() {
+  toggleServiceModal(submit) {
+    const { store } = this.context;
+    if (submit) {
+      store.dispatch({
+        type: 'SET_STACK_SERVICE',
+        service: this.state.service
+      });
+    }
     this.setState({
       serviceModalVisible: !this.state.serviceModalVisible
     });
   }
 
-  toggleVolumeModal() {
+  toggleVolumeModal(submit) {
+    const { store } = this.context;
+    if (submit) {
+      store.dispatch({
+        type: 'SET_STACK_VOLUME',
+        volume: this.state.volume
+      });
+    }
     this.setState({
       volumeModalVisible: !this.state.volumeModalVisible
     });
   }
 
-  toggleNetworkModal() {
+  toggleNetworkModal(submit) {
+    const { store } = this.context;
+    if (submit) {
+      store.dispatch({
+        type: 'SET_STACK_NETWORK',
+        network: this.state.network
+      });
+    }
     this.setState({
       networkModalVisible: !this.state.networkModalVisible
     });
@@ -114,7 +141,7 @@ class StackBuildPage extends React.Component {
 
   suggestionSelected(suggestion) {
     this.setState({
-      image: suggestion.suggestion
+      service: Object.assign({}, this.state.service, { image: suggestion.suggestion })
     });
   }
 
@@ -135,7 +162,7 @@ class StackBuildPage extends React.Component {
     }, 300);
     this.setState({
       lookupTimeout: timeout,
-      image: value
+      service: Object.assign({}, this.state.service, { image: value })
     });
   }
 
@@ -158,6 +185,16 @@ class StackBuildPage extends React.Component {
     });
   }
 
+  valueChange(e) {
+    const nameParts = e.target.name.split('.');
+    const propKey = nameParts[0];
+    const propValue = nameParts[1];
+    console.log(this.state[propKey]);
+    this.setState({
+      [propKey]: Object.assign({}, this.state[propKey], { [propValue]: e.target.value })
+    });
+  }
+
   render() {
     return(
       <Box>
@@ -166,22 +203,22 @@ class StackBuildPage extends React.Component {
           <Form pad='medium' onSubmit={this.toggleServiceModal.bind(this, true)}>
             <FormFields>
               <FormField label='Service Name' className="borderless">
-                <TextInput name='name' className="borderless" placeHolder="service_mail" onChange={this.valueChange}/>
+                <TextInput name='service.name' className="borderless" placeHolder="service_mail" onChange={this.valueChange}/>
               </FormField>
               <FormField label='Image' className="borderless">
-                <TextInput name='image' className="borderless" placeHolder="organization/imageName:imageTag" value={this.state.image} suggestions={this.state.imageLookup} onSelect={this.suggestionSelected} onChange={this.lookupImage}/>
+                <TextInput name='service.image' className="borderless" placeHolder="organization/imageName:imageTag" value={this.state.service.image} suggestions={this.state.imageLookup} onSelect={this.suggestionSelected} onChange={this.lookupImage}/>
               </FormField>
               <FormField label='Command' className="borderless">
-                <textarea name='command' placeholder='-cookie-secure=false' className="borderless" onChange={this.valueChange}/>
+                <textarea name='service.command' placeholder='-cookie-secure=false' className="borderless" onChange={this.valueChange}/>
               </FormField>
               <FormField label='Environment' className="borderless">
-                <textarea name='environment' placeholder='HOST_HOSTNAME=/etc/host_hostname' className="borderless" onChange={this.valueChange}/>
+                <textarea name='service.environment' placeholder='HOST_HOSTNAME=/etc/host_hostname' className="borderless" onChange={this.valueChange}/>
               </FormField>
               <FormField label='Ports' className="borderless">
-                <textarea name='ports' placeholder='15672:15672' className="borderless" onChange={this.valueChange}/>
+                <textarea name='service.ports' placeholder='15672:15672' className="borderless" onChange={this.valueChange}/>
               </FormField>
               <FormField label='Volumes' className="borderless">
-                <textarea name='volumes' placeholder='/var/run:/var/run' className="borderless" onChange={this.valueChange}/>
+                <textarea name='service.volumes' placeholder='/var/run:/var/run' className="borderless" onChange={this.valueChange}/>
               </FormField>
               <FormField label='Depends on' className="borderless">
                 <Select placeHolder='mongo'                  
@@ -227,12 +264,12 @@ class StackBuildPage extends React.Component {
           <Form pad='medium' onSubmit={this.toggleNetworkModal.bind(this, true)}>
             <FormFields>
               <FormField label='Network Name' className="borderless">
-                <TextInput name='name' className="borderless" placeHolder="proxy" onChange={this.valueChange}/>
+                <TextInput name='network.name' className="borderless" placeHolder="proxy" onChange={this.valueChange}/>
               </FormField>
               <FormField label='Alias' className="borderless">
-                <TextInput name='alias' className="borderless" placeHolder="logspout" onChange={this.valueChange}/>
+                <TextInput name='network.alias' className="borderless" placeHolder="logspout" onChange={this.valueChange}/>
               </FormField>
-              <CheckBox label='External' />
+              <CheckBox name='network.external' label='External' />
             </FormFields>
             <Footer pad={{"vertical": "medium"}} justify="center">
               <Button
@@ -252,7 +289,7 @@ class StackBuildPage extends React.Component {
           <Form pad='medium' onSubmit={this.toggleVolumeModal.bind(this, true)}>
             <FormFields>
               <FormField label='Volume Name' className="borderless">
-                <TextInput name='name' className="borderless" placeHolder="proxy" onChange={this.valueChange}/>
+                <TextInput name='volume.name' className="borderless" placeHolder="proxy" onChange={this.valueChange}/>
               </FormField>
             </FormFields>
             <Footer pad={{"vertical": "medium"}} justify="center">
