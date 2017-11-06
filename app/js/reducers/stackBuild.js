@@ -18,66 +18,54 @@ module.exports = (state = initialState, action) => {
     }
     case 'SET_STACK_VOLUME': {
       if (!action.volume) {
-        break;
+        return state;
       }
       return Object.assign({}, state, {
         volumes: [...state.volumes, action.volume]
       });
     }
     case 'REMOVE_STACK_VOLUME': {
-      if (!action.volume) {
-        break;
+      if (typeof action.index !== 'number') {
+        return state;
       }
-      const newVolumes = [];
-      for (const volume of state.volumes) {
-        if (volume.name !== action.volume) {
-          newVolumes.push(volume);
-        }
-      }
+      const newVolumes = [...state.volumes];
+      newVolumes.splice(action.index, 1);
       return Object.assign({}, state, {
         volumes: newVolumes
       });
     }
     case 'SET_STACK_NETWORK': {
       if (!action.network) {
-        break;
+        return state;
       }
       return Object.assign({}, state, {
         networks: [...state.networks, action.network]
       });
     }
     case 'REMOVE_STACK_NETWORK': {
-      if (!action.network) {
-        break;
+      if (typeof action.index !== 'number') {
+        return state;
       }
-      const newNetworks = [];
-      for (const network of state.networks) {
-        if (network.name !== action.network) {
-          newNetworks.push(network);
-        }
-      }
+      const newNetworks = [...state.networks];
+      newNetworks.splice(action.index, 1);
       return Object.assign({}, state, {
         networks: newNetworks
       });
     }
     case 'SET_STACK_SERVICE': {
       if (!action.service) {
-        break;
+        return state;
       }
       return Object.assign({}, state, {
         services: [...state.services, action.service]
       });
     }
     case 'REMOVE_STACK_SERVICE': {
-      if (!action.service) {
-        break;
+      if (typeof action.index !== 'number') {
+        return state;
       }
-      const newServices = [];
-      for (const service of state.services) {
-        if (service.name !== action.service) {
-          newServices.push(service);
-        }
-      }
+      const newServices = [...state.services];
+      newServices.splice(action.index, 1);
       return Object.assign({}, state, {
         services: newServices
       });

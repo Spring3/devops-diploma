@@ -1,5 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { ipcRenderer } from 'electron';
 import PropTypes from 'prop-types';
 import Box from 'grommet/components/Box';
 import Button from 'grommet/components/Button';
@@ -12,9 +13,8 @@ import Footer from 'grommet/components/Footer';
 import Select from 'grommet/components/Select';
 import NumberInput from 'grommet/components/NumberInput';
 import CheckBox from 'grommet/components/CheckBox';
-
+import Toast from 'grommet/components/Toast';
 import AddIcon from 'grommet/components/icons/base/Add';
-
 import Download from 'grommet/components/icons/base/DocumentDownload';
 import Search from 'grommet/components/icons/base/Search';
 import Trash from 'grommet/components/icons/base/Trash';
@@ -26,6 +26,7 @@ import actions from '../actions/actions';
 import ServiceModal from  '../components/Modal.jsx';
 import NetworkModal from  '../components/Modal.jsx';
 import VolumeModal from  '../components/Modal.jsx';
+import Card from '../components/Card';
 
 class StackBuildPage extends React.Component {
   constructor(props) {
@@ -37,6 +38,7 @@ class StackBuildPage extends React.Component {
       services: [],
       network: {},
       networks: [],
+      replicas: undefined,
       deployMode: undefined,
       imageLookup: [],
       lookupTimeout: undefined,
@@ -54,13 +56,42 @@ class StackBuildPage extends React.Component {
     this.toggleNetworkModal = this.toggleNetworkModal.bind(this);
     this.toggleVolumeModal = this.toggleVolumeModal.bind(this);
     this.suggestionSelected = this.suggestionSelected.bind(this);
+    this.buildComposeFile = this.buildComposeFile.bind(this);
     this.valueChange = this.valueChange.bind(this);
     this.lookupImage = this.lookupImage.bind(this);
+  }
+
+  componentWillMount() {
+    const { store } = this.context;
+    const self = this;
+    this.listener = (e, data) => {
+      store.dispatch({
+        type: 'SET_DESTINATION',
+        fileName: data.fileName,
+        filePath: data.filePath
+      });
+      this.setState({
+        toast: true,
+        toastMessage: `${data.fileName} was created in ${data.filePath}`,
+      }, () => {
+        setTimeout(() => {
+          self.setState({
+            toast: false,
+            toastMessage: ''
+          });
+        }, 5000);
+      });
+    };
+    ipcRenderer.on('build:rs', this.listener);
   }
 
   componentDidMount() {
     this.destinationPicker.directory = true;
     this.destinationPicker.webkitdirectory = true;
+  }
+
+  componentWillUnmount() {
+    ipcRenderer.removeListener('build:rs', this.listener);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -74,6 +105,24 @@ class StackBuildPage extends React.Component {
       this.setState({
         fileName: nextProps.fileName,
         filePath: nextProps.filePath
+      });
+    }
+
+    if (this.state.networks.length !== nextProps.networks.length) {
+      this.setState({
+        networks: nextProps.networks
+      });
+    }
+
+    if (this.state.volumes.length !== nextProps.volumes.length) {
+      this.setState({
+        volumes: nextProps.volumes
+      });
+    }
+
+    if (this.state.services.length !== nextProps.services.length) {
+      this.setState({
+        services: nextProps.services
       });
     }
   }
@@ -95,17 +144,30 @@ class StackBuildPage extends React.Component {
           type: 'SET_STACK_DESTINATION',
           destination: file.path,
           filePath: undefined,
-          fileName: undefined
+          fileName: `${file.name.toLowerCase()}.yml`
         });
       });
   }
 
   toggleServiceModal(submit) {
     const { store } = this.context;
-    if (submit) {
+    if (submit === true) {
       store.dispatch({
         type: 'SET_STACK_SERVICE',
-        service: this.state.service
+        service: Object.assign({},
+          this.state.service,
+          {
+            deploy_mode: {
+              [this.state.deployMode]: {
+                replicas: this.state.replicas
+              }
+            }
+          })
+      });
+      this.setState({
+        service: {},
+        deployMode: undefined,
+        replicas: undefined,
       });
     }
     this.setState({
@@ -115,11 +177,12 @@ class StackBuildPage extends React.Component {
 
   toggleVolumeModal(submit) {
     const { store } = this.context;
-    if (submit) {
+    if (submit === true) {
       store.dispatch({
         type: 'SET_STACK_VOLUME',
         volume: this.state.volume
       });
+      this.setState({ volume: {} });
     }
     this.setState({
       volumeModalVisible: !this.state.volumeModalVisible
@@ -128,11 +191,12 @@ class StackBuildPage extends React.Component {
 
   toggleNetworkModal(submit) {
     const { store } = this.context;
-    if (submit) {
+    if (submit === true) {
       store.dispatch({
         type: 'SET_STACK_NETWORK',
         network: this.state.network
       });
+      this.setState({ network: {} });
     }
     this.setState({
       networkModalVisible: !this.state.networkModalVisible
@@ -173,6 +237,12 @@ class StackBuildPage extends React.Component {
     });
   }
 
+  dependenciesChange(e) {
+    this.setState({
+      service: Object.assign({}, this.state.service, { depends_on: e.value })
+    });
+  }
+
   replicasChange(e) {
     this.setState({
       replicas: e.target.value
@@ -181,7 +251,13 @@ class StackBuildPage extends React.Component {
 
   networksChange(e) {
     this.setState({
-      networks: e.value
+      service: Object.assign({}, this.state.service, { networks: e.value })
+    });
+  }
+
+  check(e) {
+    this.setState({
+      network: Object.assign({}, this.state.network, { external: !this.state.network.external })
     });
   }
 
@@ -189,13 +265,54 @@ class StackBuildPage extends React.Component {
     const nameParts = e.target.name.split('.');
     const propKey = nameParts[0];
     const propValue = nameParts[1];
-    console.log(this.state[propKey]);
+    const arrayItems = ['environment', 'networks', 'ports', 'volumes'];
     this.setState({
-      [propKey]: Object.assign({}, this.state[propKey], { [propValue]: e.target.value })
+      [propKey]: Object.assign({}, this.state[propKey], {
+        [propValue]: arrayItems.includes(propValue) ? e.target.value.split('\n') : e.target.value
+      })
     });
   }
 
+  onNetworkRemove(e, index) {
+    const { store } = this.context; 
+    store.dispatch({
+      type: 'REMOVE_STACK_NETWORK',
+      index
+    });
+  }
+
+  onVolumeRemove(e, index) {
+    const { store } = this.context;
+    store.dispatch({
+      type: 'REMOVE_STACK_VOLUME',
+      index
+    });
+  }
+
+  onServiceRemove(e, index) {
+    const { store } = this.context;
+    store.dispatch({
+      type: 'REMOVE_STACK_SERVICE',
+      index
+    });
+  }
+
+  buildComposeFile(e) {
+    const message = {
+      destination: this.state.destination,
+      filename: this.state.fileName,
+      stackfile: {
+        networks: this.state.networks,
+        volumes: this.state.volumes,
+        services: this.state.services
+      },
+      type: 'STACKFILE'
+    }
+    ipcRenderer.send('build', message);
+  }
+
   render() {
+    console.log(this.state);
     return(
       <Box>
       { this.state.serviceModalVisible ?
@@ -222,15 +339,15 @@ class StackBuildPage extends React.Component {
               </FormField>
               <FormField label='Depends on' className="borderless">
                 <Select placeHolder='mongo'                  
-                  options={['item1', 'item2', 'item3', 'item4']}
-                  value={this.state.networks}
+                  options={this.state.services.map((i) => i.name)}
+                  value={this.state.service.depends_on}
                   multiple={true}
-                  onChange={this.networksChange.bind(this)} />
+                  onChange={this.dependenciesChange.bind(this)} />
               </FormField>
               <FormField label='Networks' className="borderless">
                 <Select placeHolder='global'                  
-                  options={['network1', 'network2', 'network3', 'network4']}
-                  value={this.state.networks}
+                  options={this.state.networks.map((i) => i.name)}
+                  value={this.state.service.networks}
                   multiple={true}
                   onChange={this.networksChange.bind(this)} />
               </FormField>
@@ -259,6 +376,11 @@ class StackBuildPage extends React.Component {
         : ''
       }
 
+      {
+        this.state.toast ? 
+        <Toast status='ok'>{this.state.toastMessage}</Toast> : ''
+      }
+
       { this.state.networkModalVisible ?
         <NetworkModal closeBtn={true} toggleModal={this.toggleNetworkModal}>
           <Form pad='medium' onSubmit={this.toggleNetworkModal.bind(this, true)}>
@@ -269,7 +391,7 @@ class StackBuildPage extends React.Component {
               <FormField label='Alias' className="borderless">
                 <TextInput name='network.alias' className="borderless" placeHolder="logspout" onChange={this.valueChange}/>
               </FormField>
-              <CheckBox name='network.external' label='External' />
+              <CheckBox name='network.external' label='External' checked={!!this.state.network.external} onChange={this.check.bind(this)} />
             </FormFields>
             <Footer pad={{"vertical": "medium"}} justify="center">
               <Button
@@ -304,7 +426,7 @@ class StackBuildPage extends React.Component {
         </VolumeModal>
         : ''
       }
-        <Box direction='row' pad={{ horizontal: 'medium' }} className='left-padded' style={{ marginRight: '220px' }}>
+        <Box direction='row' pad={{ horizontal: 'medium' }}>
           <Box className='wrapper-borderless' full='horizontal' alignContent="stretch">
             <Box direction='row' justify='start' alignSelf='stretch' align='center' style={{ background: 'white', position: 'fixed', zIndex: 999, width: '100%' }}>
               <Button icon={<Open />}
@@ -321,7 +443,8 @@ class StackBuildPage extends React.Component {
                 onClick={this.state.destination ? this.buildComposeFile : null}
                 plain={true}
                 a11yTitle='Save'
-                className='btn-small' />
+                className='btn-small'
+              />
               <Button icon={<Up />}
                 onClick={this.state.filePath ? this.composeUp : null}
                 a11yTitle='Up'
@@ -348,9 +471,35 @@ class StackBuildPage extends React.Component {
               <input ref={ input => this.destinationPicker = input } onChange={this.pickDestination} type='file' style={{ visibility: 'hidden' }} />
             </Box>
             <Heading tag='h4' strong={true} style={{ marginTop: '60px' }} margin='none'>Configuration</Heading>
-            <Button style={{ marginTop: '20px' }} icon={<AddIcon />} box={true} label='Service' a11yTitle='Service' plain={true} className='btn-small' onClick={this.toggleServiceModal} />
-            <Button style={{ marginTop: '20px' }} icon={<AddIcon />} box={true} label='Network' a11yTitle='Network' plain={true} className='btn-small' onClick={this.toggleNetworkModal} />
-            <Button style={{ marginTop: '20px' }} icon={<AddIcon />} box={true} label='Volume' a11yTitle='Volume' plain={true} className='btn-small' onClick={this.toggleVolumeModal} />
+            <Box direction='row'>
+              <Button style={{ marginTop: '20px' }} icon={<AddIcon />} box={true} label='Service' a11yTitle='Service' plain={true} className='btn-small' onClick={this.toggleServiceModal} />
+              <Button style={{ marginTop: '20px' }} icon={<AddIcon />} box={true} label='Network' a11yTitle='Network' plain={true} className='btn-small' onClick={this.toggleNetworkModal} />
+              <Button style={{ marginTop: '20px' }} icon={<AddIcon />} box={true} label='Volume' a11yTitle='Volume' plain={true} className='btn-small' onClick={this.toggleVolumeModal} />
+            </Box>
+            <Heading tag='h4' strong={true} style={{ marginTop: '20px' }} margin='none'>Networks</Heading>
+            <Box direction='row'>
+              {
+                this.state.networks.map((network, i) => (
+                  <Card className='bordered-card' label={network.name} onClose={this.onNetworkRemove.bind(this)} checkbox={true} checked={network.external} checkboxLabel='external' key={i} index={i}/>
+                ))
+              }
+            </Box>
+            <Heading tag='h4' strong={true} style={{ marginTop: '20px' }} margin='none'>Volumes</Heading>
+            <Box direction='row'>
+              {
+                this.state.volumes.map((volume, i) => (
+                  <Card className='bordered-card' label={volume.name} key={i} index={i} onClose={this.onVolumeRemove.bind(this)}/>
+                ))
+              }
+            </Box>
+            <Heading tag='h4' strong={true} style={{ marginTop: '20px' }} margin='none'>Services</Heading>
+            <Box direction='row'>
+              {
+                this.state.services.map((service, i) => (
+                  <Card className='bordered-card' label={service.name} key={i} index={i} onClose={this.onServiceRemove.bind(this)} />
+                ))
+              }
+            </Box>
           </Box>
         </Box>
       </Box>
@@ -361,6 +510,9 @@ class StackBuildPage extends React.Component {
 const mapDispatchToProps = dispatch => ({ dispatch });
 
 const mapStateToProps = state => ({
+  networks: state.docker.build.stack.networks,
+  volumes: state.docker.build.stack.volumes,
+  services: state.docker.build.stack.services,
   destination: state.docker.build.stack.destination,
   fileName: state.docker.build.stack.fileName,
   filePath: state.docker.build.stack.filePath

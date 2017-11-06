@@ -65,8 +65,8 @@ class ImageBuildPage extends React.Component {
 
   componentWillMount() {
     const { store } = this.context;
+    const self = this;
     this.listener = (e, data) => {
-      const self = this;
       store.dispatch({
         type: 'SET_DESTINATION',
         fileName: data.fileName,

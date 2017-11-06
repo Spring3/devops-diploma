@@ -244,3 +244,19 @@ input.borderless {
 textarea {
   padding-top: 5px !important;
 }
+
+.iconBtn > span {
+  padding: 0px !important;
+}
+
+.bordered-card {
+  border: 2px solid #ebebeb !important;
+  border-radius: 2px;
+  padding: 5px 10px;
+  background: #fdfdfd;
+}
+
+.bordered-card:hover {
+  cursor: pointer;
+  background: #fefefe;
+}
