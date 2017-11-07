@@ -70,6 +70,26 @@ module.exports = (state = initialState, action) => {
         services: newServices
       });
     }
+    case 'REMOVE_STACKFILE': {
+      return Object.assign({}, state, {
+        filePath: undefined,
+        fileName: undefined
+      });
+    }
+    case 'PARSE_STACKFILE': {
+      const { content } = action;
+      let volumes = content.volumes || {};
+      let networks = content.networks || {};
+      let services = content.services || {};
+      volumes = Object.keys(volumes).map(key => (Object.assign({ name: [key] }, volumes[key])));
+      networks = Object.keys(networks).map(key => (Object.assign({ name: [key] }, networks[key])));
+      services = Object.keys(services).map(key => (Object.assign({ name: [key] }, services[key])));
+      return Object.assign({}, state, {
+        volumes,
+        networks,
+        services
+      });
+    }
     default: {
       return state;
     }

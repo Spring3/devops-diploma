@@ -113,11 +113,11 @@ class App {
         source.append('version: "3"\n\n');
         const emptyStringRegex = /:\s['"]{2}/gm;
         const flatNetworks = this.flattenByName(contents.networks);
-        const flatNetworksYML = YML.stringify({ networks: flatNetworks }, 5, 2).replace(emptyStringRegex, ':\n');
+        const flatNetworksYML = YML.stringify({ networks: flatNetworks }, 5, 2).replace(emptyStringRegex, ':');
         const flatVolumes = this.flattenByName(contents.volumes);
-        const flatVolumesYML = YML.stringify({ volumes: flatVolumes }, 5, 2).replace(emptyStringRegex, ':\n');
+        const flatVolumesYML = YML.stringify({ volumes: flatVolumes }, 5, 2).replace(emptyStringRegex, ':');
         const flatServices = this.flattenByName(contents.services);
-        const flatServicesYML = YML.stringify({ services: flatServices }, 5, 2).replace(emptyStringRegex, ':\n');
+        const flatServicesYML = YML.stringify({ services: flatServices }, 5, 2).replace(emptyStringRegex, ':');
         source.append(flatNetworks ? `${flatNetworksYML}\n\n` : 'networks:\n\n');
         source.append(flatVolumes ? `${flatVolumesYML}\n\n` : 'volumes:\n\n');
         source.append(flatServices ? `${flatServicesYML}\n\n` : 'services:\n\n');

@@ -11,6 +11,8 @@ import FormFields from 'grommet/components/FormFields';
 import FormField from 'grommet/components/FormField';
 import Footer from 'grommet/components/Footer';
 import Select from 'grommet/components/Select';
+import Paragraph from 'grommet/components/Paragraph';
+import Section from 'grommet/components/Section';
 import NumberInput from 'grommet/components/NumberInput';
 import CheckBox from 'grommet/components/CheckBox';
 import Toast from 'grommet/components/Toast';
@@ -23,10 +25,14 @@ import Open from 'grommet/components/icons/base/FolderOpen';
 import Label from 'grommet/components/Label';
 
 import actions from '../actions/actions';
+import Preview from '../components/Modal.jsx';
 import ServiceModal from  '../components/Modal.jsx';
 import NetworkModal from  '../components/Modal.jsx';
 import VolumeModal from  '../components/Modal.jsx';
 import Card from '../components/Card';
+
+const fs = require('fs');
+const path = require('path');
 
 class StackBuildPage extends React.Component {
   constructor(props) {
@@ -40,12 +46,14 @@ class StackBuildPage extends React.Component {
       networks: [],
       replicas: undefined,
       deployMode: undefined,
+      content: undefined,
       imageLookup: [],
       lookupTimeout: undefined,
       serviceModalVisible: false,
       networkModalVisible: false,
       volumeModalVisible: false,
       toast: false,
+      preview: false,
       toastMessage: '',
       destination: '',
       fileName: this.props.fileName,
@@ -59,6 +67,8 @@ class StackBuildPage extends React.Component {
     this.buildComposeFile = this.buildComposeFile.bind(this);
     this.valueChange = this.valueChange.bind(this);
     this.lookupImage = this.lookupImage.bind(this);
+    this.togglePreview = this.togglePreview.bind(this);
+    this.deleteFile = this.deleteFile.bind(this);
   }
 
   componentWillMount() {
@@ -131,15 +141,21 @@ class StackBuildPage extends React.Component {
     const { store } = this.context;
     const file = e.target.files[0];
     actions.lookupStackFile(file)
-      .then((filePath) => {
+      .then((content) => {
+        console.log(file);
         store.dispatch({
           type: 'SET_STACK_DESTINATION',
           destination: file.path,
           filePath: file.path,
           fileName: `${file.name.toLowerCase()}.yml`
         });
+        store.dispatch({
+          type: 'PARSE_STACKFILE',
+          content
+        });
       })
-      .catch(() => {
+      .catch((e) => {
+        console.error(e);
         store.dispatch({
           type: 'SET_STACK_DESTINATION',
           destination: file.path,
@@ -311,10 +327,57 @@ class StackBuildPage extends React.Component {
     ipcRenderer.send('build', message);
   }
 
+  togglePreview(e) {
+    const { store } = this.context;
+    if (!this.state.preview) {
+      actions.readFile(`${this.state.filePath}${path.sep}${this.state.fileName}`)
+      .then((content) => {
+        this.setState({
+          preview: !this.state.preview,
+          content
+        });
+      })
+      .catch(() => {
+        store.dispatch({
+          type: 'DELETE_STACKFILE'
+        });
+        this.setState({
+          content: null
+        });
+      });
+    } else {
+      this.setState({
+        preview: !this.state.preview
+      });
+    }
+  }
+
+  deleteFile() {
+    const { store } = this.context;
+    const file = `${this.state.filePath}${path.sep}${this.state.fileName}`;
+    actions.deleteFile(file)
+    .then(() => {
+      store.dispatch({ type: 'DELETE_DOCKERFILE' });
+    });
+  }
+
   render() {
     console.log(this.state);
     return(
       <Box>
+      {
+          this.state.preview ?
+          <Preview closeBtn={true} toggleModal={this.togglePreview}>
+            <Section style={{ whiteSpace: 'pre' }}>
+              <Heading tag='h3' strong={true} margin='none'>{this.state.fileName}</Heading>
+              <hr className='invisible'/>
+              <Paragraph>
+                {this.state.content}
+              </Paragraph>
+            </Section>
+          </Preview>
+          : ''
+        }
       { this.state.serviceModalVisible ?
         <ServiceModal closeBtn={true} toggleModal={this.toggleServiceModal}>
           <Form pad='medium' onSubmit={this.toggleServiceModal.bind(this, true)}>
@@ -443,13 +506,6 @@ class StackBuildPage extends React.Component {
                 onClick={this.state.destination ? this.buildComposeFile : null}
                 plain={true}
                 a11yTitle='Save'
-                className='btn-small'
-              />
-              <Button icon={<Up />}
-                onClick={this.state.filePath ? this.composeUp : null}
-                a11yTitle='Up'
-                label='Up'
-                plain={true}
                 className='btn-small'
               />
               <Button icon={<Search />}
