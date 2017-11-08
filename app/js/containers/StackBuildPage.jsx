@@ -362,7 +362,6 @@ class StackBuildPage extends React.Component {
   }
 
   render() {
-    console.log(this.state);
     return(
       <Box>
       {
@@ -532,7 +531,11 @@ class StackBuildPage extends React.Component {
               <Button style={{ marginTop: '20px' }} icon={<AddIcon />} box={true} label='Network' a11yTitle='Network' plain={true} className='btn-small' onClick={this.toggleNetworkModal} />
               <Button style={{ marginTop: '20px' }} icon={<AddIcon />} box={true} label='Volume' a11yTitle='Volume' plain={true} className='btn-small' onClick={this.toggleVolumeModal} />
             </Box>
-            <Heading tag='h4' strong={true} style={{ marginTop: '20px' }} margin='none'>Networks</Heading>
+            {
+              this.state.networks.length > 0 ?
+              <Heading tag='h4' strong={true} style={{ marginTop: '20px' }} margin='none'>Networks</Heading>
+              : ''
+            }
             <Box direction='row'>
               {
                 this.state.networks.map((network, i) => (
@@ -540,7 +543,11 @@ class StackBuildPage extends React.Component {
                 ))
               }
             </Box>
-            <Heading tag='h4' strong={true} style={{ marginTop: '20px' }} margin='none'>Volumes</Heading>
+            {
+              this.state.volumes.length > 0 ? 
+              <Heading tag='h4' strong={true} style={{ marginTop: '20px' }} margin='none'>Volumes</Heading>
+              : ''
+            }
             <Box direction='row'>
               {
                 this.state.volumes.map((volume, i) => (
@@ -548,7 +555,11 @@ class StackBuildPage extends React.Component {
                 ))
               }
             </Box>
-            <Heading tag='h4' strong={true} style={{ marginTop: '20px' }} margin='none'>Services</Heading>
+            {
+              this.state.services.length > 0 ?
+              <Heading tag='h4' strong={true} style={{ marginTop: '20px' }} margin='none'>Services</Heading>
+              : ''
+            }
             <Box direction='row'>
               {
                 this.state.services.map((service, i) => (

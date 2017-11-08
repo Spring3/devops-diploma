@@ -12,6 +12,7 @@ class MainMenu extends React.Component {
   constructor(props) {
     super(props);
     this.redirect = this.redirect.bind(this);
+    this.infrastructureRedirect = this.infrastructureRedirect.bind(this);
   }
 
   redirect(e) {
@@ -20,70 +21,107 @@ class MainMenu extends React.Component {
     this.props.dispatch(push(`/${pages[e]}`));
   }
 
+  infrastructureRedirect(e) {
+    const pages = ['vagrant'];
+    console.log(pages[e]);
+    this.props.dispatch(push(`/${pages[e]}`)); 
+  }
+
   render() {
     return(
     <Box fill='horizontal'>
-      <Box pad={{ horizontal: 'medium' }}>
-        <Heading tag='h3' strong={true}>
-          Create New
-        </Heading>
+      <Box flex='grow'>
+        <Box pad={{ horizontal: 'medium' }}>
+          <Heading tag='h3' strong={true}>
+            Create New
+          </Heading>
+        </Box>
+        <Tiles selectable={true}
+          fill={false}
+          flush={false}
+          onSelect={this.redirect}>
+          <Tile separator='top'
+            align='start'
+            basis='small'>
+            <Header size='small'
+              pad={{"horizontal": "small"}}>
+              <Heading tag='h4'
+                strong={true}
+                margin='none'>
+                Dockerfile
+              </Heading>
+            </Header>
+            <Box pad='small'>
+              <Paragraph margin='none'>
+                Standard docker image
+              </Paragraph>
+            </Box>
+          </Tile>
+          <Tile separator='top'
+            align='start'
+            basis='small'>
+            <Header size='small'
+              pad={{"horizontal": "small"}}>
+              <Heading tag='h4'
+                strong={true}
+                margin='none'>
+                Compose file
+              </Heading>
+            </Header>
+            <Box pad='small'>
+              <Paragraph margin='none'>
+                Docker compose v3
+              </Paragraph>
+            </Box>
+          </Tile>
+          <Tile separator='top'
+            align='start'
+            basis='small'>
+            <Header size='small'
+              pad={{"horizontal": "small"}}>
+              <Heading tag='h4'
+                strong={true}
+                margin='none'>
+                Stack file
+              </Heading>
+            </Header>
+            <Box pad='small'>
+              <Paragraph margin='none'>
+                Docker stack file with Consul support
+              </Paragraph>
+            </Box>
+          </Tile>
+        </Tiles>
       </Box>
-      <Tiles selectable={true}
-        fill={false}
-        flush={false}
-        onSelect={this.redirect}>
-        <Tile separator='top'
-          align='start'
-          basis='1/4'>
-          <Header size='small'
-            pad={{"horizontal": "small"}}>
-            <Heading tag='h4'
-              strong={true}
-              margin='none'>
-              Dockerfile
-            </Heading>
-          </Header>
-          <Box pad='small'>
-            <Paragraph margin='none'>
-              Standard docker image
-            </Paragraph>
-          </Box>
-        </Tile>
-        <Tile separator='top'
-          align='start'
-          basis='1/4'>
-          <Header size='small'
-            pad={{"horizontal": "small"}}>
-            <Heading tag='h4'
-              strong={true}
-              margin='none'>
-              Compose file
-            </Heading>
-          </Header>
-          <Box pad='small'>
-            <Paragraph margin='none'>
-              Docker compose v3
-            </Paragraph>
-          </Box>
-        </Tile>
-        <Tile separator='top'
-          align='start'
-          basis='1/4'>
-          <Header size='small'
-            pad={{"horizontal": "small"}}>
-            <Heading tag='h4'
-              strong={true}
-              margin='none'>
-              Stack file
-            </Heading>
-          </Header>
-          <Box pad='small'>
-            <Paragraph margin='none'>
-              Docker stack file with Consul support
-            </Paragraph>
-          </Box>
-        </Tile>
-      </Tiles>
+      <Box style={{ marginBottom: '-100px' }}>
+        <Box pad={{ horizontal: 'medium' }}>
+          <Heading tag='h3' strong={true}>
+            Infrastructure
+          </Heading>
+        </Box>
+        <Tiles selectable={true}
+          fill={false}
+          flush={false}
+          onSelect={this.infrastructureRedirect}>
+          <Tile separator='top'
+            align='start'
+            basis='small'>
+            <Header size='small'
+              pad={{"horizontal": "small"}}>
+              <Heading tag='h4'
+                strong={true}
+                margin='none'>
+                Vagrant
+              </Heading>
+            </Header>
+            <Box pad='small'>
+              <Paragraph margin='none'>
+                Vagrant VM configuration
+              </Paragraph>
+            </Box>
+          </Tile>
+        </Tiles>
+      </Box>
     </Box>
     );
   }
