@@ -31,18 +31,17 @@ class ComposeBuildPage extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    const nextState = {};
     if (this.state.destination !== nextProps.destination) {
-      this.setState({
-        destination: nextProps.destination
-      });
+      nextState.destination = nextProps.destination;
     }
 
     if (this.state.fileName !== nextProps.fileName || this.state.filePath !== nextProps.filePath) {
-      this.setState({
-        fileName: nextProps.fileName,
-        filePath: nextProps.filePath
-      });
+      nextState.fileName = nextProps.fileName;
+      nextState.filePath = nextProps.filePath;
     }
+
+    this.setState(nextState);
   }
 
   pickDestination(e) {

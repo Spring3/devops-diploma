@@ -52,7 +52,6 @@ class Sidebar extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.authInProgress !== this.state.authInProgress ||
       !_.isEqual(nextProps.authResult, this.state.authResult)) {
-      console.log('Sidebar.jsx');
       this.setState({
         authInProgress: nextProps.authInProgress,
         authResult: nextProps.authResult

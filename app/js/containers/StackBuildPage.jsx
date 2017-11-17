@@ -20,7 +20,6 @@ import AddIcon from 'grommet/components/icons/base/Add';
 import Download from 'grommet/components/icons/base/DocumentDownload';
 import Search from 'grommet/components/icons/base/Search';
 import Trash from 'grommet/components/icons/base/Trash';
-import Up from 'grommet/components/icons/base/Up';
 import Open from 'grommet/components/icons/base/FolderOpen';
 import Label from 'grommet/components/Label';
 
@@ -28,6 +27,7 @@ import actions from '../actions/actions';
 import Preview from '../components/Modal.jsx';
 import ServiceModal from  '../components/Modal.jsx';
 import NetworkModal from  '../components/Modal.jsx';
+import SaveModal from '../components/Modal.jsx';
 import VolumeModal from  '../components/Modal.jsx';
 import Card from '../components/Card';
 
@@ -52,6 +52,7 @@ class StackBuildPage extends React.Component {
       serviceModalVisible: false,
       networkModalVisible: false,
       volumeModalVisible: false,
+      saveModalVisible: false,
       toast: false,
       preview: false,
       toastMessage: '',
@@ -63,11 +64,13 @@ class StackBuildPage extends React.Component {
     this.toggleServiceModal = this.toggleServiceModal.bind(this);
     this.toggleNetworkModal = this.toggleNetworkModal.bind(this);
     this.toggleVolumeModal = this.toggleVolumeModal.bind(this);
+    this.toggleSaveModal = this.toggleSaveModal.bind(this);
     this.suggestionSelected = this.suggestionSelected.bind(this);
-    this.buildComposeFile = this.buildComposeFile.bind(this);
+    this.buildStackFile = this.buildStackFile.bind(this);
     this.valueChange = this.valueChange.bind(this);
     this.lookupImage = this.lookupImage.bind(this);
     this.togglePreview = this.togglePreview.bind(this);
+    this.stackNameChange = this.stackNameChange.bind(this);
     this.deleteFile = this.deleteFile.bind(this);
   }
 
@@ -105,36 +108,31 @@ class StackBuildPage extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    const nextState = {};
     if (this.state.destination !== nextProps.destination) {
-      this.setState({
-        destination: nextProps.destination
-      });
+        nextState.destination = nextProps.destination;
     }
 
-    if (this.state.fileName !== nextProps.fileName || this.state.filePath !== nextProps.filePath) {
-      this.setState({
-        fileName: nextProps.fileName,
-        filePath: nextProps.filePath
-      });
+    if (this.state.fileName !== nextProps.fileName) {
+      nextState.fileName = nextProps.fileName;
+    }
+
+    if (this.state.filePath !== nextProps.filePath) {
+      nextState.filePath = nextProps.filePath;
     }
 
     if (this.state.networks.length !== nextProps.networks.length) {
-      this.setState({
-        networks: nextProps.networks
-      });
+      nextState.networks = nextProps.networks;
     }
 
     if (this.state.volumes.length !== nextProps.volumes.length) {
-      this.setState({
-        volumes: nextProps.volumes
-      });
+      nextState.volumes = nextProps.volumes;
     }
 
     if (this.state.services.length !== nextProps.services.length) {
-      this.setState({
-        services: nextProps.services
-      });
+      nextState.services = nextProps.services;
     }
+    this.setState(nextState);
   }
 
   pickDestination(e) {
@@ -313,7 +311,7 @@ class StackBuildPage extends React.Component {
     });
   }
 
-  buildComposeFile(e) {
+  buildStackFile() {
     const message = {
       destination: this.state.destination,
       filename: this.state.fileName,
@@ -352,6 +350,22 @@ class StackBuildPage extends React.Component {
     }
   }
 
+  toggleSaveModal(save, e) {
+    this.setState({
+      saveModalVisible: !this.state.saveModalVisible
+    });
+    if (save === true) {
+      this.buildStackFile();
+    }
+  }
+
+  stackNameChange(e) {
+    this.props.dispatch({
+      type: 'STACKNAME_CHANGE',
+      fileName: e.target.value
+    });
+  }
+
   deleteFile() {
     const { store } = this.context;
     const file = `${this.state.filePath}${path.sep}${this.state.fileName}`;
@@ -364,6 +378,28 @@ class StackBuildPage extends React.Component {
   render() {
     return(
       <Box>
+      {
+        this.state.saveModalVisible ?
+          <SaveModal closeBtn={true} toggleModal={this.toggleSaveModal}>
+            <Form pad='medium' onSubmit={this.toggleSaveModal.bind(this, true)}>
+              <FormFields>
+                <FormField label='Stack Name' className="borderless">
+                  <TextInput name='name' className="borderless" placeHolder={this.state.fileName || 'tools'} value={this.state.fileName} onChange={this.stackNameChange}/>
+                </FormField>
+              </FormFields>
+              <Footer pad={{"vertical": "medium"}} justify="center">
+                <Button icon={<Download />}
+                  a11yTitle='Save'
+                  label='Save'
+                  type="submit"
+                  style={{ padding: "0px" }}
+                  className='btn-small'
+                />
+              </Footer>
+            </Form>
+          </SaveModal>
+        : ''
+      }
       {
           this.state.preview ?
           <Preview closeBtn={true} toggleModal={this.togglePreview}>
@@ -502,7 +538,7 @@ class StackBuildPage extends React.Component {
               <Button icon={<Download />}
                 box={true}
                 label='Save'
-                onClick={this.state.destination ? this.buildComposeFile : null}
+                onClick={this.state.destination ? this.toggleSaveModal : null}
                 plain={true}
                 a11yTitle='Save'
                 className='btn-small'

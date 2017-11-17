@@ -3,6 +3,7 @@ import { routerMiddleware } from 'react-router-redux';
 import createHistory from 'history/createMemoryHistory';
 
 import Docker from './dockerAction';
+import Vagrant from './vargrantAction';
 import combinedReducer from './../reducers/reducers';
 
 import Action from './action';
@@ -20,6 +21,7 @@ class Actions extends Action {
     super();
     this.store = store;
     this.docker = new Docker(store);
+    this.vagrant = new Vagrant(store);
     this.toggleSidebar = this.toggleSidebar.bind(this);
   }
 

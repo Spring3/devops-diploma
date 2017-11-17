@@ -1,4 +1,9 @@
 dist/
+templates/.vagrant/
+templates/Vagrantfile
+templates/Customfile
+templates/hosts
+templates/token
 documents/
 node_modules/
 .DS_STORE

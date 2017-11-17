@@ -4,6 +4,8 @@ const fs = require('fs');
 const url = require('url');
 const { ReadableStream } = require('memory-streams');
 const YML = require('yamljs');
+const handlebars = require('handlebars');
+const vagrant = require('vagrant');
 
 const correctCMD = /^\[("\S+",.)+"\S+"\]/;
 const correctNoComma = /^\[("\S+".)+"\S+"\]/;
@@ -41,6 +43,25 @@ class App {
         }
         return resolve();
       });
+    });
+  }
+
+  prepareVagrantFile(populatePayload) {
+    return new Promise((resolve, reject) => {
+      const vagrantFile = path.resolve(__dirname, './templates/Vagrantfile');
+      this.checkDestination(`${vagrantFile}.tpl`)
+        .then(() => {
+          const contents = fs.readFileSync(`${vagrantFile}.tpl`, { encoding: 'utf-8' });
+          const template = handlebars.compile(contents);
+          const settings = template(populatePayload);
+          const stream = fs.createWriteStream(vagrantFile);
+          stream.write(settings);
+          stream.end();
+          process.env.AUTO_START_SWARM = true;
+          vagrant.start = path.resolve(__dirname, vagrantFile, '../');
+          vagrant.up(resolve);
+        })
+        .catch(reject);
     });
   }
 
@@ -154,6 +175,10 @@ class App {
         }
         case 'STACKFILE': {
           this.createStackfile(data.destination, data.filename, data.stackfile).then(result => event.sender.send('build:rs', result)).catch(console.error);
+          break;
+        }
+        case 'VAGRANTFILE': {
+          this.prepareVagrantFile(data.payload);
           break;
         }
         default: {

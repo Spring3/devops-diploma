@@ -7,6 +7,7 @@
 # you're doing.
 
 auto = ENV['AUTO_START_SWARM'] || false
+vagrant_dir = File.expand_path(File.dirname(__FILE__))
 # Increase numworkers if you want more than 3 nodes
 numworkers = 2
 
@@ -36,6 +37,9 @@ Vagrant.configure("2") do |config|
       v.memory = vmmemory
       v.cpus = numcpu
       v.customize ["modifyvm", :id, "--cpuexecutioncap", cpuexecutioncap]
+      if File.exists?(File.join(vagrant_dir,'Customfile')) then
+        eval(IO.read(File.join(vagrant_dir,'Customfile')), binding)
+      end
     end
     
     config.vm.define "manager" do |i|
@@ -43,7 +47,6 @@ Vagrant.configure("2") do |config|
       i.vm.hostname = "manager"
       i.vm.network "private_network", ip: "#{manager_ip}"
       i.vm.provision "shell", path: "./provision.sh"
-      i.vm.provision "shell", 
       if File.file?("./hosts") 
         i.vm.provision "file", source: "hosts", destination: "/tmp/hosts"
         i.vm.provision "shell", inline: "cat /tmp/hosts >> /etc/hosts", privileged: true
@@ -52,6 +55,7 @@ Vagrant.configure("2") do |config|
         i.vm.provision "shell", inline: "docker swarm init --advertise-addr #{manager_ip}"
         i.vm.provision "shell", inline: "docker swarm join-token -q worker > /vagrant/token"
       end
+      i.vm.provision "shell", path: "./prometheus.sh"
     end 
 
   instances.each do |instance| 

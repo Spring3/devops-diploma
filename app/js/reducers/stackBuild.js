@@ -76,6 +76,11 @@ module.exports = (state = initialState, action) => {
         fileName: undefined
       });
     }
+    case 'STACKNAME_CHANGE': {
+      return Object.assign({}, state, {
+        fileName: action.fileName
+      });
+    }
     case 'PARSE_STACKFILE': {
       const { content } = action;
       let volumes = content.volumes || {};

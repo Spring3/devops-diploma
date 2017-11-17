@@ -17,13 +17,11 @@ class MainMenu extends React.Component {
 
   redirect(e) {
     const pages = ['image', 'compose', 'stack'];
-    console.log(pages[e]);
     this.props.dispatch(push(`/${pages[e]}`));
   }
 
   infrastructureRedirect(e) {
     const pages = ['vagrant'];
-    console.log(pages[e]);
     this.props.dispatch(push(`/${pages[e]}`)); 
   }
 

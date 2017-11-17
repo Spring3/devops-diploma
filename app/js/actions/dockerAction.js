@@ -97,7 +97,6 @@ class DockerAction extends Action {
     return docker.isRunning().then((isRunning) => {
       if (isRunning) {
         return docker.instance.checkAuth(request).then((result) => {
-          console.log(result);
           this.credentials = {
             username: request.username,
             password: Buffer.from(request.password).toString('hex'),
@@ -110,7 +109,6 @@ class DockerAction extends Action {
           }
           this.store.dispatch({ type: 'DOCKER_AUTH_END' });
         }).catch((e) => {
-          console.log(e);
           this.store.dispatch({ type: 'DOCKER_AUTH', error: e });
           this.store.dispatch({ type: 'DOCKER_AUTH_END' });
         });

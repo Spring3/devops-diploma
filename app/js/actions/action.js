@@ -7,11 +7,21 @@ class Action {
     return new Promise((resolve, reject) => {
       fs.access(filePath, fs.constants.F_OK, (e) => {
         if (e) {
+          console.log(e);
           return reject(e);
         }
         return resolve();
       });
     });
+  }
+
+  writeFile(filePath, contents) {
+    return this.checkFile(filePath)
+      .then(() => {
+        const stream = fs.createWriteStream(filePath);
+        stream.write(contents);
+        stream.end();
+      });
   }
 
   readFile(filePath) {

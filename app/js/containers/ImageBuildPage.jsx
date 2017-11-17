@@ -107,23 +107,19 @@ class ImageBuildPage extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
+    const nextState = {};
     if (nextProps.selected.length !== this.state.selected.length) {
-      this.setState({
-        selected: nextProps.selected
-      });
+      nextState.selected = nextProps.selected;
     }
     if (JSON.stringify(this.state.data) !== JSON.stringify(nextProps.data)) {
-      this.setState({
-        data: nextProps.data
-      });
+      nextState.data = nextProps.data;
     }
     if (this.state.fileName !== nextProps.fileName || this.state.filePath !== nextProps.filePath) {
-      this.setState({
-        filePath: nextProps.filePath,
-        fileName: nextProps.fileName,
-        destination: nextProps.filePath || this.state.filePath
-      });
+      nextState.filePath = nextProps.filePath;
+      nextState.fileName = nextProps.fileName;
+      nextState.destination = nextProps.filePath || this.state.filePath
     }
+    this.setState(nextState);
   }
 
   suggestionSelected(suggestion) {
@@ -204,7 +200,7 @@ class ImageBuildPage extends React.Component {
     }
   }
 
-  toggleBuildPreview(doBuild, e, test) {
+  toggleBuildPreview(doBuild, e) {
     this.setState({
       buildModalVisible: !this.state.buildModalVisible
     });
