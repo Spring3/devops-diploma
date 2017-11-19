@@ -35,7 +35,7 @@ class SNMPWorker {
   authorize() {
     request({ method: 'POST', uri: 'http://192.168.10.2:3000/login', body: { user: 'admin', password: 'admin' }, json: true })
       .then((response) => {
-        console.log(response); 
+        console.log(response);
         this.authorized = true;
       }).catch(console.error);
   }

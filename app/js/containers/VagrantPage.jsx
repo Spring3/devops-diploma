@@ -6,12 +6,12 @@ import Button from 'grommet/components/Button';
 import Heading from 'grommet/components/Heading';
 import FormField from 'grommet/components/FormField';
 import TextInput from 'grommet/components/TextInput';
+import ChartIcon from 'grommet/components/icons/base/BarChart';
 import Play from 'grommet/components/icons/base/Play';
 import Stop from 'grommet/components/icons/base/Stop';
-import Slider from 'react-rangeslider'
-import actions from './../actions/actions.js';
+import Slider from 'react-rangeslider';
 import snmpWorker from './../modules/worker-snmp.js';
-import Charts from './../components/Charts';
+import actions from './../actions/actions.js';
 
 const os = require('os');
 
@@ -29,6 +29,7 @@ class VagrantPage extends React.Component {
     this.ramChanged = this.ramChanged.bind(this);
     this.cpuPercentChange = this.cpuPercentChange.bind(this);
     this.statusChanged = this.statusChanged.bind(this);
+    this.showInfo = this.showInfo.bind(this);
     this.updateCharts = this.updateCharts.bind(this);
   }
 
@@ -52,8 +53,8 @@ class VagrantPage extends React.Component {
   }
 
   componentWillUnmount() {
-    this.worker.stop();
     ipcRenderer.removeListener('build:rs', this.listener);
+    this.worker.stop();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -89,6 +90,10 @@ class VagrantPage extends React.Component {
       type: 'CPU_PERCENT_CHANGED',
       cpuPercentage: e
     });
+  }
+
+  showInfo(e) {
+    this.props.history.push('/vagrant/info');
   }
 
   statusChanged(status) {
@@ -129,6 +134,14 @@ class VagrantPage extends React.Component {
                 onClick={this.state.status === 'running' ? this.statusChanged.bind(this, 'stopped') : null}
                 className='btn-small'
               />
+              <Button icon={<ChartIcon />}
+                box={true}
+                label='Info'
+                a11yTitle='Info'
+                plain={true}
+                onClick={this.showInfo}
+                className='btn-small'
+              />
               <input ref={ input => this.destinationPicker = input } onChange={this.saveToDestination} type='file' style={{ visibility: 'hidden' }} />
             </Box>
             <Heading tag='h4' strong={true} style={{ marginTop: '60px' }} margin='none'>Configuration</Heading>
@@ -163,7 +176,6 @@ class VagrantPage extends React.Component {
                   onChange={this.ramChanged}
                 />
               </FormField>
-              <Charts />
             </Box>
           </Box>
         </Box>

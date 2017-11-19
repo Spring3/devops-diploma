@@ -23,6 +23,7 @@ import About from './About.jsx';
 import ImageBuildPage from './ImageBuildPage.jsx';
 import ComposeBuildPage from './ComposeBuildPage.jsx';
 import StackBuildPage from './StackBuildPage.jsx';
+import VagrantInfoPage from './VagrantInfoPage.jsx';
 import VagrantPage from './VagrantPage.jsx';
 import ImagesPage from './Images.jsx';
 import ImagesStatusPage from './ImageStatus.jsx';
@@ -90,7 +91,8 @@ class App extends React.Component {
                 <Route exact path='/images' component={ImagesPage} />
                 <Route path='/images/selected' component={ImagesStatusPage} />
                 <Route path='/about' component={About} />
-                <Route path='/vagrant' component={VagrantPage} />
+                <Route exact path='/vagrant' component={VagrantPage} />
+                <Route path='/vagrant/info' component={VagrantInfoPage} />
                 {
                   this.state.modal ? 
                     <Modal closeBtn={true} toggleModal={this.toggleModal.bind(this)}>
