@@ -1,6 +1,5 @@
 const request = require('request-promise-native').defaults({ jar: true });
 
-const cookies = request.jar();
 const FIVE_SECONDS = 5000;
 
 class SNMPWorker {

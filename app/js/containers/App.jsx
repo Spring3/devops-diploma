@@ -49,7 +49,9 @@ class App extends React.Component {
       modal: false,
       sidebarOpen: this.props.sidebarOpen
     };
+    this.snmpConfigSynced = false;
     this.updateSNMP = this.updateSNMP.bind(this);
+    this.syncSNMPConfig = this.syncSNMPConfig.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -58,8 +60,39 @@ class App extends React.Component {
     }
   }
 
+  // update vagrantfile config based on the data from a running infrastructure
+  // When app is open while the infrastructure is already running, all slide-bars will have a default value
+  syncSNMPConfig(data) {
+    const { store } = this.context;
+
+    if (this.snmpConfigSynced || !data['CPU CORES'].manager) {
+      return;
+    }
+
+    this.props.dispatch({
+      type: 'CPU_CHANGED',
+      cpus: data['CPU CORES'].manager
+    });
+
+    this.props.dispatch({
+      type: 'RAM_CHANGED',
+      ram: data['MEMORY TOTAL'].manager / (1024 ** 2)
+    });
+
+    this.props.dispatch({
+      type: 'CPU_PERCENT_CHANGED',
+      cpuPercentage: 35
+    });
+    this.snmpConfigSynced = true;
+  }
+
   updateSNMP(data) {
+    this.syncSNMPConfig(data);
     this.props.dispatch(Object.assign({ type: 'VAGRANT_NODE_STATUS_UPDATE' }, data));
+    if (this.snmpConfigSynced) {
+      const recommendations = actions.vagrant.analyseNodeData(data);
+      console.log(recommendations);
+    }
   }
 
   componentDidMount() {

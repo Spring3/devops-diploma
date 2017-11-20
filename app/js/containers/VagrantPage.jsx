@@ -28,7 +28,6 @@ class VagrantPage extends React.Component {
       status: this.props.status,
       snmp : this.props.snmp || {}
     };
-    this.checked = false;
 
     this.cpuChanged = this.cpuChanged.bind(this);
     this.ramChanged = this.ramChanged.bind(this);
@@ -78,20 +77,7 @@ class VagrantPage extends React.Component {
     if (this.state.ramThreshold !== nextProps.ramThreshold) {
       nextState.ramThreshold = nextProps.ramThreshold;
     }
-    this.setState(nextState, this.updateConfig);
-  }
-
-  // update vagrantfile config based on the data from a running infrastructure
-  // When app is open while the infrastructure is already running, all slide-bars will have a default value
-  updateConfig() {
-    if (this.checked || !this.state.snmp.cores.manager) {
-      return;
-    }
-
-    this.cpuChanged(this.state.snmp.cores.manager);
-    this.ramChanged(this.state.snmp.totalMemory.manager / 1024 / 1000);
-    this.cpuPercentChange(35);
-    this.checked = true;
+    this.setState(nextState);
   }
 
   cpuChanged(e) {

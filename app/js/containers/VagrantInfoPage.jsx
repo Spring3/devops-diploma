@@ -82,14 +82,14 @@ class VagrantInfoPage extends React.Component {
               <Box style={{ marginTop: '20px' }} >              
                 <Chart
                   type='circle'
-                  label={Math.ceil(this.state.totalMemory[node] / 1024 / 1000)}
+                  label={Math.ceil(this.state.totalMemory[node] / (1024 ** 2))}
                   units='MB'
                   stacked={true}
                   size='xsmall'
                   series={[
-                    {"label": "Memory Used", "value": this.state.usedMemory[node] / 1024 / 1000, "colorIndex": "graph-1"},
-                    {"label": "Memory Cached", "value": this.state.cachedMemory[node] / 1024 / 1000, "colorIndex": "graph-2"},
-                    {"label": "Free Memory", "value": this.state.freeMemory[node] / 1024 / 1000, "colorIndex": "light-2"}
+                    {"label": "Memory Used", "value": this.state.usedMemory[node] / (1024 ** 2), "colorIndex": "graph-1"},
+                    {"label": "Memory Cached", "value": this.state.cachedMemory[node] / (1024 ** 2), "colorIndex": "graph-2"},
+                    {"label": "Free Memory", "value": this.state.freeMemory[node] / (1024 ** 2), "colorIndex": "light-2"}
                   ]}
                 />
                 <Label style={{ textAlign: 'center' }} margin='none'>RAM</Label>
