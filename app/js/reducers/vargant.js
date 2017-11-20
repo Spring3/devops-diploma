@@ -1,8 +1,12 @@
+import _ from 'underscore';
+
 const initialState = {
   cpus: 1,
   ram: 256,
   cpuPercentage: 1,
   status: 'stopped',
+  cpuThreshold: 50,
+  ramThreshold: 50,
   'CPU USED': {},
   'CPU CORES': {},
   'MEMORY TOTAL': {},
@@ -24,17 +28,25 @@ module.exports = (state = initialState, action) => {
     case 'CPU_PERCENT_CHANGED': {
       return Object.assign({}, state, { cpuPercentage: action.cpuPercentage });
     }
+    case 'CPU_THRESHOLD_CHANGED': {
+      return Object.assign({}, state, { cpuThreshold: action.cpuThreshold });
+    }
+    case 'RAM_THRESHOLD_CHANGED': {
+      return Object.assign({}, state, { ramThreshold: action.ramThreshold });
+    }
     case 'VAGRANT_STATUS_CHANGED': {
       return Object.assign({}, state, { status: action.status });
     }
     case 'VAGRANT_NODE_STATUS_UPDATE': {
+      const nextStatus = _.isEqual(action['CPU CORES'], {}) ? state.status : 'running';
       return Object.assign({}, state, {
         'CPU USED': action['CPU USED'],
         'CPU CORES': action['CPU CORES'],
         'MEMORY TOTAL': action['MEMORY TOTAL'],
         'MEMORY FREE': action['MEMORY FREE'],
         'MEMORY CACHED': action['MEMORY CACHED'],
-        'MEMORY USED': action['MEMORY USED']
+        'MEMORY USED': action['MEMORY USED'],
+        status: nextStatus
       });
     }
     default:

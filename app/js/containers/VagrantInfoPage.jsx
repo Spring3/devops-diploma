@@ -5,7 +5,6 @@ import Label from 'grommet/components/Label';
 import Heading from 'grommet/components/Heading';
 import AnnotatedMeter from 'grommet-addons/components/AnnotatedMeter';
 import Chart from '../components/Chart';
-import snmpWorker from './../modules/worker-snmp.js';
 import Spinning from 'grommet/components/icons/Spinning';
 import _ from 'underscore';
 
@@ -21,8 +20,6 @@ class VagrantInfoPage extends React.Component {
       cachedMemory: this.props.cachedMemory,
       usedMemory: this.props.usedMemory
     };
-
-    this.updateCharts = this.updateCharts.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -48,18 +45,6 @@ class VagrantInfoPage extends React.Component {
     this.setState(nextState);
   }
 
-  updateCharts(data) {
-    this.props.dispatch(Object.assign({ type: 'VAGRANT_NODE_STATUS_UPDATE' }, data));
-  }
-
-  componentDidMount() {
-    this.worker = snmpWorker.start(this.updateCharts);
-  }
-
-  componentWillUnmount() {
-    this.worker.stop();
-  }
-
   render() {
     let sum = 0;
     for (const key of Object.keys(this.state.cores)) {
@@ -77,9 +62,9 @@ class VagrantInfoPage extends React.Component {
           : ''
         }
         {
-          Object.keys(this.state.cpu).map((node) =>
-          <Box key={node}>
-            <Heading tag='h4' margin='none'>{node}</Heading>
+          Object.keys(this.state.cpu).map((node, i) =>
+          <Box key={node} style={{ marginTop: i === 0 ? '0px' : '20px' }}>
+            <Heading tag='h4' margin='none' strong={true} style={{ textAlign: 'center' }}>{node}</Heading>
             <Box direction='row' style={{ justifyContent: 'space-around' }}>
               <Box>
                 <Label style={{ textAlign: 'center' }} margin='none'>CPU</Label>
@@ -97,14 +82,14 @@ class VagrantInfoPage extends React.Component {
               <Box style={{ marginTop: '20px' }} >              
                 <Chart
                   type='circle'
-                  label={Math.ceil(this.state.totalMemory[node] / 1024 / 1024)}
+                  label={Math.ceil(this.state.totalMemory[node] / 1024 / 1000)}
                   units='MB'
                   stacked={true}
                   size='xsmall'
                   series={[
-                    {"label": "Memory Used", "value": this.state.usedMemory[node] / 1024 / 1024, "colorIndex": "graph-1"},
-                    {"label": "Memory Cached", "value": this.state.cachedMemory[node] / 1024 / 1024, "colorIndex": "graph-2"},
-                    {"label": "Free Memory", "value": this.state.freeMemory[node] / 1024 / 1024, "colorIndex": "light-2"}
+                    {"label": "Memory Used", "value": this.state.usedMemory[node] / 1024 / 1000, "colorIndex": "graph-1"},
+                    {"label": "Memory Cached", "value": this.state.cachedMemory[node] / 1024 / 1000, "colorIndex": "graph-2"},
+                    {"label": "Free Memory", "value": this.state.freeMemory[node] / 1024 / 1000, "colorIndex": "light-2"}
                   ]}
                 />
                 <Label style={{ textAlign: 'center' }} margin='none'>RAM</Label>

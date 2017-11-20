@@ -10,6 +10,8 @@ import Button from 'grommet/components/Button';
 import Title from 'grommet/components/Title';
 import Animate from 'grommet/components/Animate';
 
+import snmpWorker from './../modules/worker-snmp.js';
+
 import MainMenu from '../components/MainMenu.jsx';
 import Modal from '../components/Modal';
 
@@ -47,12 +49,25 @@ class App extends React.Component {
       modal: false,
       sidebarOpen: this.props.sidebarOpen
     };
+    this.updateSNMP = this.updateSNMP.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
     if (this.state.sidebarOpen !== nextProps.sidebarOpen) {
       this.setState({ sidebarOpen: nextProps.sidebarOpen });
     }
+  }
+
+  updateSNMP(data) {
+    this.props.dispatch(Object.assign({ type: 'VAGRANT_NODE_STATUS_UPDATE' }, data));
+  }
+
+  componentDidMount() {
+    this.worker = snmpWorker.start(this.updateSNMP);
+  }
+
+  componentWillUnmount() {
+    this.worker.stop();
   }
 
   toggleModal() {
@@ -122,8 +137,9 @@ const mapStateToProps = state => ({
   sidebarOpen: state.main.sidebarOpen
 });
 
-const mapDispatchToProps = () => ({
-  auth: (data) => actions.docker.authenticate(data)
+const mapDispatchToProps = dispatch => ({
+  auth: (data) => actions.docker.authenticate(data),
+  dispatch
 });
 
 App.contextTypes = {

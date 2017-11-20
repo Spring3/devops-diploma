@@ -8,10 +8,11 @@ import FormField from 'grommet/components/FormField';
 import TextInput from 'grommet/components/TextInput';
 import ChartIcon from 'grommet/components/icons/base/BarChart';
 import Play from 'grommet/components/icons/base/Play';
+import Pause from 'grommet/components/icons/base/Pause';
 import Stop from 'grommet/components/icons/base/Stop';
 import Slider from 'react-rangeslider';
-import snmpWorker from './../modules/worker-snmp.js';
 import actions from './../actions/actions.js';
+import _ from 'underscore';
 
 const os = require('os');
 
@@ -21,16 +22,22 @@ class VagrantPage extends React.Component {
     this.state = {
       cpus: this.props.cpus,
       ram: this.props.ram,
+      ramThreshold: this.props.ramThreshold,
       cpuPercentage: this.props.cpuPercentage,
-      status: this.props.status
+      cpuThreshold: this.props.cpuThreshold,
+      status: this.props.status,
+      snmp : this.props.snmp || {}
     };
+    this.checked = false;
 
     this.cpuChanged = this.cpuChanged.bind(this);
     this.ramChanged = this.ramChanged.bind(this);
     this.cpuPercentChange = this.cpuPercentChange.bind(this);
     this.statusChanged = this.statusChanged.bind(this);
     this.showInfo = this.showInfo.bind(this);
-    this.updateCharts = this.updateCharts.bind(this);
+    this.updateConfig = this.updateConfig.bind(this);
+    this.cpuThresholdChanged = this.cpuThresholdChanged.bind(this);
+    this.ramThresholdChanged = this.ramThresholdChanged.bind(this);
   }
 
   componentWillMount() {
@@ -44,17 +51,8 @@ class VagrantPage extends React.Component {
     ipcRenderer.on('build:rc', this.listener);
   }
 
-  updateCharts(data) {
-    this.props.dispatch(Object.assign({ type: 'VAGRANT_NODE_STATUS_UPDATE' }, data));
-  }
-
-  componentDidMount() {
-    this.worker = snmpWorker.start(this.updateCharts);
-  }
-
   componentWillUnmount() {
     ipcRenderer.removeListener('build:rs', this.listener);
-    this.worker.stop();
   }
 
   componentWillReceiveProps(nextProps) {
@@ -68,7 +66,32 @@ class VagrantPage extends React.Component {
     if (this.state.cpuPercentage !== nextProps.cpuPercentage) {
       nextState.cpuPercentage = nextProps.cpuPercentage;
     }
-    this.setState(nextState);
+    if (!_.isEqual(this.state.snmp), nextProps.snmp) {
+      nextState.snmp = nextProps.snmp;
+    }
+    if (this.state.status !== nextProps.status) {
+      nextState.status = nextProps.status;
+    }
+    if (this.state.cpuThreshold !== nextProps.cpuThreshold) {
+      nextState.cpuThreshold = nextProps.cpuThreshold;
+    }
+    if (this.state.ramThreshold !== nextProps.ramThreshold) {
+      nextState.ramThreshold = nextProps.ramThreshold;
+    }
+    this.setState(nextState, this.updateConfig);
+  }
+
+  // update vagrantfile config based on the data from a running infrastructure
+  // When app is open while the infrastructure is already running, all slide-bars will have a default value
+  updateConfig() {
+    if (this.checked || !this.state.snmp.cores.manager) {
+      return;
+    }
+
+    this.cpuChanged(this.state.snmp.cores.manager);
+    this.ramChanged(this.state.snmp.totalMemory.manager / 1024 / 1000);
+    this.cpuPercentChange(35);
+    this.checked = true;
   }
 
   cpuChanged(e) {
@@ -89,6 +112,20 @@ class VagrantPage extends React.Component {
     this.props.dispatch({
       type: 'CPU_PERCENT_CHANGED',
       cpuPercentage: e
+    });
+  }
+
+  cpuThresholdChanged(e) {
+    this.props.dispatch({
+      type: 'CPU_THRESHOLD_CHANGED',
+      cpuThreshold: e
+    });
+  }
+
+  ramThresholdChanged(e) {
+    this.props.dispatch({
+      type: 'RAM_THRESHOLD_CHANGED',
+      ramThreshold: e
     });
   }
 
@@ -122,8 +159,16 @@ class VagrantPage extends React.Component {
                 box={true}
                 label='Run'
                 plain={true}
-                onClick={this.statusChanged}
+                onClick={['stopped', 'paused'].includes(this.state.status) ? this.statusChanged : null}
                 a11yTitle='Run'
+                className='btn-small'
+              />
+              <Button icon={<Pause />}
+                box={true}
+                label='Pause'
+                a11yTitle='Pause'
+                plain={true}
+                onClick={this.state.status === 'running' ? this.statusChanged.bind(this, 'paused') : null }
                 className='btn-small'
               />
               <Button icon={<Stop />}
@@ -139,7 +184,7 @@ class VagrantPage extends React.Component {
                 label='Info'
                 a11yTitle='Info'
                 plain={true}
-                onClick={this.showInfo}
+                onClick={this.state.status === 'running' ? this.showInfo : null}
                 className='btn-small'
               />
               <input ref={ input => this.destinationPicker = input } onChange={this.saveToDestination} type='file' style={{ visibility: 'hidden' }} />
@@ -156,7 +201,7 @@ class VagrantPage extends React.Component {
                   onChange={this.cpuChanged}
                 />
               </FormField>
-              <FormField label='Max CPU usage %'>
+              <FormField label='Max CPU usage, %'>
                 <Slider
                   value={this.state.cpuPercentage}
                   max={100}
@@ -166,7 +211,7 @@ class VagrantPage extends React.Component {
                   onChange={this.cpuPercentChange}
                 />
               </FormField>
-              <FormField label='RAM MB'>
+              <FormField label='RAM, mb'>
                 <Slider
                   value={this.state.ram}
                   max={totalMemoryMB}
@@ -174,6 +219,29 @@ class VagrantPage extends React.Component {
                   min={256}
                   orientation="horizontal"
                   onChange={this.ramChanged}
+                />
+              </FormField>
+            </Box>
+            <Heading tag='h4' strong={true} style={{ marginTop: '20px' }} margin='none'>Thresholds</Heading>
+            <Box>
+              <FormField label='CPU Usage, %'>
+                <Slider
+                  value={this.state.cpuThreshold}
+                  max={100}
+                  step={1}
+                  min={1}
+                  orientation="horizontal"
+                  onChange={this.cpuThresholdChanged}
+                />
+              </FormField>
+              <FormField label='RAM Usage, %'>
+                <Slider
+                  value={this.state.ramThreshold}
+                  max={100}
+                  step={1}
+                  min={1}
+                  orientation="horizontal"
+                  onChange={this.ramThresholdChanged}
                 />
               </FormField>
             </Box>
@@ -187,7 +255,15 @@ class VagrantPage extends React.Component {
 const mapStateToProps = state => ({
   cpus: state.vagrant.cpus,
   ram: state.vagrant.ram,
-  cpuPercentage: state.vagrant.cpuPercentage
+  cpuPercentage: state.vagrant.cpuPercentage,
+  status: state.vagrant.status,
+  cpuThreshold: state.vagrant.cpuThreshold,
+  ramThreshold: state.vagrant.ramThreshold,
+  snmp: {
+    cpu: state.vagrant['CPU USED'],
+    cores: state.vagrant['CPU CORES'],
+    totalMemory: state.vagrant['MEMORY TOTAL']
+  }
 });
 const mapDispatchToProps = dispatch => ({ dispatch });
 
