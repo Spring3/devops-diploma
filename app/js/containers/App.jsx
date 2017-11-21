@@ -10,6 +10,7 @@ import Box from 'grommet/components/Box';
 import Button from 'grommet/components/Button';
 import Title from 'grommet/components/Title';
 import Animate from 'grommet/components/Animate';
+import _ from 'underscore';
 
 import snmpWorker from './../modules/worker-snmp.js';
 
@@ -43,6 +44,8 @@ import CaretLeft from 'grommet/components/icons/base/CaretBack';
 const actions = require('../actions/actions.js');
 const contextMenu = require('../modules/contextMenu.js');
 
+const request = require('request-promise-native');
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -53,6 +56,7 @@ class App extends React.Component {
     this.snmpConfigSynced = false;
     this.updateSNMP = this.updateSNMP.bind(this);
     this.syncSNMPConfig = this.syncSNMPConfig.bind(this);
+    this.callUpdate = this.callUpdate.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -85,12 +89,60 @@ class App extends React.Component {
     this.snmpConfigSynced = true;
   }
 
+  callUpdate(e, data) {
+    const { config } = data;
+    const interval = setInterval(() => {
+      console.log('tick');
+      request({ uri: 'http://192.168.10.3:8080', json: true })
+      .then(() => request({ uri: 'http://192.168.10.4:8080', json: true }))
+      .then(() => {
+        const { store } = this.context;
+        const state = store.getState();
+        console.log(config.metadata.nodesCount);
+        console.log(Object.keys(state.vagrant['CPU CORES']).length);
+        if (config.metadata.nodesCount !== Object.keys(state.vagrant['CPU CORES']).length) {
+          return;
+        } else {
+          clearInterval(interval);
+          const nodes = _.without(Object.keys(state.vagrant['CPU CORES']), 'manager', ...state.vagrant.updatedNodes);  
+          console.log(nodes);
+          if (nodes.length > 0) {
+            this.props.dispatch({ type: 'VAGRANT_NODE_UPDATE', node: nodes[0]})
+            ipcRenderer.send('update', { type: 'vagrant', node: nodes[0], config });
+          } else {
+            this.props.dispatch({ type: 'VAGRANT_NODE_UPDATE_COMPLETE', config });
+          }
+        }
+      }).catch(console.error);
+    }, 3000);
+  }
+
   updateSNMP(data) {
     this.syncSNMPConfig(data);
     this.props.dispatch(Object.assign({ type: 'VAGRANT_NODE_STATUS_UPDATE' }, data));
-    if (this.snmpConfigSynced) {
+    const { store } = this.context;
+    const state = store.getState();
+    // if none of the nodes are updating. This is done to prevent continuous calls.
+    // Fist node update must be fired here. All the others update calls will be fired from inside teh :rs listener
+    if (this.snmpConfigSynced && state.vagrant.updatedNodes.length === 0) {
       const recommendations = actions.vagrant.analyseNodeData(data);
       console.log(recommendations);
+      if (Object.keys(recommendations.cpu).length > 0 || Object.keys(recommendations.ram).length > 0) {
+        const config = {
+          cpus: recommendations.cpu.cpus || state.vagrant.cpus,
+          cpuexecutioncap: recommendations.cpu.executionCap || state.vagrant.cpuPercentage,
+          ram: Math.ceil(recommendations.ram.ram || state.vagrant.ram),
+          metadata: {
+            nodesCount: Object.keys(state.vagrant['CPU CORES']).length
+          }
+        };
+        console.log(config);
+        const nodes = _.without(Object.keys(state.vagrant['CPU CORES']), 'manager');
+        if (nodes.length > 0) {
+          this.props.dispatch({ type: 'VAGRANT_NODE_UPDATE', node: nodes[0]})
+          ipcRenderer.send('update', { type: 'vagrant', node: nodes[0], config });
+        } 
+      }
     }
   }
 
@@ -102,10 +154,12 @@ class App extends React.Component {
     });
     ipcRenderer.on('vagrantStatus:rs', this.checkListener);
     ipcRenderer.send('vagrantStatus', {});
+    ipcRenderer.on('update:rs', this.callUpdate);
   }
 
   componentWillUnmount() {
     ipcRenderer.removeListener('vagrantStatus:rs', this.checkListener);
+    ipcRenderer.removeListener('update:rs', this.callUpdate);
     this.worker.stop();
   }
 

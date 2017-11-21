@@ -7,6 +7,7 @@ import AnnotatedMeter from 'grommet-addons/components/AnnotatedMeter';
 import Chart from '../components/Chart';
 import Spinning from 'grommet/components/icons/Spinning';
 import _ from 'underscore';
+import os from 'os';
 
 class VagrantInfoPage extends React.Component {
   constructor(props) {
@@ -74,7 +75,7 @@ class VagrantInfoPage extends React.Component {
                     <Label style={{ textAlign: 'center' }} margin='none'>Usage</Label>
                   </Box>
                   <Box>
-                    <Chart type='circle' label={this.state.cores[node]} units='CPU' value={this.state.cores[node]} size='xsmall' />
+                    <Chart type='circle' label={this.state.cores[node]} units='CPU' max={os.cpus().length} value={this.state.cores[node]} size='xsmall' />
                     <Label style={{ textAlign: 'center' }} margin='none'>Cores</Label>
                   </Box>
                 </Box>

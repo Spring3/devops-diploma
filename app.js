@@ -121,9 +121,11 @@ class App {
         })
         .then((contents) => {
           const template = handlebars.compile(contents);
-          return this.action.writeFile(customFile, template(config));
+          const stream = fs.createWriteStream(customFile);
+          stream.write(template(config));
+          stream.end();
+          return this.reloadVagrant([node]);
         })
-        .then(() => this.reloadVagrant(node))
         .then(() => this.action.deleteFile(customFile))
         .then(resolve)
         .catch(reject);
@@ -139,13 +141,12 @@ class App {
           vagrant.start = path.resolve(__dirname, vagrantfile, '../');
           const promises = [];
           for (const node of nodes) {
-            const promise = new Promise((localResolve) => {
+            promises.push(new Promise((localResolve) => {
               vagrant.destroy(node, localResolve);
-            });
-            promises.push(promise);
+            }));
           }
-          promises.push(this.action.deleteFile(vagrantfile));
-          return Promise.all(promises).then(resolve);
+          return Promise.all(promises)
+            .then(() => this.action.deleteFile(vagrantfile));
         }).catch(reject);
     });
   }
@@ -287,7 +288,7 @@ class App {
     ipcMain.on('update', (event, data) => {
       switch (data.type.toUpperCase()) {
         case 'VAGRANT': {
-          this.updateNodes(data.node, data.config).then(() => event.sender.send('update:rs', true)).catch(console.error);
+          this.updateNode(data.node, data.config).then(() => event.sender.send('update:rs', { config: data.config })).catch(console.error);
           break;
         }
         default: {

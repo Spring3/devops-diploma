@@ -16,6 +16,7 @@ class Chart extends React.Component {
           size={this.props.size || 'small'}
           series={this.props.series || null}
           stacked={!!this.props.stacked}
+          max={this.props.max}
           value={this.props.value}
         />
       : null

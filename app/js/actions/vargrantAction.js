@@ -14,9 +14,10 @@ class Vagrant extends Action {
 
     // if one of nodes rebooting
     if (!usage.worker1 || !usage.worker2) return recommendedChanges;
-    // console.log(usage.worker1);
-    // console.log(usage.worker2);
-    // console.log(threshold);
+    console.log('CPU');
+    console.log(usage.worker1);
+    console.log(usage.worker2);
+    console.log(threshold);
     if (usage.worker1 >= threshold && usage.worker2 >= threshold) {
       if (config.executionCap < 100) {
         recommendedChanges.executionCap = config.executionCap + 20 > 100 ? 100 : config.executionCap + 20;
@@ -26,8 +27,8 @@ class Vagrant extends Action {
     } else if (usage.worker1 < threshold && usage.worker2 < threshold) {
       if (cores.worker1 === cores.worker2 && cores.worker1 > 1) {
         recommendedChanges.cpus = config.cores - 1;
-      } else {
         // minimum 10% cpu usage
+      } else if (config.executionCap > 10) {
         recommendedChanges.executionCap = config.executionCap - 20 > 10 ? config.executionCap - 20 : 10;
       }
     }
@@ -43,10 +44,11 @@ class Vagrant extends Action {
     const worker2UsageMB = usage.worker2 / (1024 ** 2);
     const worker1UsagePercent = (worker1UsageMB / ramPerConfig) * 100;
     const worker2UsagePercent = (worker2UsageMB / ramPerConfig) * 100;
-    // console.log(worker1UsagePercent);
-    // console.log(worker2UsagePercent);
-    // console.log(threshold);
-    // console.log(ramPerConfig);
+    console.log('RAM');
+    console.log(worker1UsagePercent);
+    console.log(worker2UsagePercent);
+    console.log(threshold);
+    console.log(ramPerConfig);
     if (worker1UsagePercent >= threshold && worker2UsagePercent >= threshold) {
       if (ramPerConfig < totalMemory) {
         recommendedChanges.ram = ramPerConfig + 256 > totalMemory ? totalMemory : ramPerConfig + 256;

@@ -1,6 +1,6 @@
 const request = require('request-promise-native').defaults({ jar: true });
 
-const FIVE_SECONDS = 5000;
+const TWENTY_SECONDS = 20000;
 
 class SNMPWorker {
   constructor(callback) {
@@ -9,7 +9,7 @@ class SNMPWorker {
     this.stop = this.stop.bind(this);
     this.callback = callback;
     this.authorize();
-    this.interval = setInterval(this.check, FIVE_SECONDS);
+    this.interval = setInterval(this.check, TWENTY_SECONDS);
   }
 
   calculateCPUCores(response) {

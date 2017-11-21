@@ -7,6 +7,7 @@ const initialState = {
   status: 'stopped',
   cpuThreshold: 50,
   ramThreshold: 50,
+  updatedNodes: [],
   'CPU USED': {},
   'CPU CORES': {},
   'MEMORY TOTAL': {},
@@ -36,6 +37,12 @@ module.exports = (state = initialState, action) => {
     }
     case 'VAGRANT_STATUS_CHANGED': {
       return Object.assign({}, state, { status: action.status });
+    }
+    case 'VAGRANT_NODE_UPDATE': {
+      return Object.assign({}, state, { updatedNodes: [...state.updatedNodes, action.node] });
+    }
+    case 'VAGRANT_NODE_UPDATE_COMPLETE': {
+      return Object.assign({}, state, { updatedNodes: [] }, { cpus: action.config.cpus, ram: action.config.ram, cpuPercentage: action.config.cpuexecutioncap });
     }
     case 'VAGRANT_NODE_STATUS_UPDATE': {
       const nextStatus = _.isEqual(action['CPU CORES'], {}) ? state.status : 'running';
