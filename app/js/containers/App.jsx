@@ -1,4 +1,5 @@
 import React from 'react';
+import { ipcRenderer } from 'electron';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -63,8 +64,6 @@ class App extends React.Component {
   // update vagrantfile config based on the data from a running infrastructure
   // When app is open while the infrastructure is already running, all slide-bars will have a default value
   syncSNMPConfig(data) {
-    const { store } = this.context;
-
     if (this.snmpConfigSynced || !data['CPU CORES'].manager) {
       return;
     }
@@ -97,9 +96,16 @@ class App extends React.Component {
 
   componentDidMount() {
     this.worker = snmpWorker.start(this.updateSNMP);
+    this.checkListener = (e, status) => this.props.dispatch({
+      type: 'VAGRANT_STATUS_CHANGED',
+      status
+    });
+    ipcRenderer.on('vagrantStatus:rs', this.checkListener);
+    ipcRenderer.send('vagrantStatus', {});
   }
 
   componentWillUnmount() {
+    ipcRenderer.removeListener('vagrantStatus:rs', this.checkListener);
     this.worker.stop();
   }
 

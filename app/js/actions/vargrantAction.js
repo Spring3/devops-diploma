@@ -1,4 +1,3 @@
-import vagrant from 'vagrant';
 import os from 'os';
 import Action from './action';
 

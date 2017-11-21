@@ -6,18 +6,24 @@ const { ReadableStream } = require('memory-streams');
 const YML = require('yamljs');
 const handlebars = require('handlebars');
 const vagrant = require('vagrant');
+const Action = require('./app/js/actions/action.js');
 
 const correctCMD = /^\[("\S+",.)+"\S+"\]/;
 const correctNoComma = /^\[("\S+".)+"\S+"\]/;
 const CMDNoBrackets = /^("\S+",.)+"\S+"/;
 const CMDNoBracketsAndComma = /^("\S+".)+"\S+"/;
 
-
 class App {
   constructor(config) {
     this.mainScreen = null;
     this.windowConfig = config;
+    this.action = new Action();
     this.init = this.init.bind(this);
+    this.createDockerfile = this.createDockerfile.bind(this);
+    this.reloadVagrant = this.reloadVagrant.bind(this);
+    this.stopVagrant = this.stopVagrant.bind(this);
+    this.updateNode = this.updateNode.bind(this);
+    this.destroyNodes = this.destroyNodes.bind(this);
   }
 
   checkCMD(item) { // eslint-disable-line
@@ -49,7 +55,7 @@ class App {
   prepareVagrantFile(populatePayload) {
     return new Promise((resolve, reject) => {
       const vagrantFile = path.resolve(__dirname, './templates/Vagrantfile');
-      this.checkDestination(`${vagrantFile}.tpl`)
+      this.action.checkFile(`${vagrantFile}.tpl`)
         .then(() => {
           const contents = fs.readFileSync(`${vagrantFile}.tpl`, { encoding: 'utf-8' });
           const template = handlebars.compile(contents);
@@ -62,6 +68,85 @@ class App {
           vagrant.up(resolve);
         })
         .catch(reject);
+    });
+  }
+
+  reloadVagrant(nodes) {
+    return new Promise((resolve, reject) => {
+      if (!nodes || !Array.isArray(nodes)) return reject();
+      const vagrantfile = path.resolve(__dirname, './templates/Vagrantfile');
+      return this.action.checkFile(vagrantfile)
+        .then(() => {
+          vagrant.start = path.resolve(__dirname, vagrantfile, '../');
+          const promises = [];
+          for (const node of nodes) {
+            const promise = new Promise((localResolve) => {
+              vagrant.reload(node, localResolve);
+            });
+            promises.push(promise);
+          }
+          return Promise.all(promises).then(resolve);
+        }).catch(reject);
+    });
+  }
+
+  stopVagrant(nodes) {
+    return new Promise((resolve, reject) => {
+      if (!nodes || !Array.isArray(nodes)) return reject();
+      const vagrantfile = path.resolve(__dirname, './templates/VagrantFile');
+      return this.action.checkFile(vagrantfile)
+        .then(() => {
+          vagrant.start = path.resolve(__dirname, vagrantfile, '../');
+          const promises = [];
+          for (const node of nodes) {
+            const promise = new Promise((localResolve) => {
+              vagrant.suspend(node, localResolve);
+            });
+            promises.push(promise);
+          }
+          return Promise.all(promises).then(resolve);
+        }).catch(reject);
+    });
+  }
+
+  updateNode(node, config) {
+    return new Promise((resolve, reject) => {
+      if (!node || !config) return reject();
+      const vagrantfile = path.resolve(__dirname, './templates/Vagrantfile');
+      const customFile = path.resolve(__dirname, './templates/Customfile');
+      return this.action.checkFile(vagrantfile)
+        .then(() => {
+          vagrant.start = path.resolve(__dirname, vagrantfile, '../');
+          return this.action.readFile(`${customFile}.tpl`);
+        })
+        .then((contents) => {
+          const template = handlebars.compile(contents);
+          return this.action.writeFile(customFile, template(config));
+        })
+        .then(() => this.reloadVagrant(node))
+        .then(() => this.action.deleteFile(customFile))
+        .then(resolve)
+        .catch(reject);
+    });
+  }
+
+  destroyNodes(nodes) {
+    return new Promise((resolve, reject) => {
+      if (!nodes || !Array.isArray(nodes)) return reject();
+      const vagrantfile = path.resolve(__dirname, './templates/VagrantFile');
+      return this.action.checkFile(vagrantfile)
+        .then(() => {
+          vagrant.start = path.resolve(__dirname, vagrantfile, '../');
+          const promises = [];
+          for (const node of nodes) {
+            const promise = new Promise((localResolve) => {
+              vagrant.destroy(node, localResolve);
+            });
+            promises.push(promise);
+          }
+          promises.push(this.action.deleteFile(vagrantfile));
+          return Promise.all(promises).then(resolve);
+        }).catch(reject);
     });
   }
 
@@ -185,6 +270,60 @@ class App {
           console.error('Unsupported file format');
         }
       }
+    });
+
+    ipcMain.on('stop', (event, data) => {
+      switch (data.type.toUpperCase()) {
+        case 'VAGRANT': {
+          this.stopVagrant(data.nodes).then(() => event.sender.send('stop:rs', true)).catch(console.error);
+          break;
+        }
+        default: {
+          console.error('Unsupported infrastructure type');
+        }
+      }
+    });
+
+    ipcMain.on('update', (event, data) => {
+      switch (data.type.toUpperCase()) {
+        case 'VAGRANT': {
+          this.updateNodes(data.node, data.config).then(() => event.sender.send('update:rs', true)).catch(console.error);
+          break;
+        }
+        default: {
+          console.error('Unsupported infrastructure type');
+        }
+      }
+    });
+
+    ipcMain.on('destroy', (event, data) => {
+      switch (data.type.toUpperCase()) {
+        case 'VAGRANT': {
+          this.destroyNodes(data.nodes).then(() => event.sender.send('destroy:rs', true)).catch(console.error);
+          break;
+        }
+        default: {
+          console.error('Unsupported infrastructure type');
+        }
+      }
+    });
+
+    ipcMain.on('reload', (event, data) => {
+      switch (data.type.toUpperCase()) {
+        case 'VAGRANT': {
+          this.reloadVagrant(data.nodes).then(() => event.sender.send('reload:rs', true)).catch(console.error);
+          break;
+        }
+        default: {
+          console.error('Unsupported infrastructure type');
+        }
+      }
+    });
+
+    ipcMain.on('vagrantStatus', (event) => {
+      this.action.checkFile(path.resolve(__dirname, './templates/Vagrantfile'))
+        .then(() => event.sender.send('vagrantStatus:rs', 'paused'))
+        .catch(() => event.sender.send('vagrantStatus:rs', 'stopped'));
     });
   }
 }

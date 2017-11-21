@@ -75,16 +75,18 @@ class SNMPWorker {
       for (const endpoint of endpoints) {
         promises.push(request({ uri: endpoint.link, json: true }));
       }
-      Promise.all(promises).then(resonses => this.callback(resonses.map((response, i) => {
-        if (endpoints[i].label !== 'CPU CORES') {
+      Promise.all(promises)
+        .then(resonses => this.callback(resonses.map((response, i) => {
+          if (endpoints[i].label !== 'CPU CORES') {
+            return {
+              [endpoints[i].label]: this.processResponse(response)
+            };
+          }
           return {
-            [endpoints[i].label]: this.processResponse(response)
+            [endpoints[i].label]: this.calculateCPUCores(response)
           };
-        }
-        return {
-          [endpoints[i].label]: this.calculateCPUCores(response)
-        };
-      }).reduce((sum, next) => Object.assign(sum, next)))); // eslint-disable-line
+        }).reduce((sum, next) => Object.assign(sum, next)))
+      ).catch(console.error); // eslint-disable-line
     }
   }
 

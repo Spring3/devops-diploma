@@ -8,8 +8,9 @@ import FormField from 'grommet/components/FormField';
 import TextInput from 'grommet/components/TextInput';
 import ChartIcon from 'grommet/components/icons/base/BarChart';
 import Play from 'grommet/components/icons/base/Play';
-import Pause from 'grommet/components/icons/base/Pause';
+import Trash from 'grommet/components/icons/base/Trash';
 import Stop from 'grommet/components/icons/base/Stop';
+import Up from 'grommet/components/icons/base/Up';
 import Slider from 'react-rangeslider';
 import actions from './../actions/actions.js';
 import _ from 'underscore';
@@ -34,7 +35,6 @@ class VagrantPage extends React.Component {
     this.cpuPercentChange = this.cpuPercentChange.bind(this);
     this.statusChanged = this.statusChanged.bind(this);
     this.showInfo = this.showInfo.bind(this);
-    this.updateConfig = this.updateConfig.bind(this);
     this.cpuThresholdChanged = this.cpuThresholdChanged.bind(this);
     this.ramThresholdChanged = this.ramThresholdChanged.bind(this);
   }
@@ -47,11 +47,30 @@ class VagrantPage extends React.Component {
         status: 'running'
       });
     };
-    ipcRenderer.on('build:rc', this.listener);
+    this.vagrantStopListener = (e, data) => {
+      this.props.dispatch({
+        type: 'VAGRANT_STATUS_CHANGED',
+        status: 'paused'
+      });
+    };
+    this.vagrantDestroyListener = (e, data) => {
+      this.props.dispatch({
+        type: 'VAGRANT_STATUS_CHANGED',
+        status: 'stopped'
+      })
+    }
+    this.vagrant
+    ipcRenderer.on('build:rs', this.listener);
+    ipcRenderer.on('reload:rs', this.listener);
+    ipcRenderer.on('stop:rs', this.vagrantStopListener);
+    ipcRenderer.on('destroy:rs', this.vagrantDestroyListener);
   }
 
   componentWillUnmount() {
     ipcRenderer.removeListener('build:rs', this.listener);
+    ipcRenderer.removeListener('reload:rs', this.listener);
+    ipcRenderer.removeListener('stop:rs', this.vagrantStopListener);
+    ipcRenderer.removeListener('destroy:rs', this.vagrantDestroyListener);
   }
 
   componentWillReceiveProps(nextProps) {
@@ -122,16 +141,45 @@ class VagrantPage extends React.Component {
   statusChanged(status) {
     this.props.dispatch({
       type: 'VAGRANT_STATUS_CHANGED',
-      status: 'booting'
+      status
     });
-    ipcRenderer.send('build', {
-      type: 'Vagrantfile',
-      payload: {
-        cpus: this.state.cpus,
-        ram: this.state.ram,
-        cpuPercentage: this.state.cpuPercentage
+    switch (status) {
+      case 'starting': {
+        ipcRenderer.send('build', {
+          type: 'Vagrantfile',
+          payload: {
+            cpus: this.state.cpus,
+            ram: this.state.ram,
+            cpuPercentage: this.state.cpuPercentage
+          }
+        });
+        break;
       }
-    });
+      case 'pausing': {
+        ipcRenderer.send('stop', {
+          type: 'vagrant',
+          nodes: [ 'manager', 'worker1', 'worker2' ]
+        });
+        break;
+      }
+      case 'destroying': {
+        ipcRenderer.send('destroy', {
+          type: 'vagrant',
+          nodes: [ 'manager', 'worker1', 'worker2' ]
+        });
+        break;
+      }
+      case 'booting': {
+        ipcRenderer.send('reload', {
+          type: 'vagrant',
+          nodes: [ 'manager', 'worker1', 'worker2' ]
+        });
+        break;
+      }
+      default: {
+        console.error('Unsupported action');
+      }
+    }
   }
 
   render() {
@@ -141,20 +189,20 @@ class VagrantPage extends React.Component {
         <Box direction='row' pad={{ horizontal: 'medium' }}>
           <Box className='wrapper-borderless' full='horizontal' alignContent="stretch">
             <Box direction='row' justify='start' alignSelf='stretch' align='center' style={{ background: 'white', position: 'fixed', zIndex: 999, width: '100%' }}>
+              <Button icon={<Up />}
+                box={true}
+                label='Deploy'
+                plain={true}
+                onClick={['stopped', 'destroyed'].includes(this.state.status) ? this.statusChanged.bind(this, 'starting') : null}
+                a11yTitle='Deploy'
+                className='btn-small'
+              />
               <Button icon={<Play />}
                 box={true}
                 label='Run'
                 plain={true}
-                onClick={['stopped', 'paused'].includes(this.state.status) ? this.statusChanged : null}
+                onClick={['paused'].includes(this.state.status) ? this.statusChanged.bind(this, 'booting') : null}
                 a11yTitle='Run'
-                className='btn-small'
-              />
-              <Button icon={<Pause />}
-                box={true}
-                label='Pause'
-                a11yTitle='Pause'
-                plain={true}
-                onClick={this.state.status === 'running' ? this.statusChanged.bind(this, 'paused') : null }
                 className='btn-small'
               />
               <Button icon={<Stop />}
@@ -162,7 +210,7 @@ class VagrantPage extends React.Component {
                 label='Stop'
                 a11yTitle='Stop'
                 plain={true}
-                onClick={this.state.status === 'running' ? this.statusChanged.bind(this, 'stopped') : null}
+                onClick={this.state.status === 'running' ? this.statusChanged.bind(this, 'pausing') : null}
                 className='btn-small'
               />
               <Button icon={<ChartIcon />}
@@ -171,6 +219,14 @@ class VagrantPage extends React.Component {
                 a11yTitle='Info'
                 plain={true}
                 onClick={this.state.status === 'running' ? this.showInfo : null}
+                className='btn-small'
+              />
+              <Button icon={<Trash />}
+                box={true}
+                label='Destroy'
+                a11yTitle='Destroy'
+                plain={true}
+                onClick={this.state.status === 'running' ? this.statusChanged.bind(this, 'destroying') : null}
                 className='btn-small'
               />
               <input ref={ input => this.destinationPicker = input } onChange={this.saveToDestination} type='file' style={{ visibility: 'hidden' }} />
