@@ -13,7 +13,3 @@ sudo apt-get install docker-ce --force-yes -y
 sudo usermod -aG docker vagrant
 sudo service docker start
 docker version
-
-
-
-
