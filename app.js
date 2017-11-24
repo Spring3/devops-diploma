@@ -55,7 +55,7 @@ class App {
   prepareVagrantFile(populatePayload) {
     return new Promise((resolve, reject) => {
       const vagrantFile = path.resolve(__dirname, './templates/Vagrantfile');
-      this.action.checkFile(`${vagrantFile}.tpl`)
+      return this.action.checkFile(`${vagrantFile}.tpl`)
         .then(() => {
           const contents = fs.readFileSync(`${vagrantFile}.tpl`, { encoding: 'utf-8' });
           const template = handlebars.compile(contents);
@@ -264,7 +264,7 @@ class App {
           break;
         }
         case 'VAGRANTFILE': {
-          this.prepareVagrantFile(data.payload);
+          this.prepareVagrantFile(data.payload).then(result => event.sender.send('build:rs', result)).catch(console.error);
           break;
         }
         default: {
