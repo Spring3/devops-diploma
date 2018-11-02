@@ -49,19 +49,17 @@ class DockerPage extends React.Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    console.log(nextProps);
+    const nextState = {};
     if (nextProps.isRunning !== this.state.isRunning) {
-      this.setState({ isRunning: nextProps.isRunning });
+      nextState.isRunning = nextProps.isRunning;
     }
     if (!_.isEqual(nextProps.info, this.state.info)) {
-      this.setState({ info: nextProps.info });
+      nextState.info = nextProps.info;
     }
-    console.log(nextProps.config);
     if (!_.isEqual(nextProps.config, this.state.config)) {
-      console.log('Docker.jsx');
-      console.log(nextProps.config);
-      this.setState({ config: nextProps.config });
+      nextState.config = nextProps.config;
     }
+    this.setState(nextState);
   }
 
   commonChangeHandler(e, param) {

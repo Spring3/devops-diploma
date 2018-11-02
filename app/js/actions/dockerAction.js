@@ -73,6 +73,7 @@ class DockerAction extends Action {
 
   logOut() {
     storage.remove('auth');
+    this.credentials = {};
     this.store.dispatch({ type: 'DOCKER_LOG_OUT' });
   }
 
@@ -80,6 +81,12 @@ class DockerAction extends Action {
     // if from storage
     if (cached) {
       this.store.dispatch(Object.assign({ type: 'DOCKER_AUTH' }, data));
+      this.credentials = {
+        username: data.username,
+        password: Buffer.from(data.password).toString('hex'),
+        serverAddress: data.serverAddress
+      };
+      return Promise.resolve();
     }
     this.store.dispatch({ type: 'DOCKER_AUTH_START' });
     const request = {
@@ -89,21 +96,16 @@ class DockerAction extends Action {
     };
     return docker.isRunning().then((isRunning) => {
       if (isRunning) {
-        docker.instance.checkAuth(request).then((result) => {
-          const response = {
-            type: 'DOCKER_AUTH',
+        return docker.instance.checkAuth(request).then((result) => {
+          this.credentials = {
             username: request.username,
             password: Buffer.from(request.password).toString('hex'),
             serverAddress: request.serverAddress
           };
+          const response = Object.assign({ type: 'DOCKER_AUTH' }, this.credentials);
           this.store.dispatch(Object.assign(response, result));
           if (data.remember) {
-            storage.set('auth', {
-              serverAddress: request.serverAddress,
-              username: request.username,
-              password: response.password,
-              token: result.IdentityToken
-            });
+            storage.set('auth', Object.assign({ token: result.IdentityToken }, this.credentials));
           }
           this.store.dispatch({ type: 'DOCKER_AUTH_END' });
         }).catch((e) => {
@@ -111,6 +113,7 @@ class DockerAction extends Action {
           this.store.dispatch({ type: 'DOCKER_AUTH_END' });
         });
       }
+      return undefined;
     });
   }
 

@@ -2,6 +2,8 @@ import _ from 'underscore';
 import { combineReducers } from 'redux';
 import images from './images';
 import imagesBuild from './imageBuild';
+import composeBuild from './composeBuild';
+import stackBuild from './stackBuild';
 import containers from './containers';
 import services from './services';
 import tasks from './tasks';
@@ -59,7 +61,9 @@ module.exports = combineReducers({
   common: docker,
   images,
   build: combineReducers({
-    images: imagesBuild
+    images: imagesBuild,
+    compose: composeBuild,
+    stack: stackBuild
   }),
   containers,
   services,

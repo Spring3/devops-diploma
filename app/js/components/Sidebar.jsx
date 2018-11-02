@@ -52,7 +52,6 @@ class Sidebar extends React.Component {
   componentWillReceiveProps(nextProps) {
     if (nextProps.authInProgress !== this.state.authInProgress ||
       !_.isEqual(nextProps.authResult, this.state.authResult)) {
-      console.log('Sidebar.jsx');
       this.setState({
         authInProgress: nextProps.authInProgress,
         authResult: nextProps.authResult
@@ -82,7 +81,7 @@ class Sidebar extends React.Component {
       } else if (this.state.authResult && this.state.authResult.error) {
         component = (<Box pad='none'>
             <Button icon={<DockerIcon />} label='Sign in' id='authBtn' onClick={this.props.toggleModal}/>
-            <Tip target={'authBtn'} onClose={this.props.logOut} text={'Unable to log in with given credentials'} />
+            <Tip target={'authBtn'} onClose={this.props.logOut} text={this.state.authResult.error.message} />
           </Box>);
       } else {
         // not authorized

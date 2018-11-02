@@ -3,11 +3,13 @@ import { routerMiddleware } from 'react-router-redux';
 import createHistory from 'history/createMemoryHistory';
 
 import Docker from './dockerAction';
+import Vagrant from './vargrantAction';
 import combinedReducer from './../reducers/reducers';
 
 import Action from './action';
 
 const path = require('path');
+const YML = require('yamljs');
 
 // react-router-redux setup
 const history = createHistory();
@@ -19,6 +21,7 @@ class Actions extends Action {
     super();
     this.store = store;
     this.docker = new Docker(store);
+    this.vagrant = new Vagrant(store);
     this.toggleSidebar = this.toggleSidebar.bind(this);
   }
 
@@ -58,6 +61,27 @@ class Actions extends Action {
       }
       this.store.dispatch({ type: 'IMPORT_DOCKERFILE', data: result });
       return possibleDockerfile;
+    });
+  }
+
+  lookupComposeFile(directory) {
+    const possibleComposeFile = `${directory.path}${path.sep}docker-compose.yml`;
+    console.log(possibleComposeFile);
+    return this.readFile(possibleComposeFile).then((contents) => {
+      console.log(contents);
+      const content = YML.parse(contents);
+      console.log(content);
+      return possibleComposeFile;
+    });
+  }
+
+  lookupStackFile(directory) {
+    const possibleComposeFile = `${directory.path}${path.sep}${directory.name.toLowerCase()}.yml`;
+    return this.readFile(possibleComposeFile).then((contents) => {
+      console.log(contents);
+      const content = YML.parse(contents);
+      console.log(content);
+      return content;
     });
   }
 }

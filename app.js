@@ -1,20 +1,29 @@
 const { app, BrowserWindow, ipcMain } = require('electron');
-const path = require('path');
+const path = require('path').posix;
 const fs = require('fs');
 const url = require('url');
 const { ReadableStream } = require('memory-streams');
+const YML = require('yamljs');
+const handlebars = require('handlebars');
+const vagrant = require('vagrant');
+const Action = require('./app/js/actions/action.js');
 
 const correctCMD = /^\[("\S+",.)+"\S+"\]/;
 const correctNoComma = /^\[("\S+".)+"\S+"\]/;
 const CMDNoBrackets = /^("\S+",.)+"\S+"/;
 const CMDNoBracketsAndComma = /^("\S+".)+"\S+"/;
 
-
 class App {
   constructor(config) {
     this.mainScreen = null;
     this.windowConfig = config;
+    this.action = new Action();
     this.init = this.init.bind(this);
+    this.createDockerfile = this.createDockerfile.bind(this);
+    this.reloadVagrant = this.reloadVagrant.bind(this);
+    this.stopVagrant = this.stopVagrant.bind(this);
+    this.updateNode = this.updateNode.bind(this);
+    this.destroyNodes = this.destroyNodes.bind(this);
   }
 
   checkCMD(item) { // eslint-disable-line
@@ -40,6 +49,105 @@ class App {
         }
         return resolve();
       });
+    });
+  }
+
+  prepareVagrantFile(populatePayload) {
+    return new Promise((resolve, reject) => {
+      const vagrantFile = path.resolve(__dirname, './templates/Vagrantfile');
+      return this.action.checkFile(`${vagrantFile}.tpl`)
+        .then(() => {
+          const contents = fs.readFileSync(`${vagrantFile}.tpl`, { encoding: 'utf-8' });
+          const template = handlebars.compile(contents);
+          const settings = template(populatePayload);
+          const stream = fs.createWriteStream(vagrantFile);
+          stream.write(settings);
+          stream.end();
+          process.env.AUTO_START_SWARM = true;
+          vagrant.start = path.resolve(__dirname, vagrantFile, '../');
+          vagrant.up(resolve);
+        })
+        .catch(reject);
+    });
+  }
+
+  reloadVagrant(nodes) {
+    return new Promise((resolve, reject) => {
+      if (!nodes || !Array.isArray(nodes)) return reject();
+      const vagrantfile = path.resolve(__dirname, './templates/Vagrantfile');
+      return this.action.checkFile(vagrantfile)
+        .then(() => {
+          vagrant.start = path.resolve(__dirname, vagrantfile, '../');
+          const promises = [];
+          for (const node of nodes) {
+            const promise = new Promise((localResolve) => {
+              vagrant.reload(node, localResolve);
+            });
+            promises.push(promise);
+          }
+          return Promise.all(promises).then(resolve);
+        }).catch(reject);
+    });
+  }
+
+  stopVagrant(nodes) {
+    return new Promise((resolve, reject) => {
+      if (!nodes || !Array.isArray(nodes)) return reject();
+      const vagrantfile = path.resolve(__dirname, './templates/VagrantFile');
+      return this.action.checkFile(vagrantfile)
+        .then(() => {
+          vagrant.start = path.resolve(__dirname, vagrantfile, '../');
+          const promises = [];
+          for (const node of nodes) {
+            const promise = new Promise((localResolve) => {
+              vagrant.suspend(node, localResolve);
+            });
+            promises.push(promise);
+          }
+          return Promise.all(promises).then(resolve);
+        }).catch(reject);
+    });
+  }
+
+  updateNode(node, config) {
+    return new Promise((resolve, reject) => {
+      if (!node || !config) return reject();
+      const vagrantfile = path.resolve(__dirname, './templates/Vagrantfile');
+      const customFile = path.resolve(__dirname, './templates/Customfile');
+      return this.action.checkFile(vagrantfile)
+        .then(() => {
+          vagrant.start = path.resolve(__dirname, vagrantfile, '../');
+          return this.action.readFile(`${customFile}.tpl`);
+        })
+        .then((contents) => {
+          const template = handlebars.compile(contents);
+          const stream = fs.createWriteStream(customFile);
+          stream.write(template(config));
+          stream.end();
+          return this.reloadVagrant([node]);
+        })
+        .then(() => this.action.deleteFile(customFile))
+        .then(resolve)
+        .catch(reject);
+    });
+  }
+
+  destroyNodes(nodes) {
+    return new Promise((resolve, reject) => {
+      if (!nodes || !Array.isArray(nodes)) return reject();
+      const vagrantfile = path.resolve(__dirname, './templates/VagrantFile');
+      return this.action.checkFile(vagrantfile)
+        .then(() => {
+          vagrant.start = path.resolve(__dirname, vagrantfile, '../');
+          const promises = [];
+          for (const node of nodes) {
+            promises.push(new Promise((localResolve) => {
+              vagrant.destroy(node, localResolve);
+            }));
+          }
+          return Promise.all(promises)
+            .then(() => this.action.deleteFile(vagrantfile));
+        }).catch(reject);
     });
   }
 
@@ -88,6 +196,47 @@ class App {
     );
   }
 
+  flattenByName(arrayOfItems) {
+    if (!Array.isArray(arrayOfItems) || arrayOfItems.length === 0) return '';
+    const items = [...arrayOfItems];
+    const result = items.filter(item => !!item).map((item) => {
+      const { name } = item;
+      delete item.name; // eslint-disable-line
+      console.log(item);
+      return {
+        [name]: Object.keys(item).length > 0 ? item : ''
+      };
+    }).reduce((sum, current) => Object.assign({}, sum, current));
+    console.log(result);
+    return result;
+  }
+
+  createStackfile(destination, filename, contents) {
+    return new Promise(resolve =>
+      this.checkDestination(destination).then(() => {
+        const stackfile = fs.createWriteStream(path.join(destination, filename));
+        const source = new ReadableStream();
+        source.append('# Generated by Riptide https://github.com/Spring3/riptide \n\n');
+        source.append('version: "3"\n\n');
+        const emptyStringRegex = /:\s['"]{2}/gm;
+        const flatNetworks = this.flattenByName(contents.networks);
+        const flatNetworksYML = YML.stringify({ networks: flatNetworks }, 5, 2).replace(emptyStringRegex, ':');
+        const flatVolumes = this.flattenByName(contents.volumes);
+        const flatVolumesYML = YML.stringify({ volumes: flatVolumes }, 5, 2).replace(emptyStringRegex, ':');
+        const flatServices = this.flattenByName(contents.services);
+        const flatServicesYML = YML.stringify({ services: flatServices }, 5, 2).replace(emptyStringRegex, ':');
+        source.append(flatNetworks ? `${flatNetworksYML}\n\n` : 'networks:\n\n');
+        source.append(flatVolumes ? `${flatVolumesYML}\n\n` : 'volumes:\n\n');
+        source.append(flatServices ? `${flatServicesYML}\n\n` : 'services:\n\n');
+        source.pipe(stackfile);
+        return resolve({
+          fileName: filename,
+          filePath: destination
+        });
+      }).catch(() => resolve({}))
+    );
+  }
+
   init() {
     this.mainScreen = new BrowserWindow(this.windowConfig);
     this.mainScreen.loadURL(url.format({
@@ -107,13 +256,75 @@ class App {
     ipcMain.on('build', (event, data) => {
       switch (data.type.toUpperCase()) {
         case 'DOCKERFILE': {
-          this.createDockerfile(data.destination, data.payload).then(result => event.sender.send('build:rs', result)).catch(console.err);
+          this.createDockerfile(data.destination, data.payload).then(result => event.sender.send('build:rs', result)).catch(console.error);
+          break;
+        }
+        case 'STACKFILE': {
+          this.createStackfile(data.destination, data.filename, data.stackfile).then(result => event.sender.send('build:rs', result)).catch(console.error);
+          break;
+        }
+        case 'VAGRANTFILE': {
+          this.prepareVagrantFile(data.payload).then(result => event.sender.send('build:rs', result)).catch(console.error);
           break;
         }
         default: {
-          console.err('Unsupported file format');
+          console.error('Unsupported file format');
         }
       }
+    });
+
+    ipcMain.on('stop', (event, data) => {
+      switch (data.type.toUpperCase()) {
+        case 'VAGRANT': {
+          this.stopVagrant(data.nodes).then(() => event.sender.send('stop:rs', true)).catch(console.error);
+          break;
+        }
+        default: {
+          console.error('Unsupported infrastructure type');
+        }
+      }
+    });
+
+    ipcMain.on('update', (event, data) => {
+      switch (data.type.toUpperCase()) {
+        case 'VAGRANT': {
+          this.updateNode(data.node, data.config).then(() => event.sender.send('update:rs', { config: data.config })).catch(console.error);
+          break;
+        }
+        default: {
+          console.error('Unsupported infrastructure type');
+        }
+      }
+    });
+
+    ipcMain.on('destroy', (event, data) => {
+      switch (data.type.toUpperCase()) {
+        case 'VAGRANT': {
+          this.destroyNodes(data.nodes).then(() => event.sender.send('destroy:rs', true)).catch(console.error);
+          break;
+        }
+        default: {
+          console.error('Unsupported infrastructure type');
+        }
+      }
+    });
+
+    ipcMain.on('reload', (event, data) => {
+      switch (data.type.toUpperCase()) {
+        case 'VAGRANT': {
+          this.reloadVagrant(data.nodes).then(() => event.sender.send('reload:rs', true)).catch(console.error);
+          break;
+        }
+        default: {
+          console.error('Unsupported infrastructure type');
+        }
+      }
+    });
+
+    ipcMain.on('vagrantStatus', (event) => {
+      this.action.checkFile(path.resolve(__dirname, './templates/Vagrantfile'))
+        .then(() => event.sender.send('vagrantStatus:rs', 'paused'))
+        .catch(() => event.sender.send('vagrantStatus:rs', 'stopped'));
     });
   }
 }
